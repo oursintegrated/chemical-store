@@ -49,11 +49,11 @@
                                 <thead>
                                     <tr>
                                         <th>Actions</th>
-                                        <th>Name</th>
-                                        <th>Display Name</th>
-                                        <th>Description</th>
-                                        <th>Created At</th>
-                                        <th>Updated At</th>
+                                        <th class="text-center">Name</th>
+                                        <th class="text-center">Display Name</th>
+                                        <th class="text-center">Description</th>
+                                        <th class="text-center">Created At</th>
+                                        <th class="text-center">Updated At</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -134,10 +134,12 @@
                 name: 'description'
             }, {
                 data: 'created_at',
-                name: 'created_at'
+                name: 'created_at',
+                className: 'text-center'
             }, {
                 data: 'updated_at',
-                name: 'updated_at'
+                name: 'updated_at',
+                className: 'text-center'
             }]
         });
 

@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/products', 'ProductController@datatable');
     Route::post('datatable/customers', 'CustomerController@datatable');
     Route::post('datatable/sales/tabledit', 'AdditionalController@salesTabledit');
+    Route::post('datatable/sales', 'SalesController@datatable');
 
     /* Master Data */
     Route::get('data-master/product', 'ProductController@index');
@@ -65,6 +66,9 @@ Route::group(['middleware' => 'auth'], function () {
     /* Sales */
     Route::get('sales', 'SalesController@index');
     Route::get('sales/create', 'SalesController@create');
+    Route::post('sales/create', 'SalesController@store');
+    Route::get('sales/{id}/detail', 'SalesController@getSales');
+    Route::delete('sales/{id}/delete', 'SalesController@destroy');
 
     /* Additional */
     Route::post('additional/sales/customer', 'AdditionalController@getCustomerInfo');

@@ -182,6 +182,14 @@ class MenuTableSeeder extends Seeder
                 'level' => 2,
                 'type' => 'action',
             ],
+            [
+                'id' => 22,
+                'menu_desc' => 'Sales - Delete',
+                'parent_id' => 20,
+                'status' => 1,
+                'level' => 2,
+                'type' => 'action',
+            ],
         ]);
     }
 }

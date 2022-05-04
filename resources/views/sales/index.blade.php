@@ -45,14 +45,16 @@
                     <div class="col-md-12">
                         <div class="table-responsive">
                             <!-- Table HTML -->
-                            <table id="customerTable" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                            <table id="salesTable" class="table table-striped table-bordered table-hover" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th>Actions</th>
-                                        <th>Name</th>
-                                        <th>Telephone</th>
-                                        <th>Created At</th>
-                                        <th>Updated At</th>
+                                        <th class="text-center">Sales Code</th>
+                                        <th class="text-center">Customer Name</th>
+                                        <th class="text-center">Address</th>
+                                        <th class="text-center">Type</th>
+                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Transaction Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -60,10 +62,12 @@
                                 <tfoot>
                                     <tr>
                                         <th></th>
-                                        <th>Name</th>
-                                        <th>Telephone</th>
-                                        <th>Created At</th>
-                                        <th>Updated At</th>
+                                        <th>Sales Code</th>
+                                        <th>Customer Name</th>
+                                        <th>Address</th>
+                                        <th>Type</th>
+                                        <th>Total</th>
+                                        <th>Transaction Date</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -79,7 +83,7 @@
 <script>
     $(document).ready(function() {
 
-        $('#customerTable tfoot th').each(function() {
+        $('#salesTable tfoot th').each(function() {
             var title = $(this).text();
             if (title != '') {
                 $(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
@@ -90,10 +94,13 @@
             if (title == 'Updated At') {
                 $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
             }
+            if (title == 'Transaction Date') {
+                $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+            }
         });
 
         // DataTable Config
-        var table = $("#customerTable").DataTable({
+        var table = $("#salesTable").DataTable({
             processing: true,
             serverSide: false,
             stateSave: false,
@@ -108,7 +115,7 @@
             ],
             dom: '<"top"l>rt<"bottom"ip><"clear">',
             ajax: {
-                "url": "/datatable/customers",
+                "url": "/datatable/sales",
                 "type": "POST"
             },
             language: {
@@ -122,17 +129,25 @@
                 orderable: false,
                 searchable: false
             }, {
-                data: 'name',
-                name: 'name'
+                data: 'sales_code',
+                name: 'sales_code'
             }, {
-                data: 'telp',
-                name: 'telp'
+                data: 'customer_name',
+                name: 'customer_name'
             }, {
-                data: 'created_at',
-                name: 'created_at'
+                data: 'address',
+                name: 'address'
             }, {
-                data: 'updated_at',
-                name: 'updated_at'
+                data: 'type',
+                name: 'type',
+                className: 'align-middle'
+            }, {
+                data: 'total',
+                name: 'total'
+            }, {
+                data: 'transaction_date',
+                name: 'transaction_date',
+                className: 'text-center'
             }]
         });
 
@@ -172,7 +187,7 @@
         });
     });
 
-    var deleteCustomer = function(me) {
+    var deleteSales = function(me) {
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover this record!",
@@ -182,15 +197,15 @@
             confirmButtonText: "Yes, delete it!",
             showLoaderOnConfirm: true,
             preConfirm: () => {
-                _deleteCustomer(me)
+                _deleteSales(me)
             }
         })
     };
 
-    var _deleteCustomer = function(me) {
+    var _deleteSales = function(me) {
         var recordID = me.data('record-id');
 
-        axios.delete("/data-master/customer/" + recordID + "/delete")
+        axios.delete("/sales/" + recordID + "/delete")
             .then(function(response) {
                 if (response.data.status == 1) {
                     swal({
@@ -200,7 +215,7 @@
                         confirmButtonText: 'Ok'
                     });
 
-                    $('#customerTable').DataTable().ajax.reload(null, false);
+                    $('#salesTable').DataTable().ajax.reload(null, false);
                 } else {
                     swal({
                         title: "Oops!",

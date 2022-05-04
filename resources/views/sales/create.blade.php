@@ -72,7 +72,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <input disabled type="number" class="form-control" id="tenggat" name="tenggat" placeholder="Tenggat waktu">
+                                        <input disabled type="number" class="form-control" id="tenggat" name="tenggat" placeholder="Due date">
                                     </div>
                                 </div>
                             </div>
@@ -105,7 +105,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <a role="button" href="{{ url('/data-master/customer') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
+                            <a role="button" href="{{ url('/sales') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
 
                             <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
                         </div>
@@ -226,7 +226,9 @@
                     pdf.addPage(PDF_Width, PDF_Height);
                     pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
                 }
-                pdf.save("Nota.pdf");
+
+                var customerName = $("#name option:selected").text();
+                pdf.save("Nota-" + customerName + ".pdf");
             });
         });
 
@@ -248,17 +250,17 @@
                 {
                     "targets": 3,
                     "data": 'qty',
-                    "render": $.fn.dataTable.render.number(',', '.')
+                    "render": $.fn.dataTable.render.number('.', ',')
                 },
                 {
                     "targets": 4,
                     "data": 'price',
-                    "render": $.fn.dataTable.render.number(',', '.', 2, 'Rp ')
+                    "render": $.fn.dataTable.render.number('.', ',', 2, 'Rp ')
                 },
                 {
                     "targets": 5,
                     "data": 'total',
-                    "render": $.fn.dataTable.render.number(',', '.', 2, 'Rp ')
+                    "render": $.fn.dataTable.render.number('.', ',', 2, 'Rp ')
                 }
             ],
             order: [
@@ -351,7 +353,7 @@
                                 if (dataProduct[i].id == id) {
                                     dataProduct[i].qty = data.qty
 
-                                    dataProduct[i].total = dataProduct[i].qty * dataProduct[i].price
+                                    dataProduct[i].total = parseFloat(dataProduct[i].qty * dataProduct[i].price)
                                 }
                             }
                         }
@@ -360,7 +362,7 @@
                                 if (dataProduct[i].id == id) {
                                     dataProduct[i].price = data.price
 
-                                    dataProduct[i].total = dataProduct[i].qty * dataProduct[i].price
+                                    dataProduct[i].total = parseFloat(dataProduct[i].qty * dataProduct[i].price)
                                 }
                             }
 
@@ -481,12 +483,24 @@
         });
 
         // ================================= additional function
+        function addCommas(nStr) {
+            nStr += '';
+            var x = nStr.split('.');
+            var x1 = x[0];
+            var x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + '.' + '$2');
+            }
+            return x1 + x2;
+        }
+
         function sumTotal() {
             var sum = 0;
             for (var i = 0; i < dataProduct.length; i++) {
                 sum = sum + parseInt(dataProduct[i].total);
             }
-            $('#total').val(sum.toLocaleString())
+            $('#total').val(addCommas(sum));
         }
 
         function resetNotaTable() {
@@ -625,71 +639,79 @@
 
             var customerId = $('#name').val();
             var customerName = $("#name option:selected").text();
-            var phoneId = $('#telephone').val();
             var phoneNumber = $("#telephone option:selected").text();
-            var addressId = $('#address').val();
-            var addressLoc = $("#address option:selected").text();
+            var address = $("#address option:selected").text();
             var type = $('input[name="type"]:checked').val();
             var tenggat = 0;
             if (type == 'kasbon') {
                 tenggat = $('#tenggat').val();
             }
+            var total = $('#total').val();
 
-            console.log('data', {
-                'customer_id': customerId,
-                'customer_name': customerName,
-                'phone_id': phoneId,
-                'phone_number': phoneNumber,
-                'address_id': addressId,
-                'address_loc': addressLoc,
-                'type': type,
-                'tenggat': tenggat,
-                'data_product': dataProduct
-            })
+            // console.log('data', {
+            //     'customer_id': customerId,
+            //     'customer_name': customerName,
+            //     'phone_id': phoneId,
+            //     'phone_number': phoneNumber,
+            //     'address_id': addressId,
+            //     'address_loc': addressLoc,
+            //     'type': type,
+            //     'tenggat': tenggat,
+            //     'data_product': dataProduct
+            // })
 
-            // axios.post("/data-master/customer/create", $('#main_form').serialize())
-            //     .then(function(response) {
-            //         if (response.data.status == 1) {
-            //             swal({
-            //                 title: "Good!",
-            //                 text: response.data.message,
-            //                 type: "success",
-            //                 timer: 1000,
-            //                 confirmButtonText: 'Ok'
-            //             }).then(function() {
-            //                 $('form#main_form')[0].reset();
-            //                 $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
-            //                 window.location.replace(response.data.intended_url)
-            //             });
-            //         } else {
-            //             swal({
-            //                 title: "Oops!",
-            //                 text: response.data.message,
-            //                 type: "error",
-            //                 closeOnConfirm: false
-            //             });
-            //         }
-            //         $("#btnSave").removeAttr('disabled');
-            //     })
-            //     .catch(function(error) {
-            //         switch (error.response.status) {
-            //             case 422:
-            //                 swal({
-            //                     title: "Oops!",
-            //                     text: 'Failed form validation. Please check your input.',
-            //                     type: "error"
-            //                 });
-            //                 break;
-            //             case 500:
-            //                 swal({
-            //                     title: "Oops!",
-            //                     text: 'Something went wrong.',
-            //                     type: "error"
-            //                 });
-            //                 break;
-            //         }
-            //         $("#btnSave").removeAttr('disabled');
-            //     });
+            axios.post("/sales/create", {
+                    'customer_id': customerId,
+                    'customer_name': customerName,
+                    'phone_number': phoneNumber,
+                    'address': address,
+                    'type': type,
+                    'due_date': tenggat,
+                    'data_product': dataProduct,
+                    'total': total
+                })
+                .then(function(response) {
+                    if (response.data.status == 1) {
+                        swal({
+                            title: "Good!",
+                            text: response.data.message,
+                            type: "success",
+                            timer: 1000,
+                            confirmButtonText: 'Ok'
+                        }).then(function() {
+                            $('form#main_form')[0].reset();
+                            $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
+                            window.location.replace(response.data.intended_url)
+                        });
+                    } else {
+                        swal({
+                            title: "Oops!",
+                            text: response.data.message,
+                            type: "error",
+                            closeOnConfirm: false
+                        });
+                    }
+                    $("#btnSave").removeAttr('disabled');
+                })
+                .catch(function(error) {
+                    switch (error.response.status) {
+                        case 422:
+                            swal({
+                                title: "Oops!",
+                                text: 'Failed form validation. Please check your input.',
+                                type: "error"
+                            });
+                            break;
+                        case 500:
+                            swal({
+                                title: "Oops!",
+                                text: 'Something went wrong.',
+                                type: "error"
+                            });
+                            break;
+                    }
+                    $("#btnSave").removeAttr('disabled');
+                });
         });
 
     });

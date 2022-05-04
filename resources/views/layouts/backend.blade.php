@@ -44,6 +44,11 @@
         .btn-ml {
             margin-left: 10px;
         }
+
+        .align-middle {
+            text-align: center;
+            vertical-align: top !important;
+        }
     </style>
 
     <link rel="stylesheet" type="text/css" href="{{ asset('jstree/dist/themes/default/style.css') }}" />

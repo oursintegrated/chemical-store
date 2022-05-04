@@ -29,6 +29,7 @@ class HomeController extends Controller
     {
         $data['menu'] = $this->getMenu();
 
+        // $x = DB::select(DB::raw)
         return view('dashboard.index', $data);
     }
 
