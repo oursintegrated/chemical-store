@@ -32,4 +32,6 @@ mix
 	.copy("node_modules/summernote/dist/font", "public/css/font/")
 	.copy("resources/assets/jstree/", "public/jstree/")
 	.copy("resources/assets/js/datatable", "public/js/datatable")
-	.copy("resources/assets/js/tabledit.js", "public/js/tabledit.js");
+	.copy("resources/assets/js/tabledit.js", "public/js/tabledit.js")
+	.copy("resources/assets/js/html2canvas.js", "public/js/html2canvas.js")
+	.copy("resources/assets/js/jspdf.js", "public/js/jspdf.js");

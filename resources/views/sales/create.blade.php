@@ -59,11 +59,21 @@
 
                             <div class="form-group required">
                                 <label class="control-label">Type <span style="color: red;"></span></label>
-                                <div class="radio">
-                                    <label><input type="radio" name="type" value="tunai" checked>Tunai</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="type" value="kasbon">Kasbon</label>
+                                <div class="form-inline">
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label><input type="radio" name="type" value="tunai" checked>Tunai</label>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label><input type="radio" name="type" value="kasbon">Kasbon</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <input disabled type="number" class="form-control" id="tenggat" name="tenggat" placeholder="Tenggat waktu">
+                                    </div>
                                 </div>
                             </div>
 
@@ -72,7 +82,7 @@
 
                                 <div class="table-responsive">
                                     <!-- Table HTML -->
-                                    <table id="productTable" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                                    <table id="productTable" class="table table-striped table-bordered table-hover" style="width: 100%; font-size: 8pt">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -97,7 +107,7 @@
                             </div>
                             <a role="button" href="{{ url('/data-master/customer') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
 
-                            <button type="button" id="btnSave" class="btn btn-success btn btn-ml" onclick="create_customer()" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
+                            <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
                         </div>
 
                         <div class="col-md-7">
@@ -124,7 +134,7 @@
                                             </div>
                                         </div>
                                         <br />
-                                        <table class="table table-responsive table-bordered" id="notaTable">
+                                        <table class="table table-responsive table-bordered" id="notaTable" style="font-size: 8pt;">
                                             <thead>
                                                 <tr style="background-color: #85c9e9;" class="table-bordered">
                                                     <th class="font-weight-bold text-center table-bordered" hidden><b>ID</b></th>
@@ -155,13 +165,9 @@
                                                 <br />
                                                 <br />
                                                 <br />
-                                                <br />
-                                                <br />
                                             </div>
                                             <div class="col-md-6">
                                                 <p class="text-center">Hormat Kami</p>
-                                                <br />
-                                                <br />
                                                 <br />
                                                 <br />
                                                 <br />
@@ -172,7 +178,7 @@
                                     <div class="row">
                                         <div class="col-md-12 text-right">
                                             <button id="printNota" class="btn btn-default" type="button">
-                                                Print Nota
+                                                <i class="fa fa-print" aria-hidden="true"></i> Nota
                                             </button>
                                         </div>
                                     </div>
@@ -189,11 +195,10 @@
 @section('script')
 <!-- page script -->
 <script type="text/javascript">
-    // Initial DataTable
     $(document).ready(function() {
         var dataProduct = [];
 
-        //Create PDf from HTML
+        // ================================= Create PDf from HTML
         $('#printNota').on('click', function() {
             var HTML_Width = $(".html-content").width();
             var HTML_Height = $(".html-content").height();
@@ -221,10 +226,11 @@
                     pdf.addPage(PDF_Width, PDF_Height);
                     pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
                 }
-                pdf.save("Your_PDF_Name.pdf");
+                pdf.save("Nota.pdf");
             });
         });
 
+        // ================================= Initial DataTable
 
         var notaTable = $("#notaTable").DataTable({
             processing: false,
@@ -474,7 +480,7 @@
             }
         });
 
-        // additional function
+        // ================================= additional function
         function sumTotal() {
             var sum = 0;
             for (var i = 0; i < dataProduct.length; i++) {
@@ -532,7 +538,7 @@
                         if (telephones.length > 0) {
                             for (var i = 0; i < telephones.length; i++) {
                                 optionText = telephones[i].phone;
-                                optionValue = telephones[i].phone;
+                                optionValue = telephones[i].id;
 
                                 $('#telephone').append(new Option(optionText, optionValue));
                             }
@@ -540,7 +546,7 @@
                         if (addresses.length > 0) {
                             for (var j = 0; j < addresses.length; j++) {
                                 optionText = addresses[j].location;
-                                optionValue = addresses[j].location;
+                                optionValue = addresses[j].id;
 
                                 $('#address').append(new Option(optionText, optionValue));
                             }
@@ -550,7 +556,7 @@
                         $("#customerName").text(customerName);
 
                         var customerNumber = $("#telephone option:selected").text();
-                        $("#customerNumber").text('[' + customerNumber + ']');
+                        $("#customerNumber").text(' - ' + customerNumber);
 
                         var customerAddress = $("#address option:selected").text();
                         $("#customerAddress").text(customerAddress);
@@ -594,59 +600,98 @@
 
         $('input[type=radio][name=type]').change(function() {
             if (this.value == 'tunai') {
+                $('#tenggat').prop('disabled', true);
+                $('#tenggat').val('');
                 $('#type').text('T');
             } else if (this.value == 'kasbon') {
-                $('#type').text('K' + 30);
+                $('#tenggat').prop('disabled', false);
+                $('#type').text('K');
             }
         });
 
-        var create_customer = function() {
+        $('#tenggat').on('keyup change', function(event) {
+            $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
+            if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+                event.preventDefault();
+            }
+
+            $('#type').text('K' + $('#tenggat').val());
+        });
+
+        //  ================================= Create Sales
+
+        $("#btnSave").on('click', function() {
             $("#btnSave").prop('disabled', 'true');
 
-            axios.post("/data-master/customer/create", $('#main_form').serialize())
-                .then(function(response) {
-                    if (response.data.status == 1) {
-                        swal({
-                            title: "Good!",
-                            text: response.data.message,
-                            type: "success",
-                            timer: 1000,
-                            confirmButtonText: 'Ok'
-                        }).then(function() {
-                            $('form#main_form')[0].reset();
-                            $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
-                            window.location.replace(response.data.intended_url)
-                        });
-                    } else {
-                        swal({
-                            title: "Oops!",
-                            text: response.data.message,
-                            type: "error",
-                            closeOnConfirm: false
-                        });
-                    }
-                    $("#btnSave").removeAttr('disabled');
-                })
-                .catch(function(error) {
-                    switch (error.response.status) {
-                        case 422:
-                            swal({
-                                title: "Oops!",
-                                text: 'Failed form validation. Please check your input.',
-                                type: "error"
-                            });
-                            break;
-                        case 500:
-                            swal({
-                                title: "Oops!",
-                                text: 'Something went wrong.',
-                                type: "error"
-                            });
-                            break;
-                    }
-                    $("#btnSave").removeAttr('disabled');
-                });
-        };
+            var customerId = $('#name').val();
+            var customerName = $("#name option:selected").text();
+            var phoneId = $('#telephone').val();
+            var phoneNumber = $("#telephone option:selected").text();
+            var addressId = $('#address').val();
+            var addressLoc = $("#address option:selected").text();
+            var type = $('input[name="type"]:checked').val();
+            var tenggat = 0;
+            if (type == 'kasbon') {
+                tenggat = $('#tenggat').val();
+            }
+
+            console.log('data', {
+                'customer_id': customerId,
+                'customer_name': customerName,
+                'phone_id': phoneId,
+                'phone_number': phoneNumber,
+                'address_id': addressId,
+                'address_loc': addressLoc,
+                'type': type,
+                'tenggat': tenggat,
+                'data_product': dataProduct
+            })
+
+            // axios.post("/data-master/customer/create", $('#main_form').serialize())
+            //     .then(function(response) {
+            //         if (response.data.status == 1) {
+            //             swal({
+            //                 title: "Good!",
+            //                 text: response.data.message,
+            //                 type: "success",
+            //                 timer: 1000,
+            //                 confirmButtonText: 'Ok'
+            //             }).then(function() {
+            //                 $('form#main_form')[0].reset();
+            //                 $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
+            //                 window.location.replace(response.data.intended_url)
+            //             });
+            //         } else {
+            //             swal({
+            //                 title: "Oops!",
+            //                 text: response.data.message,
+            //                 type: "error",
+            //                 closeOnConfirm: false
+            //             });
+            //         }
+            //         $("#btnSave").removeAttr('disabled');
+            //     })
+            //     .catch(function(error) {
+            //         switch (error.response.status) {
+            //             case 422:
+            //                 swal({
+            //                     title: "Oops!",
+            //                     text: 'Failed form validation. Please check your input.',
+            //                     type: "error"
+            //                 });
+            //                 break;
+            //             case 500:
+            //                 swal({
+            //                     title: "Oops!",
+            //                     text: 'Something went wrong.',
+            //                     type: "error"
+            //                 });
+            //                 break;
+            //         }
+            //         $("#btnSave").removeAttr('disabled');
+            //     });
+        });
+
     });
 </script>
 

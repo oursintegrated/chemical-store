@@ -131,9 +131,10 @@
 
     <script src="{{ asset('js/tabledit.js') }}"></script>
 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="{{ asset('js/jspdf.js') }}"></script>
+
+    <script src="{{ asset('js/html2canvas.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             $().setupVerticalNavigation(true);
