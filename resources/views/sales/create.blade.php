@@ -104,66 +104,71 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">Nota</div>
                                 <div class="panel-body">
-                                    <div class="row">
-                                        <div class="col-md-7"></div>
-                                        <div class="col-md-5 text-center">
-                                            Bandung, {{ date('d M Y') }} <br />
-                                            Kepada YTH
+                                    <div class="html-content" id="html-content">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <span id="type"></span>
+                                            </div>
+                                            <div class="col-md-6 text-center">
+                                                Bandung, {{ date('d M Y') }} <br />
+                                                Kepada YTH
+                                            </div>
                                         </div>
-                                    </div>
-                                    <br />
-                                    <div class="row">
-                                        <div class="col-md-8"></div>
-                                        <div class="col-md-4">
-                                            Bapak/Ibu/Toko <br />
-                                            <span id="customerName"></span> <span id="customerNumber"></span> <br />
-                                            <span id="customerAddress"></span>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-6"></div>
+                                            <div class="col-md-6">
+                                                Bapak/Ibu/Toko <br />
+                                                <span id="customerName"></span> <span id="customerNumber"></span> <br />
+                                                <span id="customerAddress"></span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <br />
-                                    <table class="table table-responsive table-bordered" id="notaTable">
-                                        <thead>
-                                            <tr style="background-color: #85c9e9;" class="table-bordered">
-                                                <th class="font-weight-bold text-center table-bordered" hidden><b>ID</b></th>
-                                                <th class="font-weight-bold text-center table-bordered"><b>No</b></th>
-                                                <th class="text-center table-bordered"><b>Nama Barang</b></th>
-                                                <th class="text-center table-bordered"><b>Qty</b></th>
-                                                <th class="text-center table-bordered"><b>Harga Satuan</b></th>
-                                                <th class="text-center table-bordered"><b>Jumlah (Rp)</b></th>
-                                            </tr>
-                                        </thead>
+                                        <br />
+                                        <table class="table table-responsive table-bordered" id="notaTable">
+                                            <thead>
+                                                <tr style="background-color: #85c9e9;" class="table-bordered">
+                                                    <th class="font-weight-bold text-center table-bordered" hidden><b>ID</b></th>
+                                                    <th class="font-weight-bold text-center table-bordered"><b>No</b></th>
+                                                    <th class="text-center table-bordered"><b>Nama Barang</b></th>
+                                                    <th class="text-center table-bordered"><b>Qty</b></th>
+                                                    <th class="text-center table-bordered"><b>Harga Satuan</b></th>
+                                                    <th class="text-center table-bordered"><b>Jumlah (Rp)</b></th>
+                                                </tr>
+                                            </thead>
 
-                                        <tbody>
-                                        </tbody>
+                                            <tbody>
+                                            </tbody>
 
-                                        <tfoot>
-                                            <th class="text-right table-bordered" hidden></th>
-                                            <th class="text-right" style="border: none;"></th>
-                                            <th class="text-right" style="border: none;"></th>
-                                            <th class="text-right" style="border: none;"></th>
-                                            <th class="text-right" style="border: none;"><b>Jumlah (Rp)</b></th>
-                                            <th class="text-center" style="border: none;"><input type="text" id="total" class="form-control text-right"></th>
-                                        </tfoot>
-                                    </table>
-                                    <br />
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <p class="text-center">Tanda Terima</p>
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p class="text-center">Hormat Kami</p>
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
+                                            <tfoot>
+                                                <th class="text-right table-bordered" hidden></th>
+                                                <th class="text-right" style="border: none;"></th>
+                                                <th class="text-right" style="border: none;"></th>
+                                                <th class="text-right" style="border: none;"></th>
+                                                <th class="text-right" style="border: none;"><b>Jumlah (Rp)</b></th>
+                                                <th class="text-center" style="border: none;"><input type="text" id="total" class="form-control text-right"></th>
+                                            </tfoot>
+                                        </table>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="text-center">Tanda Terima</p>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <br />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="text-center">Hormat Kami</p>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <br />
+                                            </div>
                                         </div>
                                     </div>
+
                                     <div class="row">
                                         <div class="col-md-12 text-right">
                                             <button id="printNota" class="btn btn-default" type="button">
@@ -188,27 +193,38 @@
     $(document).ready(function() {
         var dataProduct = [];
 
-        // print nota
+        //Create PDf from HTML
         $('#printNota').on('click', function() {
-            var customerName = $('#customerName').text();
-            var customerAddress = $('#customerAddress').text();
-            var customerNumber = $('#customerNumber').text();
-            var products = JSON.stringify(dataProduct);
-            var total = $('#total').val();
-            axios.post("/nota-pdf", {
-                    'customerName': customerName,
-                    'customerAddress': customerAddress,
-                    'customerNumber': customerNumber,
-                    'products': products,
-                    'total': total
-                })
-                .then(function(response) {
+            var HTML_Width = $(".html-content").width();
+            var HTML_Height = $(".html-content").height();
+            var top_left_margin = 15;
+            var PDF_Width = HTML_Width + (top_left_margin * 2);
+            var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+            var canvas_image_width = HTML_Width;
+            var canvas_image_height = HTML_Height;
 
-                })
-                .catch(function(error) {
+            var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
 
-                });
+            var node = document.getElementById('html-content');
+            var options = {
+                quality: 0.95
+            };
+
+            html2canvas($(".html-content")[0], {
+                quality: 4,
+                scale: 5
+            }).then(function(canvas) {
+                var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+                pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+                for (var i = 1; i <= totalPDFPages; i++) {
+                    pdf.addPage(PDF_Width, PDF_Height);
+                    pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+                }
+                pdf.save("Your_PDF_Name.pdf");
+            });
         });
+
 
         var notaTable = $("#notaTable").DataTable({
             processing: false,
@@ -242,6 +258,7 @@
             order: [
                 [1, 'asc']
             ],
+            sort: false,
             columns: [{
                 data: 'id',
                 name: 'id'
@@ -371,6 +388,11 @@
             order: [
                 [2, 'asc']
             ],
+            columnDefs: [{
+                "targets": [0],
+                "visible": false,
+                "searchable": false
+            }],
             buttons: [{
                 text: 'Reset',
                 action: function() {
@@ -456,7 +478,7 @@
         function sumTotal() {
             var sum = 0;
             for (var i = 0; i < dataProduct.length; i++) {
-                sum = sum + dataProduct[i].total;
+                sum = sum + parseInt(dataProduct[i].total);
             }
             $('#total').val(sum.toLocaleString())
         }
@@ -482,7 +504,7 @@
 
         $('#telephone').on('change', function() {
             var customerNumber = $("#telephone option:selected").text();
-            $("#customerNumber").text('[' + customerNumber + ']');
+            $("#customerNumber").text(' - ' + customerNumber);
         });
 
         $('#address').on('change', function() {
@@ -561,6 +583,21 @@
                     }
                     $("#btnSave").removeAttr('disabled');
                 });
+        });
+
+        var type = $("input[name='type']:checked").val();
+        if (type == 'tunai') {
+            $('#type').text('T');
+        } else if (type == 'kasbon') {
+            $('#type').text('K');
+        }
+
+        $('input[type=radio][name=type]').change(function() {
+            if (this.value == 'tunai') {
+                $('#type').text('T');
+            } else if (this.value == 'kasbon') {
+                $('#type').text('K' + 30);
+            }
         });
 
         var create_customer = function() {

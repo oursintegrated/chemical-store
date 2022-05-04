@@ -68,8 +68,6 @@ Route::group(['middleware' => 'auth'], function () {
 
     /* Additional */
     Route::post('additional/sales/customer', 'AdditionalController@getCustomerInfo');
-    Route::post('/nota-pdf', 'PDFController@printNota');
-
 
     /* Configuration */
     Route::get('configuration/user', 'UserController@index');

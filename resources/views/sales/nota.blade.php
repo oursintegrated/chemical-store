@@ -86,27 +86,5 @@
 @endsection
 @section('script')
 <script type="text/javascript">
-    // $(document).ready(function() {
-    //     window.onload = function() {
-    //         window.print();
-    //     };
-
-    //     window.onafterprint = function() {
-    //         let formData = new FormData();
-    //         formData.append('order_id', $('input[name=order_id]').val());
-
-    //         axios.post("/order/print-invoice/update-flag-print", formData)
-    //             .then(function(response) {
-    //                 if (response.data.status == 1) {
-    //                     window.close();
-    //                 } else {
-    //                     window.close();
-    //                 }
-    //             })
-    //             .catch(function(error) {
-    //                 window.close();
-    //             });
-    //     };
-    // })
 </script>
 @endsection
