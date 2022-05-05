@@ -51,7 +51,8 @@
                                         <th>Actions</th>
                                         <th class="text-center">Code</th>
                                         <th class="text-center">Product Name</th>
-                                        <th class="text-center">Stock In Kg</th>
+                                        <th class="text-center">Type</th>
+                                        <th class="text-center">Stock</th>
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Created At</th>
                                         <th class="text-center">Updated At</th>
@@ -64,7 +65,8 @@
                                         <th></th>
                                         <th>Code</th>
                                         <th>Product Name</th>
-                                        <th>Stock In Kg</th>
+                                        <th>Type</th>
+                                        <th>Stock</th>
                                         <th>Description</th>
                                         <th>Created At</th>
                                         <th>Updated At</th>
@@ -132,8 +134,13 @@
                 data: 'product_name',
                 name: 'product_name'
             }, {
-                data: 'stock_kg',
-                name: 'stock_kg'
+                data: 'type',
+                name: 'type',
+                className: 'text-center'
+            }, {
+                data: 'stock',
+                name: 'stock',
+                className: 'text-right'
             }, {
                 data: 'description',
                 name: 'description'

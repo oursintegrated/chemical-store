@@ -48,7 +48,7 @@
                                 @foreach($telephones as $telephone)
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <input disabled type="text" value="{{ $telephone->phone }}" id="phone-{{ $telephone->id }}" class="form-control" placeholder="Input phone number">
+                                        <input disabled type="text" value="{{ $telephone->phone }}" id="phone-{{ $telephone->id }}" class="form-control" placeholder="Input phone number" onkeypress="return /[0-9]/i.test(event.key)" maxlength="15">
                                         <span class="input-group-btn">
                                             <button type="button" class="btn btn-default" id="editP-{{ $telephone->id }}" onclick="toogleEditPhone( {{ $telephone->id }})">
                                                 <i class="fa fa-pencil"></i>
@@ -67,6 +67,13 @@
 
                                 <div id="newPhoneRow"></div>
                                 <button id="addPhoneRow" type="button" class="btn btn-default" data-toggle="modal" data-target="#myModalPhone"> More &nbsp; <i class="fa fa-phone"></i></button>
+                            </div>
+
+                            <div class="form-group required">
+                                <label class="control-label">Kontrabon <span style="color: red;">*</span></label>
+                                <div class="form-group">
+                                    <input type="number" name="kontrabon" class="form-control" placeholder="0" min="0" onkeypress="return /[0-9]/i.test(event.key)" value="{{ $customer->kontrabon }}" @if($flag_kontrabon==0) disabled @endif>
+                                </div>
                             </div>
 
                             <div class="form-group required">
@@ -156,7 +163,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="textInput-modal-markup">Telephone</label>
                         <div class="col-sm-10">
-                            <input id="newPhone" type="text" class="form-control" placeholder="Input new number">
+                            <input id="newPhone" type="text" class="form-control" placeholder="Input new number" onkeypress="return /[0-9]/i.test(event.key)" maxlength="15">
                         </div>
                     </div>
                 </form>

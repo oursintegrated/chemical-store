@@ -51,6 +51,7 @@
                                         <th>Actions</th>
                                         <th class="text-center">Name</th>
                                         <th class="text-center">Telephone</th>
+                                        <th class="text-center">Kontrabon</th>
                                         <th class="text-center">Created At</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
@@ -62,6 +63,7 @@
                                         <th></th>
                                         <th class="text-center">Name</th>
                                         <th class="text-center">Telephone</th>
+                                        <th class="text-center">Kontrabon</th>
                                         <th class="text-center">Created At</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
@@ -127,6 +129,10 @@
             }, {
                 data: 'phone',
                 name: 'phone'
+            }, {
+                data: 'kontrabon',
+                name: 'kontrabon',
+                className: 'text-right'
             }, {
                 data: 'created_at',
                 name: 'created_at',

@@ -25,6 +25,8 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
     /* Dashboard sebagai halaman pertama setelah login */
     Route::get('dashboard', 'HomeController@index');
+    Route::post('sales/{id}/update-status', 'HomeController@updateStatus');
+    Route::post('sales/{id}/delete-status', 'HomeController@deleteStatus');
 
     /* My Account (Update Profile & Password) */
     Route::get('user/profile', 'AuthController@getMyAccount');
@@ -36,6 +38,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/users', 'UserController@datatable');
     Route::post('datatable/roles', 'RoleController@datatable');
     Route::post('datatable/products', 'ProductController@datatable');
+    Route::post('datatable/products/raw-material', 'ProductController@datatableRawProduct');
     Route::post('datatable/customers', 'CustomerController@datatable');
     Route::post('datatable/sales/tabledit', 'AdditionalController@salesTabledit');
     Route::post('datatable/sales', 'SalesController@datatable');

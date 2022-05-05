@@ -17,7 +17,8 @@ class CreateProductsTable extends Migration
             $table->increments('id');
             $table->string('code')->unique();
             $table->string('product_name');
-            $table->decimal('stock_kg', 14, 2);
+            $table->string('type');
+            $table->decimal('stock', 14, 2);
             $table->text('description');
             $table->integer('updated_by');
             $table->timestamps();

@@ -25,6 +25,7 @@ class CreateSalesHeadersTable extends Migration
             $table->timestamp('transaction_date');
             $table->decimal('total', 14, 2);
             $table->integer('updated_by');
+            $table->integer('status')->default(0);
             $table->timestamps();
         });
     }

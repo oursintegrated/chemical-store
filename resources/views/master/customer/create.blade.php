@@ -51,11 +51,18 @@
                                 <label class="control-label">Telephone <span style="color: red;">*</span></label>
                                 <div id="phoneFormRow">
                                     <div class="form-group">
-                                        <input type="text" name="telephone[]" class="form-control" placeholder="Input phone number">
+                                        <input type="text" name="telephone[]" class="form-control" placeholder="Input phone number" maxlength="15" onkeypress="return /[0-9]/i.test(event.key)">
                                     </div>
                                 </div>
                                 <div id="newPhoneRow"></div>
                                 <button id="addPhoneRow" type="button" class="btn btn-default"> More &nbsp; <i class="fa fa-phone"></i></button>
+                            </div>
+
+                            <div class="form-group required">
+                                <label class="control-label">Kontrabon <span style="color: red;">*</span></label>
+                                <div class="form-group">
+                                    <input type="number" name="kontrabon" class="form-control" placeholder="0" min="0" onkeypress="return /[0-9]/i.test(event.key)">
+                                </div>
                             </div>
 
                             <div class="form-group required">
@@ -88,7 +95,7 @@
         html += '<div id="phoneFormRow">';
         html += '<div class="form-group">';
         html += '<div class="input-group">';
-        html += '<input type="text" name="telephone[]" class="form-control" placeholder="Input phone number">';
+        html += '<input type="text" name="telephone[]" class="form-control" placeholder="Input phone number"  onkeypress="return /[0-9]/i.test(event.key)" maxlength="15">';
         html += '<span class="input-group-btn">';
         html += '<button id="removePhoneRow" class="btn btn-danger" type="button"> <i class="fa fa-trash"></i> </button>';
         html += '</span>';

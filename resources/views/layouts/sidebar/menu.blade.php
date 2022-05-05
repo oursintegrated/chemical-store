@@ -14,8 +14,10 @@
             @else
             <span class="fa fa-file"></span>
             @endif
-            <span class="list-group-item-value">{{$value->name}} @if(strtolower($value->name)=='dashboard') <span class="badge">1</span> @endif </span>
+            <span class="list-group-item-value">{{$value->name}} @if(strtolower($value->name)=='dashboard') @endif </span>
         </a>
+
+        <!-- <span class="badge">1</span> -->
 
         <div class="nav-pf-secondary-nav">
             <div class="nav-item-pf-header">

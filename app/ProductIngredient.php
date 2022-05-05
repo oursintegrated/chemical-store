@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class ProductIngredient extends Model
 {
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'products';
+    protected $table = 'product_ingredients';
 
     /**
      * The attributes that are mass assignable.
@@ -19,11 +19,7 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
-        'code',
-        'product_name',
-        'type',
-        'stock',
-        'description',
-        'updated_by',
+        'product_id',
+        'req_stock',
     ];
 }

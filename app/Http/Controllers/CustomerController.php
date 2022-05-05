@@ -6,6 +6,7 @@ use App\Address;
 use App\Customer;
 use Illuminate\Http\Request;
 use App\Role;
+use App\SalesHeader;
 use App\Telephone;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -69,7 +70,8 @@ class CustomerController extends Controller
             $rules = [
                 'name' => 'required',
                 'telephone.*' => 'required|min:1',
-                'address.*' => 'required|min:1'
+                'address.*' => 'required|min:1',
+                'kontrabon' => 'required|min:1'
             ];
 
             $messages = [
@@ -89,6 +91,7 @@ class CustomerController extends Controller
                 $name = $request->input('name');
                 $telp = $request->input('telephone');
                 $address = $request->input('address');
+                $kontrabon = $request->input('kontrabon');
 
                 $id = '';
                 $lastId = Customer::latest()->first();
@@ -103,6 +106,7 @@ class CustomerController extends Controller
                 $customerId = Customer::insertGetId([
                     'code' => $code,
                     'name' => $name,
+                    'kontrabon' => $kontrabon,
                     'updated_by' => Auth::user()->id,
                     'created_at' => now(),
                     'updated_at' => now()
@@ -152,6 +156,14 @@ class CustomerController extends Controller
             $data['addresses'] = Address::where('customer_id', $id)->get();
             $data['telephones'] = Telephone::where('customer_id', $id)->get();
 
+            $y = DB::select(DB::raw("SELECT COUNT(id) as count FROM sales_headers WHERE customer_id = " . $id . " AND status = 0"));
+            if ($y[0]->count > 0) {
+                // still processing
+                $data['flag_kontrabon'] = 0;
+            } else {
+                $data['flag_kontrabon'] = 1;
+            }
+
             $x = new HomeController;
             $data['menu'] = $x->getMenu();
 
@@ -179,7 +191,7 @@ class CustomerController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'telephone' => 'required',
+                'kontrabon' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -187,11 +199,13 @@ class CustomerController extends Controller
             } else {
                 $name = $request->input('name');
                 $telephone = $request->input('telephone');
+                $kontrabon = $request->input('kontrabon');
 
                 Customer::findOrFail($id)->update([
                     'name' => $name,
                     'telp' => $telephone,
-                    'updated_by' => Auth::user()->id
+                    'updated_by' => Auth::user()->id,
+                    'kontrabon' => $kontrabon
                 ]);
 
                 DB::commit();
@@ -255,6 +269,9 @@ class CustomerController extends Controller
                 $buttons .= '</ul></div></div>';
 
                 return $buttons;
+            })
+            ->editColumn('kontrabon', function ($customer) {
+                return $customer->kontrabon . ' days';
             })
             ->editColumn('created_at', function ($customer) {
                 return $customer->created_at ? with(new Carbon($customer->created_at))->format('d F Y H:i') : '';

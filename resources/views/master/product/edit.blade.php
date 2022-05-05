@@ -33,7 +33,7 @@
 
             <div class="card-pf-body">
                 <div class="row">
-                    <form id="main_form">
+                    <form id="main_form" autocomplete="off">
                         <div class="col-md-5">
                             {{ csrf_field() }}
                             <input type="hidden" name="product_id" id="product_id" value="{{ $product->id }}">
@@ -42,11 +42,11 @@
                                 <input type="text" required name="name" class="form-control" placeholder="Product Name" value="{{ $product->product_name }}" autocomplete="off">
                             </div>
 
-                            <div class="form-group required">
-                                <label class="control-label">Stock in Kg <span style="color: red;">*</span></label>
-                                <input type="number" step=".1" required name="stock" class="form-control" placeholder="0" value="{{ $product->stock_kg }}" autocomplete="off">
-                                <small class="form-text text-muted">use . for decimal number</small>
-                            </div>
+                            <!-- <div class="form-group required">
+                                <label class="control-label">Stock <span style="color: red;">*</span></label>
+                                <input type="number" required name="stock" class="form-control" value="{{ $product->stock }}" autocomplete="off" placeholder="0" min="0" onkeypress="return /[0-9]/i.test(event.key)" maxlength="15">
+                                <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
+                            </div> -->
 
                             <div class="form-group required">
                                 <label class="control-label">Description <span style="color: red;">*</span></label>

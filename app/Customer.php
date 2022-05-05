@@ -21,6 +21,7 @@ class Customer extends Model
     protected $fillable = [
         'name',
         'code',
+        'kontrabon',
         'updated_by'
     ];
 }

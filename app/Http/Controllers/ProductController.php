@@ -76,6 +76,7 @@ class ProductController extends Controller
                 $name = $request->input('name');
                 $stock = $request->input('stock');
                 $description = $request->input('description');
+                $type = $request->input('type');
 
                 // generate code
                 $x = Product::latest()->first();
@@ -89,7 +90,8 @@ class ProductController extends Controller
                 $product = Product::create([
                     'code' => $digit . $id,
                     'product_name' => $name,
-                    'stock_kg' => $stock,
+                    'type' => $type,
+                    'stock' => $stock,
                     'description' => $description,
                     'updated_by' => Auth::user()->id
                 ]);
@@ -149,7 +151,7 @@ class ProductController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'stock' => 'required',
+                // 'stock' => 'required',
                 'description' => 'required',
             ]);
 
@@ -157,12 +159,12 @@ class ProductController extends Controller
                 return response()->json(array('status' => 0, 'message' => $validator->errors()->first()));
             } else {
                 $name = $request->input('name');
-                $stock = $request->input('stock');
+                // $stock = $request->input('stock');
                 $description = $request->input('description');
 
                 Product::findOrFail($id)->update([
                     'product_name' => $name,
-                    'stock_kg' => $stock,
+                    // 'stock' => $stock,
                     'description' => $description,
                     'updated_by' => Auth::user()->id
                 ]);
@@ -219,7 +221,7 @@ class ProductController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock_kg', 'description', 'created_at', 'updated_at']);
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
 
         return Datatables::of($products)
             ->addColumn('action', function ($product) {
@@ -233,6 +235,70 @@ class ProductController extends Controller
                 $buttons .= '</ul></div></div>';
 
                 return $buttons;
+            })
+            ->editColumn('stock', function ($product) {
+                if ($product->type == 'raw') {
+                    return $product->stock . ' Kg';
+                } else {
+                    return $product->stock . ' Packet';
+                }
+            })
+            ->editColumn('type', function ($product) {
+                if ($product->type == 'raw') {
+                    return 'Raw Material';
+                } else {
+                    return 'Recipe';
+                }
+            })
+            ->editColumn('created_at', function ($product) {
+                return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
+            })
+            ->editColumn('updated_at', function ($product) {
+                return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
+            })
+            ->make(true);
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableRawProduct()
+    {
+        /* RBAC */
+        if (!Role::authorize('product.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type'])->where('type', '=', 'raw');
+
+        return Datatables::of($products)
+            ->addColumn('action', function ($product) {
+                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
+
+                /* Tambah Action */
+                $buttons .= '<li><a href="product/' . $product->id . '/edit"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</a></li>';
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $product->id . '" onclick="deleteProduct($(this));"><i class="fa fa-trash"></i>&nbsp; Delete</a></li>';
+                /* Selesai Action */
+
+                $buttons .= '</ul></div></div>';
+
+                return $buttons;
+            })
+            ->editColumn('stock', function ($product) {
+                if ($product->type == 'raw') {
+                    return $product->stock . ' Kg';
+                } else {
+                    return $product->stock . ' Packet';
+                }
+            })
+            ->editColumn('type', function ($product) {
+                if ($product->type == 'raw') {
+                    return 'Raw Material';
+                } else {
+                    return 'Recipe';
+                }
             })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';

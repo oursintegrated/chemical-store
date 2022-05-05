@@ -95,6 +95,11 @@ class SalesController extends Controller
                 $due_date = $request->input('due_date');
                 $total = floatval(str_replace(',', '.', str_replace('.', '', $request->input('total'))));
 
+                $status = 0;
+                if ($type == 'tunai') {
+                    $status = 1;
+                }
+
                 $sales_header_id = SalesHeader::insertGetId([
                     'sales_code' => $sales_code,
                     'customer_id' => $customer_id,
@@ -107,7 +112,8 @@ class SalesController extends Controller
                     'total' => $total,
                     'updated_by' => Auth::user()->id,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
+                    'status' => $status
                 ]);
 
                 $products = $request->input('data_product');

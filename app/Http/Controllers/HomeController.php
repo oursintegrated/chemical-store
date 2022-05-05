@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\SalesHeader;
 use Illuminate\Http\Request;
 use stdClass;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Role;
 
 class HomeController extends Controller
 {
@@ -29,7 +31,9 @@ class HomeController extends Controller
     {
         $data['menu'] = $this->getMenu();
 
-        // $x = DB::select(DB::raw)
+        $x = DB::select(DB::raw("SELECT *, (SELECT DATE_ADD(transaction_date, interval due_date day )) as due_date_convert, DATEDIFF(DATE_ADD(transaction_date, interval due_date day ), now()) as day_left FROM sales_headers WHERE type = 'kasbon' ORDER BY day_left, sales_code, customer_name ASC"));
+        $data['orders'] = $x;
+
         return view('dashboard.index', $data);
     }
 
@@ -80,6 +84,54 @@ class HomeController extends Controller
 
             Redis::set('sidebar:' . Auth::user()->role_id, json_encode($menu));
             return $menu;
+        }
+    }
+
+    public function updateStatus($id)
+    {
+        /* RBAC */
+        if (!Role::authorize('sales.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        DB::beginTransaction();
+
+        try {
+            SalesHeader::findOrFail($id)->update([
+                'status' => 1
+            ]);
+
+            DB::commit();
+
+            return response()->json(array('status' => 1, 'message' => 'Successfully updated status.'));
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(array('status' => 0, 'message' => 'Something went wrong.'));
+        }
+    }
+
+    public function deleteStatus($id)
+    {
+        /* RBAC */
+        if (!Role::authorize('sales.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        DB::beginTransaction();
+
+        try {
+            SalesHeader::findOrFail($id)->update([
+                'status' => 0
+            ]);
+
+            DB::commit();
+
+            return response()->json(array('status' => 1, 'message' => 'Successfully updated status.'));
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(array('status' => 0, 'message' => 'Something went wrong.'));
         }
     }
 }

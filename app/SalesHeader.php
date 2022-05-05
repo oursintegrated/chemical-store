@@ -29,5 +29,6 @@ class SalesHeader extends Model
         'transaction_date',
         'total',
         'updated_by',
+        'status'
     ];
 }

@@ -37,7 +37,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-default">
-                            <div class="panel-heading">Nota</div>
+                            <div class="panel-heading">Nota @if(isset($orderHeader)) : {{ $orderHeader->sales_code }} @endif</div>
                             <div class="panel-body">
                                 <div class="html-content" id="html-content">
                                     <div class="row">
@@ -128,6 +128,5 @@
 @endsection
 @section('script')
 <script>
-
 </script>
 @endsection
