@@ -198,6 +198,46 @@ class MenuTableSeeder extends Seeder
                 'level' => 3,
                 'type' => 'action',
             ],
+            [
+                'id' => 24,
+                'menu_desc' => 'Recipe',
+                'parent_id' => 2,
+                'status' => 1,
+                'level' => 2,
+                'type' => 'menu',
+            ],
+            [
+                'id' => 25,
+                'menu_desc' => 'Recipe - Create',
+                'parent_id' => 24,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
+            [
+                'id' => 26,
+                'menu_desc' => 'Recipe - Edit',
+                'parent_id' => 24,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
+            [
+                'id' => 27,
+                'menu_desc' => 'Recipe - Delete',
+                'parent_id' => 24,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
+            [
+                'id' => 28,
+                'menu_desc' => 'Stock',
+                'parent_id' => 2,
+                'status' => 1,
+                'level' => 2,
+                'type' => 'menu',
+            ],
         ]);
     }
 }

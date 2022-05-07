@@ -23,6 +23,7 @@ class Product extends Model
         'product_name',
         'type',
         'stock',
+        'min_stock',
         'description',
         'updated_by',
     ];

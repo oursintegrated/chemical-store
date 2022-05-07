@@ -48,6 +48,13 @@
                             </div>
 
                             <div class="form-group required">
+                                <label class="control-label">Code</label>
+                                <div class="form-group">
+                                    <input type="text" name="code" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group required">
                                 <label class="control-label">Telephone <span style="color: red;">*</span></label>
                                 <div id="phoneFormRow">
                                     <div class="form-group">

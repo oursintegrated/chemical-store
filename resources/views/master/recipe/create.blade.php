@@ -1,5 +1,5 @@
 @extends('layouts.backend')
-@section('title', 'Chemical Store | Product')
+@section('title', 'Chemical Store | Recipe')
 @section('content')
 <div class="row row-cards-pf">
     <div class="row-cards-pf card-pf">
@@ -10,7 +10,7 @@
             </li>
             <li>
                 <span class="pficon pficon-registry"></span>
-                <a href="{{url('/data-master/product')}}">Product</a>
+                <a href="{{url('/data-master/recipe')}}">Recipe</a>
             </li>
             <li class="active">
                 <strong>Create</strong>
@@ -26,7 +26,7 @@
             <div class="card-pf-heading">
                 <h1>
                     <span class="pficon pficon-registry"></span>
-                    Product
+                    Recipe
                     <small>Create</small>
                 </h1>
             </div>
@@ -40,57 +40,15 @@
                                 <!-- <input type="text" required name="name" class="form-control" placeholder="Product Name" value="{{ old('name') }}" autocomplete="off"> -->
                                 <select id="name" name="name" class="form-control">
                                     <option></option>
-                                    @if(isset($products))
-                                    @foreach($products as $product)
-                                    <option value="{{ $product->product_name }}"> {{ $product->product_name }}</option>
+                                    @if(isset($recipes))
+                                    @foreach($recipes as $recipe)
+                                    <option value="{{ $recipe->product_name }}"> {{ $recipe->product_name }}</option>
                                     @endforeach
                                     @endif
                                 </select>
                             </div>
 
-                            <div style="margin-bottom: 10px;">
-                                <div class="form-inline">
-                                    <div class="form-group required">
-                                        <label class="control-label">Stock <span style="color: red;">*</span></label>
-                                        <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0">
-                                    </div>
-
-                                    <div class="form-group required">
-                                        <label class="control-label">Min Stock</label>
-                                        <input type="number" step="0.1" required id="min_stock" name="min_stock" class="form-control" autocomplete="off" placeholder="0" min="0">
-                                    </div>
-                                </div>
-                                <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
-                            </div>
-
-                            <div class="form-group required">
-                                <label class="control-label">Type <span style="color: red;"></span></label>
-                                <div class="form-inline">
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="raw" checked> Raw material</label>
-                                        </div>
-                                    </div>
-                                    <br />
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="packaging"> Packaging</label>
-                                        </div>
-                                    </div>
-                                    <br />
-                                    @if(isset($flag_recipe))
-                                    @if($flag_recipe == 1)
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="recipe"> Recipe</label>
-                                        </div>
-                                    </div>
-                                    @endif
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="form-group required ingredientForm" hidden>
+                            <div class="form-group required ingredientForm">
                                 <label class="control-label">Choose Ingredients <span style="color: red;">*</span></label>
 
                                 <div class="table-responsive">
@@ -121,16 +79,16 @@
 
                             <div class="form-group required">
                                 <label class="control-label">Description <span style="color: red;">*</span></label>
-                                <textarea class="form-control" id="description" name="description" rows="2">Bahan baku</textarea>
+                                <textarea class="form-control" id="description" name="description" rows="2"></textarea>
                             </div>
 
-                            <a role="button" href="{{ url('/data-master/product') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
+                            <a role="button" href="{{ url('/data-master/recipe') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
 
                             <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
                         </div>
 
                         <div class="col-md-7">
-                            <div class="form-group required ingredientForm" hidden>
+                            <div class="form-group required ingredientForm">
                                 <label class="control-label">Ingredients <span style="color: red;">*</span></label>
                                 <table id="ingredientTable" class="table table-responsive table-bordered">
                                     <thead>
@@ -138,7 +96,6 @@
                                         <th class="text-center">No</th>
                                         <th class="text-center">Product Name</th>
                                         <th class="text-center">Required Stock</th>
-                                        <th class="text-center">Total</th>
                                     </thead>
                                     <tbody>
                                     </tbody>
@@ -180,39 +137,11 @@
             }
         });
 
-        var type = $("input[name='type']:checked").val();
-        if (type == 'raw' || type == 'packaging') {
-            $('.ingredientForm').hide();
-        } else if (type == 'recipe') {
-            $('.ingredientForm').show();
-        }
-
-        $('input[type=radio][name=type]').change(function() {
-            if (this.value == 'raw' || this.value == 'packaging') {
-                $('.ingredientForm').hide();
-            } else if (this.value == 'recipe') {
-                $('.ingredientForm').show();
-            }
-            productTable.rows().deselect();
-            dataIngredients = [];
-            resetIngredientTable();
-        });
-
         // ============================ Initial Datatable
         var ingredientTable = $("#ingredientTable").DataTable({
             processing: false,
             serverSide: false,
             stateSave: false,
-            rowCallback: function(row, data, index) {
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    if (dataIngredients[i].id == data['id']) {
-                        var available_stock = dataIngredients[i].stock;
-                        if (available_stock < data['estimate_req']) {
-                            $('td', row).css('background-color', 'Yellow');
-                        }
-                    }
-                }
-            },
             lengthMenu: [
                 [-1],
                 ['All']
@@ -238,10 +167,6 @@
             }, {
                 data: 'req_stock',
                 name: 'req_stock',
-                className: 'text-right'
-            }, {
-                data: 'estimate_req',
-                name: 'estimate_req',
                 className: 'text-right'
             }]
         });
@@ -305,7 +230,6 @@
                             for (var i = 0; i < dataIngredients.length; i++) {
                                 if (dataIngredients[i].id == id) {
                                     dataIngredients[i].req_stock = data.req_stock
-                                    dataIngredients[i].estimate_req = $('#stock').val() * data.req_stock;
                                 }
                             }
                         }
@@ -405,9 +329,7 @@
                     'id': id,
                     'no': no,
                     'product_name': productName,
-                    'req_stock': 0,
-                    'estimate_req': 0,
-                    'stock': stock
+                    'req_stock': 0
                 });
 
                 var resetIngredient = ingredientTable
@@ -450,15 +372,10 @@
 
             var productName = $('#name').val();
             var stock = $('#stock').val();
-            var min_stock = $('#min_stock').val();
             var description = $('#description').val();
-            var type = $("input[name='type']:checked").val();
 
-            axios.post("/data-master/product/create", {
+            axios.post("/data-master/recipe/create", {
                     'name': productName,
-                    'type': type,
-                    'stock': stock,
-                    'min_stock': min_stock,
                     'description': description,
                     'dataIngredients': dataIngredients
                 })

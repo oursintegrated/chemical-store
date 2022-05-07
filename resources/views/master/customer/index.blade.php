@@ -43,13 +43,14 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="table-responsive">
+                        <div class="table table-responsive">
                             <!-- Table HTML -->
                             <table id="customerTable" class="table table-striped table-bordered table-hover" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th>Actions</th>
                                         <th class="text-center">Name</th>
+                                        <th class="text-center">Code</th>
                                         <th class="text-center">Telephone</th>
                                         <th class="text-center">Kontrabon</th>
                                         <th class="text-center">Created At</th>
@@ -62,6 +63,7 @@
                                     <tr>
                                         <th></th>
                                         <th class="text-center">Name</th>
+                                        <th class="text-center">Code</th>
                                         <th class="text-center">Telephone</th>
                                         <th class="text-center">Kontrabon</th>
                                         <th class="text-center">Created At</th>
@@ -126,6 +128,9 @@
             }, {
                 data: 'name',
                 name: 'name'
+            }, {
+                data: 'code',
+                name: 'code'
             }, {
                 data: 'phone',
                 name: 'phone'

@@ -177,6 +177,10 @@ class RoleController extends Controller
             if ($validator->fails()) {
                 return response()->json(array('status' => 0, 'message' => $validator->errors()->first()));
             } else {
+                // role admin
+                if ($id == 1) {
+                    return response()->json(array('status' => 0, 'message' => "Can't update this role"));
+                }
                 $name = strtolower($request->input('name'));
                 $display_name = ucwords(strtolower($request->input('display_name')));
                 $description = ucfirst($request->input('description'));
@@ -254,8 +258,13 @@ class RoleController extends Controller
         DB::beginTransaction();
 
         try {
-            $post = Role::findOrFail($id);
-            $post->delete();
+            // role admin
+            if ($id == 1) {
+                return response()->json(array('status' => 1, 'message' => "Can't deleted this role."));
+            } else {
+                $post = Role::findOrFail($id);
+                $post->delete();
+            }
 
             DB::commit();
 
@@ -283,14 +292,18 @@ class RoleController extends Controller
 
         return Datatables::of($roles)
             ->addColumn('action', function ($role) {
-                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
 
-                /* Tambah Action */
-                $buttons .= '<li><a href="role/' . $role->id . '/edit"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</a></li>';
-                $buttons .= '<li><a href="javascript:;" data-record-id="' . $role->id . '" onclick="deleteRole($(this));"><i class="fa fa-trash"></i>&nbsp; Delete</a></li>';
-                /* Selesai Action */
+                $buttons = '';
+                if ($role->id != 1) {
+                    $buttons .= '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
 
-                $buttons .= '</ul></div></div>';
+                    /* Tambah Action */
+                    $buttons .= '<li><a href="role/' . $role->id . '/edit"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</a></li>';
+                    $buttons .= '<li><a href="javascript:;" data-record-id="' . $role->id . '" onclick="deleteRole($(this));"><i class="fa fa-trash"></i>&nbsp; Delete</a></li>';
+                    /* Selesai Action */
+
+                    $buttons .= '</ul></div></div>';
+                }
 
                 return $buttons;
             })

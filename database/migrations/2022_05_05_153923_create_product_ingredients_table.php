@@ -18,7 +18,7 @@ class CreateProductIngredientsTable extends Migration
             $table->unsignedInteger('parent_id');
             $table->foreign('parent_id')->references('id')->on('products')->onDelete('cascade');
             $table->integer('product_id');
-            $table->decimal('req_stock', 14, 2);
+            $table->decimal('req_stock', 14, 5);
             $table->timestamps();
         });
     }

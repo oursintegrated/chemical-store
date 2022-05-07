@@ -42,11 +42,11 @@
                                 <input type="text" required name="name" class="form-control" placeholder="Product Name" value="{{ $product->product_name }}" autocomplete="off">
                             </div>
 
-                            <!-- <div class="form-group required">
-                                <label class="control-label">Stock <span style="color: red;">*</span></label>
-                                <input type="number" required name="stock" class="form-control" value="{{ $product->stock }}" autocomplete="off" placeholder="0" min="0" onkeypress="return /[0-9]/i.test(event.key)" maxlength="15">
+                            <div class="form-group required">
+                                <label class="control-label">Min Stock</label>
+                                <input type="number" step="0.1" required name="min_stock" class="form-control" value="{{ number_format($product->min_stock, 2, '.', '') }}" autocomplete="off" placeholder="0" min="0">
                                 <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
-                            </div> -->
+                            </div>
 
                             <div class="form-group required">
                                 <label class="control-label">Description <span style="color: red;">*</span></label>

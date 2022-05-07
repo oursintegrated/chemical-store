@@ -43,6 +43,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/sales/tabledit', 'AdditionalController@salesTabledit');
     Route::post('datatable/product/tabledit', 'AdditionalController@productTabledit');
     Route::post('datatable/sales', 'SalesController@datatable');
+    Route::post('datatable/recipe', 'RecipeController@datatable');
+
 
     /* Master Data */
     Route::get('data-master/product', 'ProductController@index');
@@ -51,6 +53,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('data-master/product/{id}/edit', 'ProductController@edit');
     Route::put('data-master/product/{id}/edit', 'ProductController@update');
     Route::delete('data-master/product/{id}/delete', 'ProductController@destroy');
+
+    Route::get('data-master/recipe', 'RecipeController@index');
+    Route::get('data-master/recipe/create', 'RecipeController@create');
+    Route::post('data-master/recipe/create', 'RecipeController@store');
+    Route::get('data-master/recipe/{id}/edit', 'RecipeController@edit');
+    Route::put('data-master/recipe/{id}/edit', 'RecipeController@update');
+    Route::delete('data-master/recipe/{id}/delete', 'RecipeController@destroy');
 
     Route::get('data-master/customer', 'CustomerController@index');
     Route::get('data-master/customer/create', 'CustomerController@create');
@@ -76,6 +85,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     /* Additional */
     Route::post('additional/sales/customer', 'AdditionalController@getCustomerInfo');
+    Route::post('additional/recipe/product', 'AdditionalController@getProductIngredientsInfo');
 
     /* Configuration */
     Route::get('configuration/user', 'UserController@index');

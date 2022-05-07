@@ -73,7 +73,7 @@ class ProductController extends Controller
                 'name' => 'required',
                 'stock' => 'required',
                 'description' => 'required',
-                'type' => 'required'
+                'type' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -81,6 +81,7 @@ class ProductController extends Controller
             } else {
                 $name = $request->input('name');
                 $stock = $request->input('stock');
+                $min_stock = $request->input('min_stock');
                 $description = $request->input('description');
                 $type = $request->input('type');
 
@@ -93,12 +94,13 @@ class ProductController extends Controller
                 }
                 $digit = strtoupper(substr($name, 0, 3));
 
-                if ($type == 'raw') {
+                if ($type == 'raw' || $type == 'packaging') {
                     $product = Product::create([
                         'code' => $digit . $id,
                         'product_name' => $name,
                         'type' => $type,
                         'stock' => $stock,
+                        'min_stock' => $min_stock,
                         'description' => $description,
                         'updated_by' => Auth::user()->id,
                     ]);
@@ -131,6 +133,7 @@ class ProductController extends Controller
                         'product_name' => $name,
                         'type' => $type,
                         'stock' => $stock,
+                        'min_stock' => $min_stock,
                         'description' => $description,
                         'updated_by' => Auth::user()->id,
                         'created_at' => now(),
@@ -223,12 +226,12 @@ class ProductController extends Controller
                 return response()->json(array('status' => 0, 'message' => $validator->errors()->first()));
             } else {
                 $name = $request->input('name');
-                // $stock = $request->input('stock');
+                $min_stock = $request->input('min_stock');
                 $description = $request->input('description');
 
                 Product::findOrFail($id)->update([
                     'product_name' => $name,
-                    // 'stock' => $stock,
+                    'min_stock' => $min_stock,
                     'description' => $description,
                     'updated_by' => Auth::user()->id
                 ]);
@@ -262,19 +265,12 @@ class ProductController extends Controller
         try {
             $post = Product::findOrFail($id);
 
-            // type -> raw
-            $type = $post->type;
-            if ($type == 'raw') {
-                $pi = ProductIngredient::where('product_id', $id)->count();
-                if ($pi == 0) {
-                    $post->delete();
-                } else {
-                    return response()->json(array('status' => 0, 'message' => "Can't delete product."));
-                }
+            $pi = ProductIngredient::where('product_id', $id)->count();
+            if ($pi == 0) {
+                $post->delete();
+            } else {
+                return response()->json(array('status' => 0, 'message' => "Can't delete product."));
             }
-
-            // type -> recipe
-            // on progress
 
             DB::commit();
 
@@ -298,7 +294,7 @@ class ProductController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'min_stock', 'description', 'created_at', 'updated_at', 'type']);
 
         return Datatables::of($products)
             ->addColumn('action', function ($product) {
@@ -313,16 +309,11 @@ class ProductController extends Controller
 
                 return $buttons;
             })
-            ->editColumn('stock', function ($product) {
-                if ($product->type == 'raw') {
-                    return $product->stock . ' Kg';
-                } else {
-                    return $product->stock . ' Packet';
-                }
-            })
             ->editColumn('type', function ($product) {
                 if ($product->type == 'raw') {
                     return 'Raw Material';
+                } else if ($product->type == 'packaging') {
+                    return 'Packaging';
                 } else {
                     return 'Recipe';
                 }
@@ -348,7 +339,7 @@ class ProductController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type'])->where('type', '=', 'raw');
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
 
         return Datatables::of($products)
             ->addColumn('action', function ($product) {

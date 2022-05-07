@@ -13,6 +13,8 @@
 
     <link rel="stylesheet" type="text/css" href="{{ asset('css/all.css') }}">
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <style>
         .backgroundBody {
             background-color: #f5f5f5;

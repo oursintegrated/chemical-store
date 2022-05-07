@@ -10,10 +10,10 @@
             </li>
             <li>
                 <span class="pficon pficon-registry"></span>
-                <a href="{{url('/data-master/product')}}">Product</a>
+                <a href="{{url('/data-master/recipe')}}">Recipe</a>
             </li>
             <li class="active">
-                <strong>List Product</strong>
+                <strong>List Recipe</strong>
             </li>
         </ol>
     </div>
@@ -26,15 +26,15 @@
             <div class="card-pf-heading">
                 <h1>
                     <span class="pficon pficon-registry"></span>
-                    Product
+                    Recipe
                     <small>List</small>
                 </h1>
             </div>
             <div class="card-pf-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <a href="{{url('/data-master/product/create')}}" class="btn btn-default btn">
-                            <li class="fa fa-plus-square"></li> &nbsp; Create Product
+                        <a href="{{url('/data-master/recipe/create')}}" class="btn btn-default btn">
+                            <li class="fa fa-plus-square"></li> &nbsp; Create Recipe
                         </a>
                     </div>
                 </div>
@@ -45,15 +45,13 @@
                     <div class="col-md-12">
                         <div class="table-responsive">
                             <!-- Table HTML -->
-                            <table id="productTable" class="table table-striped table-bordered" style="width: 100%;">
+                            <table id="recipeTable" class="table table-striped table-bordered" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th>Actions</th>
                                         <th class="text-center">Code</th>
                                         <th class="text-center">Product Name</th>
-                                        <th class="text-center">Type</th>
-                                        <th class="text-center">Stock</th>
-                                        <th class="text-center">Min Stock</th>
+                                        <th class="text-center">Ingredient</th>
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Created At</th>
                                         <th class="text-center">Updated At</th>
@@ -64,14 +62,12 @@
                                 <tfoot>
                                     <tr>
                                         <th></th>
-                                        <th>Code</th>
-                                        <th>Product Name</th>
-                                        <th>Type</th>
-                                        <th>Stock</th>
-                                        <th>Min Stock</th>
-                                        <th>Description</th>
-                                        <th>Created At</th>
-                                        <th>Updated At</th>
+                                        <th class="text-center">Code</th>
+                                        <th class="text-center">Product Name</th>
+                                        <th class="text-center">Ingredient</th>
+                                        <th class="text-center">Description</th>
+                                        <th class="text-center">Created At</th>
+                                        <th class="text-center">Updated At</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -87,7 +83,7 @@
 <script>
     $(document).ready(function() {
 
-        $('#productTable tfoot th').each(function() {
+        $('#recipeTable tfoot th').each(function() {
             var title = $(this).text();
             if (title != '') {
                 $(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
@@ -101,7 +97,7 @@
         });
 
         // DataTable Config
-        var table = $("#productTable").DataTable({
+        var table = $("#recipeTable").DataTable({
             processing: true,
             serverSide: false,
             stateSave: false,
@@ -116,30 +112,12 @@
             ],
             dom: '<"top"l>rt<"bottom"ip><"clear">',
             ajax: {
-                "url": "/datatable/products",
+                "url": "/datatable/recipe",
                 "type": "POST"
             },
             language: {
                 "decimal": ",",
                 "thousands": "."
-            },
-            rowCallback: function(row, data) {
-                // check stock
-                if (parseFloat(data.stock) < parseFloat(data.min_stock)) {
-                    $(row).css('background-color', 'yellow')
-                }
-
-                // return satuan
-                if (data.type == 'Raw Material') {
-                    $('td:eq(4)', row).html(parseFloat(data.stock).toFixed(2) + ' Kg');
-                    $('td:eq(5)', row).html(parseFloat(data.min_stock).toFixed(2) + ' Kg');
-                } else if (data.type == 'Packaging') {
-                    $('td:eq(4)', row).html(parseFloat(data.stock) + ' Pcs');
-                    $('td:eq(5)', row).html(parseFloat(data.min_stock) + ' Pcs');
-                } else {
-                    $('td:eq(4)', row).html(parseFloat(data.stock) + ' Packet');
-                    $('td:eq(5)', row).html(parseFloat(data.min_stock) + ' Packet');
-                }
             },
             columns: [{
                 data: 'action',
@@ -154,17 +132,8 @@
                 data: 'product_name',
                 name: 'product_name'
             }, {
-                data: 'type',
-                name: 'type',
-                className: 'text-center'
-            }, {
-                data: 'stock',
-                name: 'stock',
-                className: 'text-right'
-            }, {
-                data: 'min_stock',
-                name: 'min_stock',
-                className: 'text-right'
+                data: 'ingredients',
+                name: 'ingredients'
             }, {
                 data: 'description',
                 name: 'description'
@@ -215,7 +184,7 @@
         });
     });
 
-    var deleteProduct = function(me) {
+    var deleteRecipe = function(me) {
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover this record!",
@@ -225,15 +194,15 @@
             confirmButtonText: "Yes, delete it!",
             showLoaderOnConfirm: true,
             preConfirm: () => {
-                _deleteProduct(me)
+                _deleteRecipe(me)
             }
         })
     };
 
-    var _deleteProduct = function(me) {
+    var _deleteRecipe = function(me) {
         var recordID = me.data('record-id');
 
-        axios.delete("/data-master/product/" + recordID + "/delete")
+        axios.delete("/data-master/recipe/" + recordID + "/delete")
             .then(function(response) {
                 if (response.data.status == 1) {
                     swal({
@@ -243,7 +212,7 @@
                         confirmButtonText: 'Ok'
                     });
 
-                    $('#productTable').DataTable().ajax.reload(null, false);
+                    $('#recipeTable').DataTable().ajax.reload(null, false);
                 } else {
                     swal({
                         title: "Oops!",

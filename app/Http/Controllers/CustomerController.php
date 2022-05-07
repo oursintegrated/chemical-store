@@ -92,16 +92,19 @@ class CustomerController extends Controller
                 $telp = $request->input('telephone');
                 $address = $request->input('address');
                 $kontrabon = $request->input('kontrabon');
+                $code = $request->input('code');
 
-                $id = '';
-                $lastId = Customer::latest()->first();
-                if (isset($lastId->id)) {
-                    $id = $lastId->id;
-                } else {
-                    $id = '1';
+                if (trim($code) == '') {
+                    $id = '';
+                    $lastId = Customer::latest()->first();
+                    if (isset($lastId->id)) {
+                        $id = $lastId->id;
+                    } else {
+                        $id = '1';
+                    }
+
+                    $code = str_random(8) . $id;
                 }
-
-                $code = str_random(8) . $id;
 
                 $customerId = Customer::insertGetId([
                     'code' => $code,
