@@ -88,7 +88,7 @@
                                                 <th>ID</th>
                                                 <th>Code</th>
                                                 <th>Product Name</th>
-                                                <th>Stock In Kg</th>
+                                                <th>Stock</th>
                                                 <th>Description</th>
                                             </tr>
                                         </thead>
@@ -233,7 +233,6 @@
         });
 
         // ================================= Initial DataTable
-
         var notaTable = $("#notaTable").DataTable({
             processing: false,
             serverSide: false,
@@ -408,7 +407,8 @@
                     dataProduct = [];
                     resetNotaTable();
                     sumTotal();
-                }
+                },
+                className: 'btn btn-default'
             }],
             dom: 'Bfrtip',
             ajax: {
@@ -429,8 +429,8 @@
                 data: 'product_name',
                 name: 'product_name'
             }, {
-                data: 'stock_kg',
-                name: 'stock_kg'
+                data: 'stock',
+                name: 'stock'
             }, {
                 data: 'description',
                 name: 'description'

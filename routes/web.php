@@ -41,6 +41,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/products/raw-material', 'ProductController@datatableRawProduct');
     Route::post('datatable/customers', 'CustomerController@datatable');
     Route::post('datatable/sales/tabledit', 'AdditionalController@salesTabledit');
+    Route::post('datatable/product/tabledit', 'AdditionalController@productTabledit');
     Route::post('datatable/sales', 'SalesController@datatable');
 
     /* Master Data */

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Product;
+use App\ProductIngredient;
 use Illuminate\Http\Request;
 use App\Role;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,10 @@ class ProductController extends Controller
             return redirect('dashboard');
         }
 
+        if (Role::authorize('product.recipe')) {
+            $data['flag_recipe'] =  1;
+        }
+
         $x = new HomeController;
         $data['menu'] = $x->getMenu();
 
@@ -68,6 +73,7 @@ class ProductController extends Controller
                 'name' => 'required',
                 'stock' => 'required',
                 'description' => 'required',
+                'type' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -87,14 +93,72 @@ class ProductController extends Controller
                 }
                 $digit = strtoupper(substr($name, 0, 3));
 
-                $product = Product::create([
-                    'code' => $digit . $id,
-                    'product_name' => $name,
-                    'type' => $type,
-                    'stock' => $stock,
-                    'description' => $description,
-                    'updated_by' => Auth::user()->id
-                ]);
+                if ($type == 'raw') {
+                    $product = Product::create([
+                        'code' => $digit . $id,
+                        'product_name' => $name,
+                        'type' => $type,
+                        'stock' => $stock,
+                        'description' => $description,
+                        'updated_by' => Auth::user()->id,
+                    ]);
+                } else if ($type == 'recipe') {
+                    if (!Role::authorize('product.recipe')) {
+                        return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+                    }
+
+                    // check stock
+                    $dataIngredient = $request->input('dataIngredients');
+                    for ($i = 0; $i < count($dataIngredient); $i++) {
+                        $ingredient_id = $dataIngredient[$i]['id'];
+                        $ingredient_name = $dataIngredient[$i]['product_name'];
+                        $req_stock = $dataIngredient[$i]['req_stock'];
+                        $estimate_req = $req_stock * $stock;
+
+                        $check = Product::where('id', $ingredient_id)->first();
+                        $available_stock = $check->stock;
+                        if ($estimate_req > $available_stock) {
+                            return response()->json(array('status' => 0, 'message' => $ingredient_name . ' stock is not enough.'));
+                        }
+                        if ($estimate_req == 0) {
+                            return response()->json(array('status' => 0, 'message' => $ingredient_name . ' stock required in ingredient is 0.'));
+                        }
+                    }
+
+                    // insert Product
+                    $product_id = Product::insertGetId([
+                        'code' => $digit . $id,
+                        'product_name' => $name,
+                        'type' => $type,
+                        'stock' => $stock,
+                        'description' => $description,
+                        'updated_by' => Auth::user()->id,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+
+                    // insert Ingredient and substract stock
+                    for ($j = 0; $j < count($dataIngredient); $j++) {
+                        $ingredient_id = $dataIngredient[$j]['id'];
+                        $req_stock = $dataIngredient[$j]['req_stock'];
+
+                        ProductIngredient::create([
+                            'parent_id' => $product_id,
+                            'product_id' => $ingredient_id,
+                            'req_stock' => $req_stock
+                        ]);
+
+                        $x = Product::where('id', $ingredient_id)->first();
+                        $req_stock = $dataIngredient[$j]['req_stock'];
+                        $estimate_req = $req_stock * $stock;
+                        $available_stock = $x->stock;
+                        $stock_left = $available_stock - $estimate_req;
+
+                        Product::findOrFail($ingredient_id)->update([
+                            'stock' => $stock_left
+                        ]);
+                    }
+                }
 
                 DB::commit();
 
@@ -197,7 +261,20 @@ class ProductController extends Controller
 
         try {
             $post = Product::findOrFail($id);
-            $post->delete();
+
+            // type -> raw
+            $type = $post->type;
+            if ($type == 'raw') {
+                $pi = ProductIngredient::where('product_id', $id)->count();
+                if ($pi == 0) {
+                    $post->delete();
+                } else {
+                    return response()->json(array('status' => 0, 'message' => "Can't delete product."));
+                }
+            }
+
+            // type -> recipe
+            // on progress
 
             DB::commit();
 
@@ -285,13 +362,6 @@ class ProductController extends Controller
                 $buttons .= '</ul></div></div>';
 
                 return $buttons;
-            })
-            ->editColumn('stock', function ($product) {
-                if ($product->type == 'raw') {
-                    return $product->stock . ' Kg';
-                } else {
-                    return $product->stock . ' Packet';
-                }
             })
             ->editColumn('type', function ($product) {
                 if ($product->type == 'raw') {

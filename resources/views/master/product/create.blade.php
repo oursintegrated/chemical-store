@@ -63,26 +63,19 @@
                                         </div>
                                     </div>
                                     <br />
+                                    @if(isset($flag_recipe))
+                                    @if($flag_recipe == 1)
                                     <div class="form-group">
                                         <div class="radio">
                                             <label><input type="radio" name="type" value="recipe"> Recipe</label>
                                         </div>
                                     </div>
+                                    @endif
+                                    @endif
                                 </div>
                             </div>
 
-                            <div class="form-group required">
-                                <label class="control-label">Description <span style="color: red;">*</span></label>
-                                <textarea class="form-control" name="description" rows="3"></textarea>
-                            </div>
-
-                            <a role="button" href="{{ url('/data-master/product') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
-
-                            <button type="button" id="btnSave" class="btn btn-success btn btn-ml" onclick="create_product()" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
-                        </div>
-
-                        <div class="col-md-7" id="ingredientForm" hidden>
-                            <div class="form-group required">
+                            <div class="form-group required ingredientForm" hidden>
                                 <label class="control-label">Choose Ingredients <span style="color: red;">*</span></label>
 
                                 <div class="table-responsive">
@@ -109,11 +102,28 @@
                                         </tfoot> -->
                                     </table>
                                 </div>
-                                <br />
-                                <table id="ingredientsTable" class="table table-responsive table-bordered">
+                            </div>
+
+                            <div class="form-group required">
+                                <label class="control-label">Description <span style="color: red;">*</span></label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+
+                            <a role="button" href="{{ url('/data-master/product') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
+
+                            <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
+                        </div>
+
+                        <div class="col-md-7">
+                            <div class="form-group required ingredientForm" hidden>
+                                <label class="control-label">Ingredients <span style="color: red;">*</span></label>
+                                <table id="ingredientTable" class="table table-responsive table-bordered">
                                     <thead>
-                                        <th>Product Name</th>
-                                        <th>Req Stock</th>
+                                        <th>ID</th>
+                                        <th class="text-center">No</th>
+                                        <th class="text-center">Product Name</th>
+                                        <th class="text-center">Req Stock</th>
+                                        <th class="text-center">Estimate</th>
                                     </thead>
                                     <tbody>
                                     </tbody>
@@ -144,27 +154,167 @@
             return (/^[0-9]*\.?[0-9]*$/).test($(this).val() + evt.key);
         });
 
+        $('#stock').on('keyup change', function(evt) {
+            var type = $("input[name='type']:checked").val();
+            if (type == 'recipe') {
+                var stock = $('#stock').val();
+                for (var i = 0; i < dataIngredients.length; i++) {
+                    dataIngredients[i].estimate_req = stock * dataIngredients[i].req_stock;
+                }
+                resetIngredientTable();
+            }
+        });
+
         var type = $("input[name='type']:checked").val();
         if (type == 'raw') {
-            $('#ingredientForm').hide();
+            $('.ingredientForm').hide();
         } else if (type == 'recipe') {
-            $('#ingredientForm').show();
+            $('.ingredientForm').show();
         }
 
         $('input[type=radio][name=type]').change(function() {
             if (this.value == 'raw') {
-                $('#ingredientForm').hide();
+                $('.ingredientForm').hide();
             } else if (this.value == 'recipe') {
-                $('#ingredientForm').show();
+                $('.ingredientForm').show();
             }
+            productTable.rows().deselect();
+            dataIngredients = [];
+            resetIngredientTable();
         });
 
         // ============================ Initial Datatable
+        var ingredientTable = $("#ingredientTable").DataTable({
+            processing: false,
+            serverSide: false,
+            stateSave: false,
+            rowCallback: function(row, data, index) {
+                for (var i = 0; i < dataIngredients.length; i++) {
+                    if (dataIngredients[i].id == data['id']) {
+                        var available_stock = dataIngredients[i].stock;
+                        if (available_stock < data['estimate_req']) {
+                            $('td', row).css('background-color', 'Yellow');
+                        }
+                    }
+                }
+            },
+            lengthMenu: [
+                [-1],
+                ['All']
+            ],
+            dom: '',
+            columnDefs: [{
+                "defaultContent": "-",
+                "targets": "_all",
+            }],
+            order: [
+                [1, 'asc']
+            ],
+            sort: false,
+            columns: [{
+                data: 'id',
+                name: 'id'
+            }, {
+                data: 'no',
+                name: 'no'
+            }, {
+                data: 'product_name',
+                name: 'product_name'
+            }, {
+                data: 'req_stock',
+                name: 'req_stock',
+                className: 'text-right'
+            }, {
+                data: 'estimate_req',
+                name: 'estimate_req',
+                className: 'text-right'
+            }]
+        });
+
+        $('#ingredientTable').on('draw.dt', function() {
+            $('#ingredientTable').Tabledit({
+                url: '/datatable/product/tabledit',
+                dataType: 'json',
+                // class for form inputs
+                inputClass: 'form-control input-sm',
+
+                // class for toolbar
+                toolbarClass: 'btn-toolbar',
+
+                // class for buttons group
+                groupClass: 'btn-group btn-group-sm',
+
+                // class for row when ajax request fails
+                dangerClass: 'danger',
+
+                // class for row when save changes
+                warningClass: 'warning',
+
+                // class for row when is removed
+                mutedClass: 'text-muted',
+
+                // trigger to change for edit mode.
+                // e.g. 'dblclick'
+                eventType: 'dblclick',
+
+                // change the name of attribute in td element for the row identifier
+                rowIdentifier: 'id',
+
+                // activate focus on first input of a row when click in save button
+                autoFocus: true,
+
+                // hide the column that has the identifier
+                hideIdentifier: true,
+
+                // activate edit button instead of spreadsheet style
+                editButton: false,
+
+                // activate delete button
+                deleteButton: false,
+
+                // activate save button when click on edit button
+                saveButton: false,
+
+                // activate restore button to undo delete action
+                restoreButton: true,
+                columns: {
+                    identifier: [0, 'id'],
+                    editable: [
+                        [3, 'req_stock'],
+                    ]
+                },
+                onSuccess: function(data, textStatus, jqXHR) {
+                    if (data.action == 'edit') {
+                        var id = data.id;
+                        if (data.hasOwnProperty('req_stock')) {
+                            for (var i = 0; i < dataIngredients.length; i++) {
+                                if (dataIngredients[i].id == id) {
+                                    dataIngredients[i].req_stock = data.req_stock
+                                    dataIngredients[i].estimate_req = $('#stock').val() * data.req_stock;
+                                }
+                            }
+                        }
+                        resetIngredientTable();
+                    }
+                }
+            });
+        });
+
         var productTable = $("#productTable").DataTable({
             processing: true,
             serverSide: false,
             stateSave: false,
             stateDuration: 0,
+            rowCallback: function(row, data, index) {
+                for (var i = 0; i < dataIngredients.length; i++) {
+                    if (dataIngredients[i].id == data['id']) {
+                        $(row).addClass('selected');
+                        dataIngredients[i].stock = data['stock'];
+
+                        resetIngredientTable();
+                    }
+                }
+            },
             lengthMenu: [
                 [5],
                 [5]
@@ -183,7 +333,9 @@
                 action: function() {
                     productTable.rows().deselect();
                     dataIngredients = [];
-                }
+                    resetIngredientTable();
+                },
+                className: 'btn btn-default'
             }],
             dom: 'Bfrtip',
             ajax: {
@@ -224,9 +376,7 @@
                     }
                 }
 
-                resetNotaTable();
-
-                sumTotal();
+                resetIngredientTable();
 
             } else {
                 $(this).addClass('selected');
@@ -234,26 +384,25 @@
                 var id = productTable.row(this).data().id;
                 var no = dataIngredients.length + 1;
                 var productName = productTable.row(this).data().product_name;
+                var stock = productTable.row(this).data().stock;
 
                 dataIngredients.push({
                     'id': id,
                     'no': no,
                     'product_name': productName,
-                    'qty': 0,
-                    'price': 0,
-                    'total': 0
+                    'req_stock': 0,
+                    'estimate_req': 0,
+                    'stock': stock
                 });
 
-                var resetNota = notaTable
+                var resetIngredient = ingredientTable
                     .rows()
                     .remove()
                     .draw();
 
                 for (var i = 0; i < dataIngredients.length; i++) {
-                    notaTable.row.add(dataProduct[i]).draw()
+                    ingredientTable.row.add(dataIngredients[i]).draw()
                 }
-
-                sumTotal();
             }
         });
 
@@ -264,57 +413,84 @@
             todayHighlight: true,
             weekStart: 1,
         });
+
+        function resetIngredientTable() {
+            var resetIngredient = ingredientTable
+                .rows()
+                .remove()
+                .draw();
+
+            for (var i = 0; i < dataIngredients.length; i++) {
+                dataIngredients[i].no = i + 1;
+            }
+
+            for (var i = 0; i < dataIngredients.length; i++) {
+                ingredientTable.row.add(dataIngredients[i]).draw()
+            }
+        }
+
+        // ============================ Core Function
+        $('#btnSave').on('click', function() {
+            $("#btnSave").prop('disabled', 'true');
+
+            var productName = $('#name').val();
+            var stock = $('#stock').val();
+            var description = $('#description').val();
+            var type = $("input[name='type']:checked").val();
+
+            axios.post("/data-master/product/create", {
+                    'name': productName,
+                    'type': type,
+                    'stock': stock,
+                    'description': description,
+                    'dataIngredients': dataIngredients
+                })
+                .then(function(response) {
+                    if (response.data.status == 1) {
+                        swal({
+                            title: "Good!",
+                            text: response.data.message,
+                            type: "success",
+                            timer: 1000,
+                            confirmButtonText: 'Ok'
+                        }).then(function() {
+                            $('form#main_form')[0].reset();
+                            $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
+                            window.location.replace(response.data.intended_url)
+                        });
+                    } else {
+                        swal({
+                            title: "Oops!",
+                            text: response.data.message,
+                            type: "error",
+                            closeOnConfirm: false
+                        });
+
+                        productTable.ajax.reload();
+                    }
+                    $("#btnSave").removeAttr('disabled');
+                })
+                .catch(function(error) {
+                    switch (error.response.status) {
+                        case 422:
+                            swal({
+                                title: "Oops!",
+                                text: 'Failed form validation. Please check your input.',
+                                type: "error"
+                            });
+                            break;
+                        case 500:
+                            swal({
+                                title: "Oops!",
+                                text: 'Something went wrong.',
+                                type: "error"
+                            });
+                            break;
+                    }
+                    $("#btnSave").removeAttr('disabled');
+                });
+        });
     });
-
-
-    // ============================ Core Function
-    var create_product = function() {
-        $("#btnSave").prop('disabled', 'true');
-
-        axios.post("/data-master/product/create", $('#main_form').serialize())
-            .then(function(response) {
-                if (response.data.status == 1) {
-                    swal({
-                        title: "Good!",
-                        text: response.data.message,
-                        type: "success",
-                        timer: 1000,
-                        confirmButtonText: 'Ok'
-                    }).then(function() {
-                        $('form#main_form')[0].reset();
-                        $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
-                        window.location.replace(response.data.intended_url)
-                    });
-                } else {
-                    swal({
-                        title: "Oops!",
-                        text: response.data.message,
-                        type: "error",
-                        closeOnConfirm: false
-                    });
-                }
-                $("#btnSave").removeAttr('disabled');
-            })
-            .catch(function(error) {
-                switch (error.response.status) {
-                    case 422:
-                        swal({
-                            title: "Oops!",
-                            text: 'Failed form validation. Please check your input.',
-                            type: "error"
-                        });
-                        break;
-                    case 500:
-                        swal({
-                            title: "Oops!",
-                            text: 'Something went wrong.',
-                            type: "error"
-                        });
-                        break;
-                }
-                $("#btnSave").removeAttr('disabled');
-            });
-    };
 </script>
 
 @endsection

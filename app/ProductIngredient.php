@@ -19,6 +19,7 @@ class ProductIngredient extends Model
      * @var array
      */
     protected $fillable = [
+        'parent_id',
         'product_id',
         'req_stock',
     ];

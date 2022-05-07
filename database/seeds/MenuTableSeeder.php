@@ -190,6 +190,14 @@ class MenuTableSeeder extends Seeder
                 'level' => 2,
                 'type' => 'action',
             ],
+            [
+                'id' => 23,
+                'menu_desc' => 'Product - Recipe',
+                'parent_id' => 12,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
         ]);
     }
 }

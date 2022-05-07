@@ -25,4 +25,9 @@ class AdditionalController extends Controller
     {
         return response()->json($request->all());
     }
+
+    public function productTabledit(Request $request)
+    {
+        return response()->json($request->all());
+    }
 }

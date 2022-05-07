@@ -94,6 +94,10 @@ class RBACTableSeeder extends Seeder
                 'menu_id' => 22,
                 'key' => 'sales.destroy',
             ],
+            [
+                'menu_id' => 23,
+                'key' => 'product.recipe',
+            ],
         ]);
     }
 }

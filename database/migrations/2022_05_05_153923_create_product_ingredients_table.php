@@ -15,8 +15,9 @@ class CreateProductIngredientsTable extends Migration
     {
         Schema::create('product_ingredients', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->unsignedInteger('parent_id');
+            $table->foreign('parent_id')->references('id')->on('products')->onDelete('cascade');
+            $table->integer('product_id');
             $table->decimal('req_stock', 14, 2);
             $table->timestamps();
         });
