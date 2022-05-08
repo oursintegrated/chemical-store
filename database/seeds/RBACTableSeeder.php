@@ -126,6 +126,10 @@ class RBACTableSeeder extends Seeder
                 'menu_id' => 30,
                 'key' => 'stock.manage',
             ],
+            [
+                'menu_id' => 31,
+                'key' => 'stock.history',
+            ],
         ]);
     }
 }

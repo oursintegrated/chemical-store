@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Product;
 use App\ProductIngredient;
+use App\ProductStockLog;
 use Illuminate\Http\Request;
 use App\Role;
 use Illuminate\Support\Facades\Auth;
@@ -159,6 +160,16 @@ class ProductController extends Controller
 
                         Product::findOrFail($ingredient_id)->update([
                             'stock' => $stock_left
+                        ]);
+
+                        // Insert Log
+                        ProductStockLog::create([
+                            'product_id' => $ingredient_id,
+                            'description' => "Digunakan untuk pembuatan " . $name,
+                            'from_qty' => $available_stock,
+                            'to_qty' => $stock_left,
+                            'updated_by' => Auth::user()->id,
+                            'flag_admin' => 1
                         ]);
                     }
                 }

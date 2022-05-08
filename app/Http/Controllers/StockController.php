@@ -9,7 +9,9 @@ use App\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use DataTables;
+use Illuminate\Support\Facades\Auth;
 use Validator;
+use App\ProductStockLog;
 
 class StockController extends Controller
 {
@@ -45,6 +47,21 @@ class StockController extends Controller
         $data['totalLowStock'] = $ls[0]->count;
 
         return view('master.stock.manage', $data);
+    }
+
+    public function history()
+    {
+        /* RBAC */
+        if (!Role::authorize('stock.history')) {
+            flash('Insufficient permission', 'warning');
+            return redirect('dashboard');
+        }
+
+        $x = new HomeController;
+        $data['menu'] = $x->getMenu();
+
+        $data['products'] = Product::all();
+        return view('master.stock.history', $data);
     }
 
     public function lowStockIndex()
@@ -189,48 +206,81 @@ class StockController extends Controller
                         $type_product = $selected[$i]['type'];
                         $product_name = $selected[$i]['product_name'];
 
-                        if ($type_product == 'Raw Material' || $type_product == 'Packaging') {
-                            // get stock lama
-                            $p = Product::where('id', $product_id)->first();
-                            $old_stock = $p->stock;
-                            $new_stock = $old_stock + $qty;
-                            $pu = Product::where('id', $product_id)->update([
-                                'stock' => $new_stock
-                            ]);
-                        } else if ($type_product == 'Recipe') {
-                            // check stock
-                            $flag = true;
-                            $pi = DB::select(DB::raw("SELECT pi.*, p2.product_name, p2.stock FROM products p LEFT JOIN product_ingredients pi on p.id = pi.parent_id LEFT JOIN products p2 ON pi.product_id = p2.id WHERE p.id = " . $product_id));
-                            for ($j = 0; $j < count($pi); $j++) {
-                                $req_stock = $pi[$j]->req_stock;
-                                $need_stock = $req_stock * $qty;
-                                $real_stock = $pi[$j]->stock;
-                                if ($need_stock > $real_stock) {
-                                    $cant[] = ' ' . $product_name;
-                                    $flag = false;
-                                    break;
-                                }
-                            }
-
-                            // bahan memadai
-                            if ($flag == true) {
+                        if ($qty != 0) {
+                            if ($type_product == 'Raw Material' || $type_product == 'Packaging') {
+                                // get stock lama
                                 $p = Product::where('id', $product_id)->first();
                                 $old_stock = $p->stock;
-                                $sum_stock = $old_stock + $qty;
-                                $adjust = Product::where('id', $product_id)->update([
-                                    'stock' => $sum_stock
+                                $new_stock = $old_stock + $qty;
+                                $pu = Product::where('id', $product_id)->update([
+                                    'stock' => $new_stock
                                 ]);
-                                // pengurangan ingredient stock
+
+                                // Insert Log
+                                ProductStockLog::create([
+                                    'product_id' => $product_id,
+                                    'description' => $type,
+                                    'from_qty' => $old_stock,
+                                    'to_qty' => $new_stock,
+                                    'updated_by' => Auth::user()->id,
+                                    'flag_admin' => 0
+                                ]);
+                            } else if ($type_product == 'Recipe') {
+                                // check stock
+                                $flag = true;
+                                $pi = DB::select(DB::raw("SELECT pi.*, p2.product_name, p2.stock FROM products p LEFT JOIN product_ingredients pi on p.id = pi.parent_id LEFT JOIN products p2 ON pi.product_id = p2.id WHERE p.id = " . $product_id));
                                 for ($j = 0; $j < count($pi); $j++) {
-                                    $ingredient_id = $pi[$j]->product_id;
                                     $req_stock = $pi[$j]->req_stock;
                                     $need_stock = $req_stock * $qty;
                                     $real_stock = $pi[$j]->stock;
-                                    $stock_left = $real_stock - $need_stock;
+                                    if ($need_stock > $real_stock) {
+                                        $cant[] = ' ' . $product_name;
+                                        $flag = false;
+                                        break;
+                                    }
+                                }
 
-                                    Product::findOrFail($ingredient_id)->update([
-                                        'stock' => $stock_left
+                                // bahan memadai
+                                if ($flag == true) {
+                                    $p = Product::where('id', $product_id)->first();
+                                    $old_stock = $p->stock;
+                                    $sum_stock = $old_stock + $qty;
+                                    $adjust = Product::where('id', $product_id)->update([
+                                        'stock' => $sum_stock
                                     ]);
+
+                                    // Insert Log
+                                    ProductStockLog::create([
+                                        'product_id' => $product_id,
+                                        'description' => $type,
+                                        'from_qty' => $old_stock,
+                                        'to_qty' => $sum_stock,
+                                        'updated_by' => Auth::user()->id,
+                                        'flag_admin' => 0
+                                    ]);
+
+                                    // pengurangan ingredient stock
+                                    for ($j = 0; $j < count($pi); $j++) {
+                                        $ingredient_id = $pi[$j]->product_id;
+                                        $req_stock = $pi[$j]->req_stock;
+                                        $need_stock = $req_stock * $qty;
+                                        $real_stock = $pi[$j]->stock;
+                                        $stock_left = $real_stock - $need_stock;
+
+                                        Product::findOrFail($ingredient_id)->update([
+                                            'stock' => $stock_left
+                                        ]);
+
+                                        // Insert Log
+                                        ProductStockLog::create([
+                                            'product_id' => $ingredient_id,
+                                            'description' => "Digunakan untuk pembuatan " . $product_name,
+                                            'from_qty' => $real_stock,
+                                            'to_qty' => $stock_left,
+                                            'updated_by' => Auth::user()->id,
+                                            'flag_admin' => 1
+                                        ]);
+                                    }
                                 }
                             }
                         }
@@ -242,13 +292,25 @@ class StockController extends Controller
                         $type_product = $selected[$i]['type'];
                         $product_name = $selected[$i]['product_name'];
 
-                        // get stock lama
-                        $p = Product::where('id', $product_id)->first();
-                        $old_stock = $p->stock;
-                        $new_stock = $old_stock + $qty;
-                        $pu = Product::where('id', $product_id)->update([
-                            'stock' => $new_stock
-                        ]);
+                        if ($qty != 0) {
+                            // get stock lama
+                            $p = Product::where('id', $product_id)->first();
+                            $old_stock = $p->stock;
+                            $new_stock = $old_stock + $qty;
+                            $pu = Product::where('id', $product_id)->update([
+                                'stock' => $new_stock
+                            ]);
+
+                            // Insert Log
+                            ProductStockLog::create([
+                                'product_id' => $product_id,
+                                'description' => $type,
+                                'from_qty' => $old_stock,
+                                'to_qty' => $new_stock,
+                                'updated_by' => Auth::user()->id,
+                                'flag_admin' => 0
+                            ]);
+                        }
                     }
                 } else if ($type == "product processing") {
                     for ($i = 0; $i < count($selected); $i++) {
@@ -257,13 +319,25 @@ class StockController extends Controller
                         $type_product = $selected[$i]['type'];
                         $product_name = $selected[$i]['product_name'];
 
-                        // get stock lama
-                        $p = Product::where('id', $product_id)->first();
-                        $old_stock = $p->stock;
-                        $new_stock = $old_stock - $qty;
-                        $pu = Product::where('id', $product_id)->update([
-                            'stock' => $new_stock
-                        ]);
+                        if ($qty != 0) {
+                            // get stock lama
+                            $p = Product::where('id', $product_id)->first();
+                            $old_stock = $p->stock;
+                            $new_stock = $old_stock - $qty;
+                            $pu = Product::where('id', $product_id)->update([
+                                'stock' => $new_stock
+                            ]);
+
+                            // Insert Log
+                            ProductStockLog::create([
+                                'product_id' => $product_id,
+                                'description' => $type,
+                                'from_qty' => $old_stock,
+                                'to_qty' => $new_stock,
+                                'updated_by' => Auth::user()->id,
+                                'flag_admin' => 0
+                            ]);
+                        }
                     }
                 }
 
@@ -276,6 +350,51 @@ class StockController extends Controller
 
             return response()->json(array('status' => 0, 'message' => 'Something went wrong.'));
         }
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatable()
+    {
+        /* RBAC */
+        if (!Role::authorize('stock.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'min_stock', 'description', 'created_at', 'updated_at', 'type']);
+
+        return Datatables::of($products)
+            ->addColumn('action', function ($product) {
+                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
+
+                /* Tambah Action */
+                $buttons .= '<li><a href="product/' . $product->id . '/edit"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</a></li>';
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $product->id . '" onclick="deleteProduct($(this));"><i class="fa fa-trash"></i>&nbsp; Delete</a></li>';
+                /* Selesai Action */
+
+                $buttons .= '</ul></div></div>';
+
+                return $buttons;
+            })
+            ->editColumn('type', function ($product) {
+                if ($product->type == 'raw') {
+                    return 'Raw Material';
+                } else if ($product->type == 'packaging') {
+                    return 'Packaging';
+                } else {
+                    return 'Recipe';
+                }
+            })
+            ->editColumn('created_at', function ($product) {
+                return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
+            })
+            ->editColumn('updated_at', function ($product) {
+                return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
+            })
+            ->make(true);
     }
 
     /**
@@ -313,6 +432,97 @@ class StockController extends Controller
                 return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
             })
             // ->rawColumns(['add_stock'])
+            ->make(true);
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableHistory(Request $request)
+    {
+        /* RBAC */
+        if (!Role::authorize('stock.history')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $id = $request->input('id');
+
+        if ($startDate == '') {
+            $startDate = date('Y-m-d') . " 00:00:00";
+        } else {
+            $startDate = $startDate . " 00:00:00";
+        }
+        if ($endDate == '') {
+            $endDate = date('Y-m-d') . " 23:59:59";
+        } else {
+            $endDate = $endDate . " 23:59:59";
+        }
+
+        $q = '';
+        if ($id != 'All') {
+            $q = ' AND product_id = ' . $id;
+        }
+
+        $r = '';
+        if (Auth::user()->role_id != 1) {
+            $r = ' AND flag_admin = 0';
+        }
+
+        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . $r));
+
+        return Datatables::of($histories)
+            ->editColumn('updated_at', function ($history) {
+                return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i') : '';
+            })
+            ->make(true);
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableRawProduct()
+    {
+        /* RBAC */
+        if (!Role::authorize('stock.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
+
+        return Datatables::of($products)
+            ->addColumn('action', function ($product) {
+                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
+
+                /* Tambah Action */
+                $buttons .= '<li><a href="product/' . $product->id . '/edit"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</a></li>';
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $product->id . '" onclick="deleteProduct($(this));"><i class="fa fa-trash"></i>&nbsp; Delete</a></li>';
+                /* Selesai Action */
+
+                $buttons .= '</ul></div></div>';
+
+                return $buttons;
+            })
+            ->editColumn('type', function ($product) {
+                if ($product->type == 'raw') {
+                    return 'Raw Material';
+                } else if ($product->type == 'packaging') {
+                    return 'Packaging';
+                } else {
+                    return 'Recipe';
+                }
+            })
+            ->editColumn('created_at', function ($product) {
+                return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
+            })
+            ->editColumn('updated_at', function ($product) {
+                return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
+            })
             ->make(true);
     }
 }

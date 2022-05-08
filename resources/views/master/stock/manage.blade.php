@@ -249,7 +249,7 @@
             }],
             dom: 'Bfrtip',
             ajax: {
-                "url": "/datatable/products/raw-material",
+                "url": "/datatable/stocks/raw-material",
                 "type": "POST"
             },
             language: {

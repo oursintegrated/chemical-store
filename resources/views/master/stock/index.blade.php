@@ -36,6 +36,9 @@
                         <a href="{{url('/data-master/stock/manage')}}" class="btn btn-default btn">
                             <li class="fa fa-plus-square"></li> &nbsp; Manage Stock
                         </a>
+                        <a href="{{url('/data-master/stock/history')}}" class="btn btn-default btn">
+                            <li class="fa fa-check-square"></li> &nbsp; History Stock
+                        </a>
                     </div>
                 </div>
                 <br />
@@ -127,7 +130,7 @@
             ],
             dom: '<"top"l>rt<"bottom"ip><"clear">',
             ajax: {
-                "url": "/datatable/products",
+                "url": "/datatable/stocks",
                 "type": "POST"
             },
             language: {

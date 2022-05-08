@@ -45,6 +45,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/sales', 'SalesController@datatable');
     Route::post('datatable/recipe', 'RecipeController@datatable');
     Route::post('datatable/stock-low', 'StockController@datatableLowStock');
+    Route::post('datatable/stock/history', 'StockController@datatableHistory');
+    Route::post('datatable/stocks', 'StockController@datatable');
+    Route::post('datatable/stocks/raw-material', 'StockController@datatableRawProduct');
+
 
 
     /* Master Data */
@@ -64,6 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('data-master/stock', 'StockController@index');
     Route::get('data-master/stock/manage', 'StockController@manage');
+    Route::get('data-master/stock/history', 'StockController@history');
     Route::post('data-master/stock/manage', 'StockController@manageUpdate');
     Route::get('data-master/stock-low', 'StockController@lowStockIndex');
     Route::post('data-master/stock-low/adjust', 'StockController@lowStockAdjust');

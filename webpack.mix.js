@@ -34,4 +34,13 @@ mix
 	.copy("resources/assets/js/datatable", "public/js/datatable")
 	.copy("resources/assets/js/tabledit.js", "public/js/tabledit.js")
 	.copy("resources/assets/js/html2canvas.js", "public/js/html2canvas.js")
-	.copy("resources/assets/js/jspdf.js", "public/js/jspdf.js");
+	.copy("resources/assets/js/jspdf.js", "public/js/jspdf.js")
+	.copy("resources/assets/js/moment.js", "public/js/moment.js")
+	.copy(
+		"resources/assets/js/daterangepicker.js",
+		"public/js/daterangepicker.js"
+	)
+	.copy(
+		"resources/assets/css/daterangepicker.css",
+		"public/css/daterangepicker.css"
+	);

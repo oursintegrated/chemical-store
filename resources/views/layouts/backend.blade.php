@@ -13,6 +13,8 @@
 
     <link rel="stylesheet" type="text/css" href="{{ asset('css/all.css') }}">
 
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/daterangepicker.css') }}">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
@@ -141,6 +143,10 @@
     <script src="{{ asset('js/jspdf.js') }}"></script>
 
     <script src="{{ asset('js/html2canvas.js') }}"></script>
+
+    <script src="{{ asset('js/moment.js') }}"></script>
+
+    <script src="{{ asset('js/daterangepicker.js') }}"></script>
 
     <script>
         $(document).ready(function() {
