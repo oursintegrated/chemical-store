@@ -357,6 +357,8 @@ class ProductController extends Controller
             ->editColumn('type', function ($product) {
                 if ($product->type == 'raw') {
                     return 'Raw Material';
+                } else if ($product->type == 'packaging') {
+                    return 'Packaging';
                 } else {
                     return 'Recipe';
                 }

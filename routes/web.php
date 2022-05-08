@@ -44,6 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/product/tabledit', 'AdditionalController@productTabledit');
     Route::post('datatable/sales', 'SalesController@datatable');
     Route::post('datatable/recipe', 'RecipeController@datatable');
+    Route::post('datatable/stock-low', 'StockController@datatableLowStock');
 
 
     /* Master Data */
@@ -60,6 +61,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('data-master/recipe/{id}/edit', 'RecipeController@edit');
     Route::put('data-master/recipe/{id}/edit', 'RecipeController@update');
     Route::delete('data-master/recipe/{id}/delete', 'RecipeController@destroy');
+
+    Route::get('data-master/stock', 'StockController@index');
+    Route::get('data-master/stock/manage', 'StockController@manage');
+    Route::post('data-master/stock/manage', 'StockController@manageUpdate');
+    Route::get('data-master/stock-low', 'StockController@lowStockIndex');
+    Route::post('data-master/stock-low/adjust', 'StockController@lowStockAdjust');
 
     Route::get('data-master/customer', 'CustomerController@index');
     Route::get('data-master/customer/create', 'CustomerController@create');

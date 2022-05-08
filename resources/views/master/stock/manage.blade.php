@@ -1,5 +1,5 @@
 @extends('layouts.backend')
-@section('title', 'Chemical Store | Product')
+@section('title', 'Chemical Store | Stock')
 @section('content')
 <div class="row row-cards-pf">
     <div class="row-cards-pf card-pf">
@@ -10,88 +10,44 @@
             </li>
             <li>
                 <span class="pficon pficon-registry"></span>
-                <a href="{{url('/data-master/product')}}">Product</a>
+                <a href="{{url('/data-master/stock')}}">Stock</a>
             </li>
             <li class="active">
-                <strong>Create</strong>
+                <strong>Manage Stock</strong>
             </li>
         </ol>
     </div>
 </div><!-- /row -->
 
-<!-- Toolbar -->
 <div class="row row-cards-pf">
-    <div class="col-sm-12">
-        <div class="card-pf card-pf-accented">
+    <!-- Important:  if you need to nest additional .row within a .row.row-cards-pf, do *not* use .row-cards-pf on the nested .row  -->
+    <div class="col-xs-12">
+        <div class="card-pf card-pf-accented card-pf-view">
             <div class="card-pf-heading">
                 <h1>
                     <span class="pficon pficon-registry"></span>
-                    Product
-                    <small>Create</small>
+                    Stock
+                    <small>Manage</small>
                 </h1>
             </div>
             <div class="card-pf-body">
+                <br />
                 <div class="row">
                     <form id="main_form" autocomplete="off">
                         {{ csrf_field() }}
                         <div class="col-md-5">
                             <div class="form-group required">
-                                <label class="control-label">Product Name <span style="color: red;">*</span></label>
-                                <!-- <input type="text" required name="name" class="form-control" placeholder="Product Name" value="{{ old('name') }}" autocomplete="off"> -->
-                                <select id="name" name="name" class="form-control">
-                                    <option></option>
-                                    @if(isset($products))
-                                    @foreach($products as $product)
-                                    <option value="{{ $product->product_name }}"> {{ $product->product_name }}</option>
-                                    @endforeach
-                                    @endif
+                                <label class="control-label">Type <span style="color: red;">*</span></label>
+                                <select class="form-control" name="type" id="type">
+                                    <option value="insert stock">Insert Stock</option>
+                                    <!-- <option value="stock opname">Stock Opname</option> -->
+                                    <option value="retur">Retur</option>
+                                    <option value="product processing">Product Processing</option>
                                 </select>
                             </div>
 
-                            <div style="margin-bottom: 10px;">
-                                <div class="form-inline">
-                                    <div class="form-group required">
-                                        <label class="control-label">Stock <span style="color: red;">*</span></label>
-                                        <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0">
-                                    </div>
-
-                                    <div class="form-group required">
-                                        <label class="control-label">Min Stock</label>
-                                        <input type="number" step="0.1" required id="min_stock" name="min_stock" class="form-control" autocomplete="off" placeholder="0" min="0">
-                                    </div>
-                                </div>
-                                <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
-                            </div>
-
-                            <div class="form-group required">
-                                <label class="control-label">Type <span style="color: red;"></span></label>
-                                <div class="form-inline">
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="raw" checked> Raw material</label>
-                                        </div>
-                                    </div>
-                                    <br />
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="packaging"> Packaging</label>
-                                        </div>
-                                    </div>
-                                    <br />
-                                    @if(isset($flag_recipe))
-                                    @if($flag_recipe == 1)
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="recipe"> Recipe</label>
-                                        </div>
-                                    </div>
-                                    @endif
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="form-group required ingredientForm" hidden>
-                                <label class="control-label">Choose Ingredients <span style="color: red;">*</span></label>
+                            <div class="form-group required ingredientForm">
+                                <label class="control-label">Choose Products <span style="color: red;">*</span></label>
 
                                 <div class="table-responsive">
                                     <!-- Table HTML -->
@@ -120,31 +76,24 @@
                                 </div>
                             </div>
 
-                            <div class="form-group required">
-                                <label class="control-label">Description <span style="color: red;">*</span></label>
-                                <textarea class="form-control" id="description" name="description" rows="2">Bahan baku</textarea>
-                            </div>
-
-                            <a role="button" href="{{ url('/data-master/product') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
+                            <a role="button" href="{{ url('/data-master/stock') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
 
                             <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
                         </div>
 
                         <div class="col-md-7">
-                            <div class="form-group required ingredientForm" hidden>
-                                <label class="control-label">Ingredients <span style="color: red;">*</span></label>
-                                <table id="ingredientTable" class="table table-responsive table-bordered">
+                            <div class="form-group required ingredientForm">
+                                <label class="control-label">Selected Product <span style="color: red;">*</span></label>
+                                <table id="selectedTable" class="table table-responsive table-bordered">
                                     <thead>
                                         <th>ID</th>
                                         <th class="text-center">No</th>
                                         <th class="text-center">Product Name</th>
-                                        <th class="text-center">Required Stock</th>
-                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Qty</th>
                                     </thead>
                                     <tbody>
                                     </tbody>
                                 </table>
-                                <small class="form-text text-muted">Ingredient for 1 packet recipe product</small>
                             </div>
                         </div>
                     </form>
@@ -152,68 +101,18 @@
             </div>
         </div>
     </div>
-</div>
+</div><!-- /row -->
 @endsection
 @section('script')
-<!-- page script -->
-<script type="text/javascript">
+<script>
     $(document).ready(function() {
-        var dataIngredients = [];
-        // ============================ Additional Function
-        $('#name').select2({
-            tags: true,
-            allowClear: true,
-            placeholder: "Input Product",
-        });
-
-        $('#stock').keypress(function(evt) {
-            return (/^[0-9]*\.?[0-9]*$/).test($(this).val() + evt.key);
-        });
-
-        $('#stock').on('keyup change', function(evt) {
-            var type = $("input[name='type']:checked").val();
-            if (type == 'recipe') {
-                var stock = $('#stock').val();
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    dataIngredients[i].estimate_req = stock * dataIngredients[i].req_stock;
-                }
-                resetIngredientTable();
-            }
-        });
-
-        var type = $("input[name='type']:checked").val();
-        if (type == 'raw' || type == 'packaging') {
-            $('.ingredientForm').hide();
-        } else if (type == 'recipe') {
-            $('.ingredientForm').show();
-        }
-
-        $('input[type=radio][name=type]').change(function() {
-            if (this.value == 'raw' || this.value == 'packaging') {
-                $('.ingredientForm').hide();
-            } else if (this.value == 'recipe') {
-                $('.ingredientForm').show();
-            }
-            productTable.rows().deselect();
-            dataIngredients = [];
-            resetIngredientTable();
-        });
+        var dataSelected = [];
 
         // ============================ Initial Datatable
-        var ingredientTable = $("#ingredientTable").DataTable({
+        var selectedTable = $("#selectedTable").DataTable({
             processing: false,
             serverSide: false,
             stateSave: false,
-            rowCallback: function(row, data, index) {
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    if (dataIngredients[i].id == data['id']) {
-                        var available_stock = dataIngredients[i].stock;
-                        if (available_stock < data['estimate_req']) {
-                            $('td', row).css('background-color', 'Yellow');
-                        }
-                    }
-                }
-            },
             lengthMenu: [
                 [-1],
                 ['All']
@@ -237,18 +136,14 @@
                 data: 'product_name',
                 name: 'product_name'
             }, {
-                data: 'req_stock',
-                name: 'req_stock',
+                data: 'qty',
+                name: 'qty',
                 className: 'text-right'
-            }, {
-                data: 'estimate_req',
-                name: 'estimate_req',
-                className: 'text-right'
-            }]
+            }, ]
         });
 
-        $('#ingredientTable').on('draw.dt', function() {
-            $('#ingredientTable').Tabledit({
+        $('#selectedTable').on('draw.dt', function() {
+            $('#selectedTable').Tabledit({
                 url: '/datatable/product/tabledit',
                 dataType: 'json',
                 // class for form inputs
@@ -296,21 +191,20 @@
                 columns: {
                     identifier: [0, 'id'],
                     editable: [
-                        [3, 'req_stock'],
+                        [3, 'qty'],
                     ]
                 },
                 onSuccess: function(data, textStatus, jqXHR) {
                     if (data.action == 'edit') {
                         var id = data.id;
-                        if (data.hasOwnProperty('req_stock')) {
-                            for (var i = 0; i < dataIngredients.length; i++) {
-                                if (dataIngredients[i].id == id) {
-                                    dataIngredients[i].req_stock = data.req_stock
-                                    dataIngredients[i].estimate_req = $('#stock').val() * data.req_stock;
+                        if (data.hasOwnProperty('qty')) {
+                            for (var i = 0; i < dataSelected.length; i++) {
+                                if (dataSelected[i].id == id) {
+                                    dataSelected[i].qty = data.qty
                                 }
                             }
                         }
-                        resetIngredientTable();
+                        resetSelectedTable();
                     }
                 }
             });
@@ -322,12 +216,12 @@
             stateSave: false,
             stateDuration: 0,
             rowCallback: function(row, data, index) {
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    if (dataIngredients[i].id == data['id']) {
+                for (var i = 0; i < dataSelected.length; i++) {
+                    if (dataSelected[i].id == data['id']) {
                         $(row).addClass('selected');
-                        dataIngredients[i].stock = data['stock'];
+                        dataSelected[i].stock = data['stock'];
 
-                        resetIngredientTable();
+                        resetSelectedTable();
                     }
                 }
             },
@@ -348,8 +242,8 @@
                 text: 'Reset',
                 action: function() {
                     productTable.rows().deselect();
-                    dataIngredients = [];
-                    resetIngredientTable();
+                    dataSelected = [];
+                    resetSelectedTable();
                 },
                 className: 'btn btn-default'
             }],
@@ -389,38 +283,37 @@
 
                 var id = productTable.row(this).data().id;
 
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    if (dataIngredients[i].id == id) {
-                        dataIngredients.splice(i, 1);
+                for (var i = 0; i < dataSelected.length; i++) {
+                    if (dataSelected[i].id == id) {
+                        dataSelected.splice(i, 1);
                     }
                 }
 
-                resetIngredientTable();
+                resetSelectedTable();
 
             } else {
                 $(this).addClass('selected');
 
                 var id = productTable.row(this).data().id;
-                var no = dataIngredients.length + 1;
+                var no = dataSelected.length + 1;
                 var productName = productTable.row(this).data().product_name;
-                var stock = productTable.row(this).data().stock;
+                var type_product = productTable.row(this).data().type;
 
-                dataIngredients.push({
+                dataSelected.push({
                     'id': id,
                     'no': no,
                     'product_name': productName,
-                    'req_stock': 0,
-                    'estimate_req': 0,
-                    'stock': stock
+                    'qty': 0,
+                    'type': type_product
                 });
 
-                var resetIngredient = ingredientTable
+                var resetSelected = selectedTable
                     .rows()
                     .remove()
                     .draw();
 
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    ingredientTable.row.add(dataIngredients[i]).draw()
+                for (var i = 0; i < dataSelected.length; i++) {
+                    selectedTable.row.add(dataSelected[i]).draw()
                 }
             }
         });
@@ -433,52 +326,45 @@
             weekStart: 1,
         });
 
-        function resetIngredientTable() {
-            var resetIngredient = ingredientTable
+        function resetSelectedTable() {
+            var resetSelected = selectedTable
                 .rows()
                 .remove()
                 .draw();
 
-            for (var i = 0; i < dataIngredients.length; i++) {
-                dataIngredients[i].no = i + 1;
+            for (var i = 0; i < dataSelected.length; i++) {
+                dataSelected[i].no = i + 1;
             }
 
-            for (var i = 0; i < dataIngredients.length; i++) {
-                ingredientTable.row.add(dataIngredients[i]).draw()
+            for (var i = 0; i < dataSelected.length; i++) {
+                selectedTable.row.add(dataSelected[i]).draw()
             }
         }
 
         // ============================ Core Function
         $('#btnSave').on('click', function() {
-            $("#btnSave").prop('disabled', 'true');
+            // $("#btnSave").prop('disabled', 'true');
 
-            var productName = $('#name').val();
-            var stock = $('#stock').val();
-            var min_stock = $('#min_stock').val();
-            var description = $('#description').val();
-            var type = $("input[name='type']:checked").val();
-
-            axios.post("/data-master/product/create", {
-                    'name': productName,
+            var type = $("#type").val();
+            axios.post("/data-master/stock/manage", {
                     'type': type,
-                    'stock': stock,
-                    'min_stock': min_stock,
-                    'description': description,
-                    'dataIngredients': dataIngredients
+                    'dataSelected': dataSelected
                 })
                 .then(function(response) {
                     if (response.data.status == 1) {
+                        var m = '';
+                        if (response.data.cant.length > 0) {
+                            m = "Bahan tidak memadai <br />"
+                        }
                         swal({
                             title: "Good!",
-                            text: response.data.message,
+                            html: response.data.message + '<br/>' + m + '<b>' +
+                                response.data.cant + '</b>',
                             type: "success",
-                            timer: 1000,
                             confirmButtonText: 'Ok'
-                        }).then(function() {
-                            $('form#main_form')[0].reset();
-                            $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
+                        }).then((result) => {
                             window.location.replace(response.data.intended_url)
-                        });
+                        })
                     } else {
                         swal({
                             title: "Oops!",
@@ -486,8 +372,6 @@
                             type: "error",
                             closeOnConfirm: false
                         });
-
-                        productTable.ajax.reload();
                     }
                     $("#btnSave").removeAttr('disabled');
                 })
@@ -513,5 +397,4 @@
         });
     });
 </script>
-
 @endsection

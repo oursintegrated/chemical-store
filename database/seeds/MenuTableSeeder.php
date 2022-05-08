@@ -238,6 +238,22 @@ class MenuTableSeeder extends Seeder
                 'level' => 2,
                 'type' => 'menu',
             ],
+            [
+                'id' => 29,
+                'menu_desc' => 'Stock - Adjust',
+                'parent_id' => 28,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
+            [
+                'id' => 30,
+                'menu_desc' => 'Stock - Manage',
+                'parent_id' => 28,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
         ]);
     }
 }

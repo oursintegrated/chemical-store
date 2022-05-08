@@ -204,7 +204,7 @@ class RecipeController extends Controller
 
                 DB::commit();
 
-                return response()->json(array('status' => 1, 'message' => 'Successfully updated product.', 'intended_url' => '/data-master/recipe'));
+                return response()->json(array('status' => 1, 'message' => 'Successfully updated recipe.', 'intended_url' => '/data-master/recipe'));
             }
         } catch (Exception $e) {
             DB::rollBack();
@@ -249,7 +249,7 @@ class RecipeController extends Controller
 
             DB::commit();
 
-            return response()->json(array('status' => 1, 'message' => 'Successfully deleted product.'));
+            return response()->json(array('status' => 1, 'message' => 'Successfully deleted recipe.'));
         } catch (Exception $e) {
             DB::rollBack();
 
