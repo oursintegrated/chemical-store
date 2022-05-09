@@ -56,6 +56,7 @@
                                         <th class="text-center">Total</th>
                                         <th class="text-center">Status</th>
                                         <th class="text-center">Transaction Date</th>
+                                        <th class="text-center">Due Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -70,6 +71,7 @@
                                         <th>Total</th>
                                         <th>Status</th>
                                         <th>Transaction Date</th>
+                                        <th>Due Date</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -153,6 +155,10 @@
             }, {
                 data: 'transaction_date',
                 name: 'transaction_date',
+                className: 'text-center'
+            }, {
+                data: 'due_date',
+                name: 'due_date',
                 className: 'text-center'
             }]
         });

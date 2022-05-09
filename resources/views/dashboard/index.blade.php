@@ -23,66 +23,161 @@
 <div class="row row-cards-pf">
     <div class="col-xs-12">
         @if(isset($orders))
-        @foreach($orders as $order)
-        @if($order->day_left > 3 && $order->status == 0)
-        <div class="panel panel-warning" style="border-radius: 10px;">
-            <div class="panel-heading" style="padding: 10px 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                <h3 class="panel-title">Due Date {{ $order->day_left }} days left</h3>
-            </div>
-            <div class="panel-body" style="padding: 8px 10px !important;">
-                <div class="row">
-                    <div class="col-xs-6">
-                        <b>{{ $order->customer_name }}</b>, no order <b> <a target="_blank" href="/sales/{{ $order->id }}/detail">{{ $order->sales_code }}</a> </b> jatuh tempo pada <b>{{ $order->due_date_convert }} [{{ $order->phone_number }}] </b>
-                    </div>
-                    <div class="col-xs-6" style="text-align: right;">
-                        <button class="btn btn-success" onclick="updateStatus({{$order->id}})"><i class="fa fa-check"></i></button>
-                    </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <!-- Table HTML -->
+                    <table id="salesTable" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Action</th>
+                                <th class="text-center">Sales Code</th>
+                                <th class="text-center">Customer Name</th>
+                                <th class="text-center">Address</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Transaction Date</th>
+                                <th class="text-center">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Sales Code</th>
+                                <th>Customer Name</th>
+                                <th>Address</th>
+                                <th>Type</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Transaction Date</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
-        @elseif($order->day_left < 3 && $order->status == 0)
-            <!-- -->
-            <div class="panel panel-danger" style="border-radius: 10px;">
-                <div class="panel-heading" style="padding: 10px 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                    <h3 class="panel-title">Due Date {{ $order->day_left }} days left</h3>
-                </div>
-                <div class="panel-body" style="padding: 8px 10px !important;">
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <b>{{ $order->customer_name }}</b>, no order <b> <a target="_blank" href="/sales/{{ $order->id }}/detail">{{ $order->sales_code }}</a> </b> jatuh tempo pada <b>{{ $order->due_date_convert }} [{{ $order->phone_number }}] </b>
-                        </div>
-                        <div class="col-xs-6" style="text-align: right;">
-                            <button class="btn btn-success" onclick="updateStatus({{$order->id}})"><i class="fa fa-check"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @elseif($order->status == 1)
-            <!-- -->
-            <div class="panel panel-success" style="border-radius: 10px;">
-                <div class="panel-heading" style="padding: 10px 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;text-decoration: line-through;">
-                    <h3 class="panel-title">Due Date {{ $order->day_left }} days left</h3>
-                </div>
-                <div class="panel-body" style="padding: 8px 10px !important;">
-                    <div class="row">
-                        <div class="col-xs-6" style="text-decoration: line-through;">
-                            <b>{{ $order->customer_name }}</b>, no order <b> <a target="_blank" href="/sales/{{ $order->id }}/detail">{{ $order->sales_code }}</a> </b> jatuh tempo pada <b>{{ $order->due_date_convert }} [{{ $order->phone_number }}] </b>
-                        </div>
-                        <div class="col-xs-6" style="text-align: right;">
-                            <button class="btn btn-danger" onclick="deleteStatus({{$order->id}})"><i class="fa fa-close"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-            @endforeach
-            @endif
+        @endif
     </div>
 </div><!-- /row -->
 @endsection
 
 @section('script')
 <script>
+    $('#salesTable tfoot th').each(function() {
+        var title = $(this).text();
+        if (title != '') {
+            $(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Created At') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Updated At') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Transaction Date') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+    });
+
+    // DataTable Config
+    var table = $("#salesTable").DataTable({
+        processing: true,
+        serverSide: false,
+        stateSave: false,
+        stateDuration: 0,
+        lengthMenu: [
+            [10, 50, 75, -1],
+            [10, 50, 75, "All"]
+        ],
+        pageLength: 10,
+        order: [
+            [6, 'asc']
+        ],
+        dom: '<"top"l>rt<"bottom"ip><"clear">',
+        ajax: {
+            "url": "/datatable/dashboard",
+            "type": "POST"
+        },
+        language: {
+            "decimal": ",",
+            "thousands": "."
+        },
+        columns: [{
+            data: 'action',
+            name: 'action',
+            className: "table-view-pf-actions",
+            orderable: false,
+            searchable: false
+        }, {
+            data: 'sales_code',
+            name: 'sales_code'
+        }, {
+            data: 'customer_name',
+            name: 'customer_name'
+        }, {
+            data: 'address',
+            name: 'address'
+        }, {
+            data: 'type',
+            name: 'type',
+            className: 'align-middle'
+        }, {
+            data: 'total',
+            name: 'total'
+        }, {
+            data: 'status',
+            name: 'status',
+            className: 'align-middle'
+        }, {
+            data: 'transaction_date',
+            name: 'transaction_date',
+            className: 'text-center'
+        }, {
+            data: 'due_date',
+            name: 'due_date',
+            className: 'text-center'
+        }]
+    });
+
+    /* Ketika Value pada Input di TFOOT berubah, Maka Search Sesuai Kolom */
+    table.columns().every(function() {
+        var that = this;
+        $('input', this.footer()).on('keyup change', function() {
+
+            // Cancel the default action, if needed
+            event.preventDefault();
+
+            var keyword = this.value;
+
+            if (this.placeholder == 'Search Published') {
+                keyword = keyword.toUpperCase();
+                if (keyword == 'TRUE' || keyword == 'YA' || keyword == 'YES' || keyword == 'Y' || keyword == '1') {
+                    keyword = 1;
+                } else {
+                    keyword = 0;
+                }
+            }
+
+            if (that.search() !== keyword) {
+                that
+                    .search(keyword)
+                    .draw();
+            }
+        });
+    });
+
+    $("tfoot .datepicker").datepicker({
+        autoclose: true,
+        endDate: "0d",
+        format: "dd MM yyyy",
+        todayHighlight: true,
+        weekStart: 1,
+    });
+
     function updateStatus(id) {
         axios.post("/sales/" + id + "/update-status", {})
             .then(function(response) {
@@ -125,46 +220,66 @@
             });
     }
 
-    function deleteStatus(id) {
-        axios.post("/sales/" + id + "/delete-status", {})
-            .then(function(response) {
-                if (response.data.status == 1) {
-                    swal({
-                        title: "Good!",
-                        text: response.data.message,
-                        type: "success",
-                        timer: 1000,
-                        confirmButtonText: 'Ok'
-                    }).then(function() {
-                        location.reload();
-                    });
-                } else {
-                    swal({
-                        title: "Oops!",
-                        text: response.data.message,
-                        type: "error",
-                        closeOnConfirm: false
-                    });
-                }
-            })
-            .catch(function(error) {
-                switch (error.response.status) {
-                    case 422:
-                        swal({
-                            title: "Oops!",
-                            text: 'Failed form validation. Please check your input.',
-                            type: "error"
-                        });
-                        break;
-                    case 500:
-                        swal({
-                            title: "Oops!",
-                            text: 'Something went wrong.',
-                            type: "error"
-                        });
-                        break;
-                }
-            });
-    }
+    // function deleteStatus(id) {
+    //     axios.post("/sales/" + id + "/delete-status", {})
+    //         .then(function(response) {
+    //             if (response.data.status == 1) {
+    //                 swal({
+    //                     title: "Good!",
+    //                     text: response.data.message,
+    //                     type: "success",
+    //                     timer: 1000,
+    //                     confirmButtonText: 'Ok'
+    //                 }).then(function() {
+    //                     location.reload();
+    //                 });
+    //             } else {
+    //                 swal({
+    //                     title: "Oops!",
+    //                     text: response.data.message,
+    //                     type: "error",
+    //                     closeOnConfirm: false
+    //                 });
+    //             }
+    //         })
+    //         .catch(function(error) {
+    //             switch (error.response.status) {
+    //                 case 422:
+    //                     swal({
+    //                         title: "Oops!",
+    //                         text: 'Failed form validation. Please check your input.',
+    //                         type: "error"
+    //                     });
+    //                     break;
+    //                 case 500:
+    //                     swal({
+    //                         title: "Oops!",
+    //                         text: 'Something went wrong.',
+    //                         type: "error"
+    //                     });
+    //                     break;
+    //             }
+    //         });
+    // }
+
+    var completeSales = function(me) {
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this record!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "lime",
+            confirmButtonText: "Yes, complete it!",
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                _completeSales(me)
+            }
+        })
+    };
+
+    var _completeSales = function(me) {
+        var recordID = me.data('record-id');
+        updateStatus(recordID);
+    };
 </script>
 @endsection

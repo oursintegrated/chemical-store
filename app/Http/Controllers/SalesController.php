@@ -284,7 +284,7 @@ class SalesController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date', 'status']);
+        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date', 'status', 'pembayaran']);
 
         return Datatables::of($sales)
             ->addColumn('action', function ($sale) {
@@ -301,9 +301,11 @@ class SalesController extends Controller
             })
             ->editColumn('type', function ($sale) {
                 if ($sale->type == 'tunai') {
-                    return '<span class="label label-success"> Tunai </span>';
-                } else {
+                    return '<span class="label label-success"> Tunai ' . $sale->pembayaran . ' </span>';
+                } else if ($sale->type == 'kontrabon') {
                     return '<span class="label label-warning"> Kasbon - ' . $sale->due_date . ' </span>';
+                } else if ($sale->type == 'kredit') {
+                    return '<span class="label label-info"> Kredit </span>';
                 }
             })
             ->editColumn('total', function ($sale) {
@@ -317,6 +319,18 @@ class SalesController extends Controller
                     return '<span class="label label-success"> Complete </span>';
                 } else {
                     return '<span class="label label-warning"> Not Complete </span>';
+                }
+            })
+            ->editColumn('due_date', function ($sale) {
+                if ($sale->type == 'tunai' || $sale->type == 'kredit') {
+                    return '-';
+                } else if ($sale->type == 'kontrabon') {
+                    $temp = date_create($sale->transaction_date);
+                    $date = date_format($temp, "d M Y");
+                    $due = $sale->due_date;
+                    $due_date_temp = date_add($temp, date_interval_create_from_date_string($due . " days"));
+                    $due_date = date_format($due_date_temp, "d M Y");
+                    return $due_date;
                 }
             })
             ->rawColumns(['action', 'type', 'status'])

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Role;
+use DataTables;
+use DateTime;
+use Illuminate\Support\Carbon;
 
 class HomeController extends Controller
 {
@@ -133,5 +136,69 @@ class HomeController extends Controller
 
             return response()->json(array('status' => 0, 'message' => 'Something went wrong.'));
         }
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableSales()
+    {
+        /* RBAC */
+        if (!Role::authorize('dashboard.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date', 'status', 'pembayaran'])->where('status', 0);
+
+        return Datatables::of($sales)
+            ->addColumn('action', function ($sale) {
+                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
+
+                /* Tambah Action */
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $sale->id . '" onclick="completeSales($(this));"><i class="fa fa-check"></i>&nbsp; Complete</a></li>';
+                /* Selesai Action */
+
+                $buttons .= '</ul></div></div>';
+
+                return $buttons;
+            })
+            ->editColumn('type', function ($sale) {
+                if ($sale->type == 'tunai') {
+                    return '<span class="label label-success"> Tunai ' . $sale->pembayaran . ' </span>';
+                } else if ($sale->type == 'kontrabon') {
+                    return '<span class="label label-warning"> Kasbon - ' . $sale->due_date . ' </span>';
+                } else if ($sale->type == 'kredit') {
+                    return '<span class="label label-info"> Kredit </span>';
+                }
+            })
+            ->editColumn('total', function ($sale) {
+                return 'Rp ' . number_format($sale->total, 2, ',', '.');
+            })
+            ->editColumn('transaction_date', function ($sale) {
+                return $sale->transaction_date ? with(new Carbon($sale->transaction_date))->format('d F Y H:i') : '';
+            })
+            ->editColumn('status', function ($sale) {
+                if ($sale->status == 1) {
+                    return '<span class="label label-success"> Complete </span>';
+                } else {
+                    return '<span class="label label-warning"> Not Complete </span>';
+                }
+            })
+            ->editColumn('due_date', function ($sale) {
+                if ($sale->type == 'tunai' || $sale->type == 'kredit') {
+                    return '-';
+                } else if ($sale->type == 'kontrabon') {
+                    $temp = date_create($sale->transaction_date);
+                    $date = date_format($temp, "d M Y");
+                    $due = $sale->due_date;
+                    $due_date_temp = date_add($temp, date_interval_create_from_date_string($due . " days"));
+                    $due_date = date_format($due_date_temp, "d M Y");
+                    return $due_date;
+                }
+            })
+            ->rawColumns(['action', 'type', 'status'])
+            ->make(true);
     }
 }
