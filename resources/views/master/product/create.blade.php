@@ -34,7 +34,7 @@
                 <div class="row">
                     <form id="main_form" autocomplete="off">
                         {{ csrf_field() }}
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <div class="form-group required">
                                 <label class="control-label">Product Name <span style="color: red;">*</span></label>
                                 <!-- <input type="text" required name="name" class="form-control" placeholder="Product Name" value="{{ old('name') }}" autocomplete="off"> -->
@@ -50,15 +50,11 @@
 
                             <div style="margin-bottom: 10px;">
                                 <div class="form-inline">
-                                    <div class="form-group required">
-                                        <label class="control-label">Stock <span style="color: red;">*</span></label>
-                                        <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0">
-                                    </div>
+                                    <label class="control-label">Stock <span style="color: red;">*</span></label>
+                                    <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0">
 
-                                    <div class="form-group required">
-                                        <label class="control-label">Min Stock</label>
-                                        <input type="number" step="0.1" required id="min_stock" name="min_stock" class="form-control" autocomplete="off" placeholder="0" min="0">
-                                    </div>
+                                    <label class="control-label">Min Stock</label>
+                                    <input type="number" step="0.1" required id="min_stock" name="min_stock" class="form-control" autocomplete="off" placeholder="0" min="0">
                                 </div>
                                 <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
                             </div>
@@ -130,7 +126,7 @@
                             <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Save</button>
                         </div>
 
-                        <div class="col-md-7">
+                        <div class="col-md-6">
                             <div class="form-group required ingredientForm" hidden>
                                 <label class="control-label">Ingredients <span style="color: red;">*</span></label>
                                 <table id="ingredientTable" class="table table-responsive table-bordered">

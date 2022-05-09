@@ -274,7 +274,7 @@ class StockController extends Controller
                                         // Insert Log
                                         ProductStockLog::create([
                                             'product_id' => $ingredient_id,
-                                            'description' => "Digunakan untuk pembuatan " . $product_name,
+                                            'description' => "digunakan untuk pembuatan " . $product_name,
                                             'from_qty' => $real_stock,
                                             'to_qty' => $stock_left,
                                             'updated_by' => Auth::user()->id,
@@ -472,7 +472,7 @@ class StockController extends Controller
             $r = ' AND flag_admin = 0';
         }
 
-        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . $r));
+        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . $r . " Order By updated_at ASC"));
 
         return Datatables::of($histories)
             ->editColumn('updated_at', function ($history) {

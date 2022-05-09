@@ -25,6 +25,7 @@ class SalesHeader extends Model
         'phone_number',
         'address',
         'type',
+        'pembayaran',
         'due_date',
         'transaction_date',
         'total',

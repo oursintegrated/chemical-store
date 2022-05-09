@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 use Datatables;
 use Illuminate\Support\Carbon;
+use App\ProductStockLog;
 
 class SalesController extends Controller
 {
@@ -96,61 +97,90 @@ class SalesController extends Controller
                 $total = floatval(str_replace(',', '.', str_replace('.', '', $request->input('total'))));
 
                 $status = 0;
+
+                $pembayaran = '';
                 if ($type == 'tunai') {
-                    $status = 1;
+                    $pembayaran = $request->input('pembayaran');
                 }
 
-                $sales_header_id = SalesHeader::insertGetId([
-                    'sales_code' => $sales_code,
-                    'customer_id' => $customer_id,
-                    'customer_name' => $customer_name,
-                    'phone_number' => $phone_number,
-                    'address' => $address,
-                    'type' => $type,
-                    'due_date' => $due_date,
-                    'transaction_date' => now(),
-                    'total' => $total,
-                    'updated_by' => Auth::user()->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                    'status' => $status
-                ]);
-
+                // check stock
+                $flag = true;
                 $products = $request->input('data_product');
                 if (count($products) == 0) {
                     return response()->json(array('status' => 0, 'message' => 'Please select min 1 product.'));
                 }
 
-
+                $cant = '';
                 for ($i = 0; $i < count($products); $i++) {
                     $product_id = $products[$i]['id'];
-                    $product_name = $products[$i]['product_name'];
                     $qty = (float)$products[$i]['qty'];
-                    $price = (float)$products[$i]['price'];
-                    $totalPiece = (float)$products[$i]['total'];
-
-                    SalesDetail::create([
-                        'sales_header_id' => $sales_header_id,
-                        'product_id' => $product_id,
-                        'product_name' => $product_name,
-                        'qty' => $qty,
-                        'price' => $price,
-                        'total' => $totalPiece
-                    ]);
-
-                    // update stock
-                    $p_old = Product::where('id', $product_id)->first();
-                    $stock_old = $p_old->stock_kg;
-                    $stock_new = $stock_old - $qty;
-
-                    Product::findOrFail($product_id)->update([
-                        'stock_kg' => $stock_new
-                    ]);
+                    $check = Product::where('id', $product_id)->first();
+                    if ($check->stock < $qty) {
+                        $cant = $check->product_name;
+                        $flag = false;
+                        break;
+                    }
                 };
 
-                DB::commit();
+                if ($flag == true) {
+                    $sales_header_id = SalesHeader::insertGetId([
+                        'sales_code' => $sales_code,
+                        'customer_id' => $customer_id,
+                        'customer_name' => $customer_name,
+                        'phone_number' => $phone_number,
+                        'address' => $address,
+                        'type' => $type,
+                        'pembayaran' => $pembayaran,
+                        'due_date' => $due_date,
+                        'transaction_date' => now(),
+                        'total' => $total,
+                        'updated_by' => Auth::user()->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'status' => $status
+                    ]);
 
-                return response()->json(array('status' => 1, 'message' => 'Successfully created sales.', 'intended_url' => '/sales'));
+                    for ($i = 0; $i < count($products); $i++) {
+                        $product_id = $products[$i]['id'];
+                        $product_name = $products[$i]['product_name'];
+                        $qty = (float)$products[$i]['qty'];
+                        $price = (float)$products[$i]['price'];
+                        $totalPiece = (float)$products[$i]['total'];
+
+                        SalesDetail::create([
+                            'sales_header_id' => $sales_header_id,
+                            'product_id' => $product_id,
+                            'product_name' => $product_name,
+                            'qty' => $qty,
+                            'price' => $price,
+                            'total' => $totalPiece
+                        ]);
+
+                        // update stock
+                        $p_old = Product::where('id', $product_id)->first();
+                        $stock_old = $p_old->stock;
+                        $stock_new = $stock_old - $qty;
+
+                        Product::findOrFail($product_id)->update([
+                            'stock' => $stock_new
+                        ]);
+
+                        // Insert Log
+                        ProductStockLog::create([
+                            'product_id' => $product_id,
+                            'description' => "penjualan no order " . $sales_code,
+                            'from_qty' => $stock_old,
+                            'to_qty' => $stock_new,
+                            'updated_by' => Auth::user()->id,
+                            'flag_admin' => 0
+                        ]);
+                    };
+                    DB::commit();
+
+                    return response()->json(array('status' => 1, 'message' => 'Successfully created sales.', 'intended_url' => '/sales'));
+                } else {
+                    return response()->json(array('status' => 0, 'message' => 'Stock ' . $cant . ' tidak memadai.'));
+                }
             }
         } catch (Exception $e) {
             DB::rollBack();
@@ -175,6 +205,11 @@ class SalesController extends Controller
         $date = date_format($temp, "d M Y");
         $data['transaction_date'] = $date;
 
+        $due = $data['orderHeader']->due_date;
+        $due_date_temp = date_add($temp, date_interval_create_from_date_string($due . " days"));
+        $due_date = date_format($due_date_temp, "d M Y");
+        $data['due_date'] = $due_date;
+
         $data['orderDetails'] = SalesDetail::where('sales_header_id', $id)->get();
 
         return view('sales.detail', $data);
@@ -196,8 +231,36 @@ class SalesController extends Controller
         DB::beginTransaction();
 
         try {
-            $post = SalesHeader::findOrFail($id);
-            $post->delete();
+            $sales_header = SalesHeader::findOrFail($id);
+
+            $sales_code = $sales_header->sales_code;
+
+            $sales_detail = SalesDetail::where('sales_header_id', $id)->get();
+            for ($i = 0; $i < count($sales_detail); $i++) {
+                $product_id = $sales_detail[$i]->product_id;
+                $qty = $sales_detail[$i]->qty;
+
+                // update stock
+                $p_old = Product::where('id', $product_id)->first();
+                $stock_old = $p_old->stock;
+                $stock_new = $stock_old + $qty;
+
+                Product::findOrFail($product_id)->update([
+                    'stock' => $stock_new
+                ]);
+
+                // Insert Log
+                ProductStockLog::create([
+                    'product_id' => $product_id,
+                    'description' => "penghapusan no order " . $sales_code,
+                    'from_qty' => $stock_old,
+                    'to_qty' => $stock_new,
+                    'updated_by' => Auth::user()->id,
+                    'flag_admin' => 0
+                ]);
+            }
+
+            $sales_header->delete();
 
             DB::commit();
 
@@ -221,7 +284,7 @@ class SalesController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date']);
+        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date', 'status']);
 
         return Datatables::of($sales)
             ->addColumn('action', function ($sale) {
@@ -249,7 +312,14 @@ class SalesController extends Controller
             ->editColumn('transaction_date', function ($sale) {
                 return $sale->transaction_date ? with(new Carbon($sale->transaction_date))->format('d F Y H:i') : '';
             })
-            ->rawColumns(['action', 'type'])
+            ->editColumn('status', function ($sale) {
+                if ($sale->status == 1) {
+                    return '<span class="label label-success"> Complete </span>';
+                } else {
+                    return '<span class="label label-warning"> Not Complete </span>';
+                }
+            })
+            ->rawColumns(['action', 'type', 'status'])
             ->make(true);
     }
 }

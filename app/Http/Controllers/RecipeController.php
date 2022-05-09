@@ -89,7 +89,7 @@ class RecipeController extends Controller
                 $digit = strtoupper(substr($name, 0, 3));
 
 
-                if (!Role::authorize('product.recipe')) {
+                if (!Role::authorize('recipe.create')) {
                     return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
                 }
 
@@ -291,6 +291,51 @@ class RecipeController extends Controller
             })
             ->editColumn('updated_at', function ($recipe) {
                 return $recipe->updated_at ? with(new Carbon($recipe->updated_at))->format('d F Y H:i') : '';
+            })
+            ->make(true);
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableRawProduct()
+    {
+        /* RBAC */
+        if (!Role::authorize('recipe.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
+
+        return Datatables::of($products)
+            ->addColumn('action', function ($product) {
+                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
+
+                /* Tambah Action */
+                $buttons .= '<li><a href="product/' . $product->id . '/edit"><i class="fa fa-pencil-square-o"></i>&nbsp; Edit</a></li>';
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $product->id . '" onclick="deleteProduct($(this));"><i class="fa fa-trash"></i>&nbsp; Delete</a></li>';
+                /* Selesai Action */
+
+                $buttons .= '</ul></div></div>';
+
+                return $buttons;
+            })
+            ->editColumn('type', function ($product) {
+                if ($product->type == 'raw') {
+                    return 'Raw Material';
+                } else if ($product->type == 'packaging') {
+                    return 'Packaging';
+                } else {
+                    return 'Recipe';
+                }
+            })
+            ->editColumn('created_at', function ($product) {
+                return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
+            })
+            ->editColumn('updated_at', function ($product) {
+                return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
             })
             ->make(true);
     }

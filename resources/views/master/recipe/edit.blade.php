@@ -286,7 +286,7 @@
             }],
             dom: 'Bfrtip',
             ajax: {
-                "url": "/datatable/products/raw-material",
+                "url": "/datatable/recipe/raw-material",
                 "type": "POST"
             },
             language: {

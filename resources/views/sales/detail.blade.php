@@ -42,7 +42,7 @@
                                 <div class="html-content" id="html-content">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <span>@if(isset($orderHeader)) @if($orderHeader->type == 'tunai') T @else K{{ $orderHeader->due_date }} @endif @endif</span>
+                                            <span>@if(isset($orderHeader)) @if($orderHeader->type == 'kontrabon') Jatuh Tempo : {{ $due_date }} @endif @endif</span>
                                         </div>
                                         <div class="col-md-6 text-center">
                                             Bandung, {{ $transaction_date }} <br />

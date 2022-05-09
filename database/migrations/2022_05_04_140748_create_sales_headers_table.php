@@ -21,6 +21,7 @@ class CreateSalesHeadersTable extends Migration
             $table->string('phone_number');
             $table->string('address');
             $table->string('type');
+            $table->string('pembayaran')->nullable();
             $table->integer('due_date')->nullable();
             $table->timestamp('transaction_date');
             $table->decimal('total', 14, 2);

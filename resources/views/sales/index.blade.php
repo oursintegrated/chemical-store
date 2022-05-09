@@ -54,6 +54,7 @@
                                         <th class="text-center">Address</th>
                                         <th class="text-center">Type</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Status</th>
                                         <th class="text-center">Transaction Date</th>
                                     </tr>
                                 </thead>
@@ -67,6 +68,7 @@
                                         <th>Address</th>
                                         <th>Type</th>
                                         <th>Total</th>
+                                        <th>Status</th>
                                         <th>Transaction Date</th>
                                     </tr>
                                 </tfoot>
@@ -144,6 +146,10 @@
             }, {
                 data: 'total',
                 name: 'total'
+            }, {
+                data: 'status',
+                name: 'status',
+                className: 'align-middle'
             }, {
                 data: 'transaction_date',
                 name: 'transaction_date',

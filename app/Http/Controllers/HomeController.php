@@ -31,7 +31,7 @@ class HomeController extends Controller
     {
         $data['menu'] = $this->getMenu();
 
-        $x = DB::select(DB::raw("SELECT *, (SELECT DATE_ADD(transaction_date, interval due_date day )) as due_date_convert, DATEDIFF(DATE_ADD(transaction_date, interval due_date day ), now()) as day_left FROM sales_headers WHERE type = 'kasbon' ORDER BY day_left, sales_code, customer_name ASC"));
+        $x = DB::select(DB::raw("SELECT *, (SELECT DATE_ADD(transaction_date, interval due_date day )) as due_date_convert, DATEDIFF(DATE_ADD(transaction_date, interval due_date day ), now()) as day_left FROM sales_headers WHERE status = 0 ORDER BY day_left, sales_code, customer_name ASC"));
         $data['orders'] = $x;
 
         return view('dashboard.index', $data);

@@ -165,7 +165,7 @@ class ProductController extends Controller
                         // Insert Log
                         ProductStockLog::create([
                             'product_id' => $ingredient_id,
-                            'description' => "Digunakan untuk pembuatan " . $name,
+                            'description' => "digunakan untuk pembuatan " . $name,
                             'from_qty' => $available_stock,
                             'to_qty' => $stock_left,
                             'updated_by' => Auth::user()->id,

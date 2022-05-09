@@ -93,7 +93,9 @@ class RoleController extends Controller
                     'display_name' => $display_name,
                     'description' => $description,
                     'created_by' => Auth::user()->id,
-                    'updated_by' => Auth::user()->id
+                    'updated_by' => Auth::user()->id,
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
 
                 for ($i = 0; $i < count($menu); $i++) {

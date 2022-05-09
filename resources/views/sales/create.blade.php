@@ -41,7 +41,7 @@
                                     <option></option>
                                     @if(isset($customers))
                                     @foreach($customers as $customer)
-                                    <option value="{{ $customer->id }}"> {{ $customer->name }}</option>
+                                    <option data-tenggat="{{ $customer->kontrabon }}" value=" {{ $customer->id }}"> {{ $customer->name }}</option>
                                     @endforeach
                                     @endif
                                 </select>
@@ -62,17 +62,43 @@
                                 <div class="form-inline">
                                     <div class="form-group">
                                         <div class="radio">
-                                            <label><input type="radio" name="type" value="tunai" checked>Tunai</label>
+                                            <label><input type="radio" name="type" value="tunai" checked> Tunai</label>
                                         </div>
                                     </div>
                                     <br />
                                     <div class="form-group">
                                         <div class="radio">
-                                            <label><input type="radio" name="type" value="kasbon">Kasbon</label>
+                                            <label><input type="radio" name="type" value="kontrabon"> Kontrabon</label>
                                         </div>
                                     </div>
+                                    <br />
                                     <div class="form-group">
-                                        <input disabled type="number" class="form-control" id="tenggat" name="tenggat" placeholder="Due date">
+                                        <div class="radio">
+                                            <label><input type="radio" name="type" value="kredit"> Kredit</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group required" id="formTunai">
+                                <label class="control-label">Pembayaran <span style="color: red;"></span></label>
+                                <div class="form-inline">
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label><input type="radio" name="pembayaranTunai" value="cash" checked> Cash</label>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label><input type="radio" name="pembayaranTunai" value="transfer"> Transfer</label>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label><input type="radio" name="pembayaranTunai" value="gyro"> Gyro</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -175,13 +201,13 @@
                                         </div>
                                     </div>
 
-                                    <div class="row">
+                                    <!-- <div class="row">
                                         <div class="col-md-12 text-right">
                                             <button id="printNota" class="btn btn-default" type="button">
                                                 <i class="fa fa-print" aria-hidden="true"></i> Nota
                                             </button>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -199,38 +225,38 @@
         var dataProduct = [];
 
         // ================================= Create PDf from HTML
-        $('#printNota').on('click', function() {
-            var HTML_Width = $(".html-content").width();
-            var HTML_Height = $(".html-content").height();
-            var top_left_margin = 15;
-            var PDF_Width = HTML_Width + (top_left_margin * 2);
-            var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
-            var canvas_image_width = HTML_Width;
-            var canvas_image_height = HTML_Height;
+        // $('#printNota').on('click', function() {
+        //     var HTML_Width = $(".html-content").width();
+        //     var HTML_Height = $(".html-content").height();
+        //     var top_left_margin = 15;
+        //     var PDF_Width = HTML_Width + (top_left_margin * 2);
+        //     var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+        //     var canvas_image_width = HTML_Width;
+        //     var canvas_image_height = HTML_Height;
 
-            var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+        //     var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
 
-            var node = document.getElementById('html-content');
-            var options = {
-                quality: 0.95
-            };
+        //     var node = document.getElementById('html-content');
+        //     var options = {
+        //         quality: 0.95
+        //     };
 
-            html2canvas($(".html-content")[0], {
-                quality: 4,
-                scale: 5
-            }).then(function(canvas) {
-                var imgData = canvas.toDataURL("image/jpeg", 1.0);
-                var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
-                pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
-                for (var i = 1; i <= totalPDFPages; i++) {
-                    pdf.addPage(PDF_Width, PDF_Height);
-                    pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
-                }
+        //     html2canvas($(".html-content")[0], {
+        //         quality: 4,
+        //         scale: 5
+        //     }).then(function(canvas) {
+        //         var imgData = canvas.toDataURL("image/jpeg", 1.0);
+        //         var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+        //         pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+        //         for (var i = 1; i <= totalPDFPages; i++) {
+        //             pdf.addPage(PDF_Width, PDF_Height);
+        //             pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+        //         }
 
-                var customerName = $("#name option:selected").text();
-                pdf.save("Nota-" + customerName + ".pdf");
-            });
-        });
+        //         var customerName = $("#name option:selected").text();
+        //         pdf.save("Nota-" + customerName + ".pdf");
+        //     });
+        // });
 
         // ================================= Initial DataTable
         var notaTable = $("#notaTable").DataTable({
@@ -607,29 +633,46 @@
 
         var type = $("input[name='type']:checked").val();
         if (type == 'tunai') {
-            $('#type').text('T');
-        } else if (type == 'kasbon') {
-            $('#type').text('K');
+            $('#formTunai').show();
+        } else {
+            $('#formTunai').hide();
         }
 
         $('input[type=radio][name=type]').change(function() {
             if (this.value == 'tunai') {
-                $('#tenggat').prop('disabled', true);
-                $('#tenggat').val('');
-                $('#type').text('T');
-            } else if (this.value == 'kasbon') {
-                $('#tenggat').prop('disabled', false);
-                $('#type').text('K');
-            }
-        });
+                $('#formTunai').show();
+                $('#type').text('');
+            } else if (this.value == 'kontrabon') {
+                var due = $("#name").select2().find(":selected").data("tenggat");
 
-        $('#tenggat').on('keyup change', function(event) {
-            $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
-            if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
-                event.preventDefault();
-            }
+                if (due == undefined) {
+                    swal({
+                        title: "Oops!",
+                        text: "Please input customer name.",
+                        type: "error",
+                        closeOnConfirm: false
+                    });
+                    $('input:radio[name=type]').filter('[value=tunai]').prop('checked', true);
+                    $('#formTunai').show();
+                    $('#type').text('');
+                } else {
+                    var date = new Date();
+                    date.setDate(date.getDate() + due);
 
-            $('#type').text('K' + $('#tenggat').val());
+                    var mydate = new Date(date);
+                    var date = mydate.getDate();
+                    var month = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                    ][mydate.getMonth()];
+                    var formatDate = date + ' ' + month + ' ' + mydate.getFullYear();
+
+                    $('#formTunai').hide();
+                    $('#type').text('Jatuh Tempo : ' + formatDate);
+                }
+            } else if (this.value == 'kredit') {
+                $('#formTunai').hide();
+                $('#type').text('');
+            }
         });
 
         //  ================================= Create Sales
@@ -637,81 +680,152 @@
         $("#btnSave").on('click', function() {
             $("#btnSave").prop('disabled', 'true');
 
+            // // PRINT NOTA
+            // var HTML_Width = $(".html-content").width();
+            // var HTML_Height = $(".html-content").height();
+            // var top_left_margin = 15;
+            // var PDF_Width = HTML_Width + (top_left_margin * 2);
+            // var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+            // var canvas_image_width = HTML_Width;
+            // var canvas_image_height = HTML_Height;
+
+            // var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+
+            // var node = document.getElementById('html-content');
+            // var options = {
+            //     quality: 0.95
+            // };
+
+            // html2canvas($(".html-content")[0], {
+            //     quality: 4,
+            //     scale: 5
+            // }).then(function(canvas) {
+            //     var imgData = canvas.toDataURL("image/jpeg", 1.0);
+            //     var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+            //     pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+            //     for (var i = 1; i <= totalPDFPages; i++) {
+            //         pdf.addPage(PDF_Width, PDF_Height);
+            //         pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+            //     }
+
+            //     var customerName = $("#name option:selected").text();
+            //     pdf.save("Nota-" + customerName + ".pdf");
+            // });
+
+            // =========================
+            var flag = true;
             var customerId = $('#name').val();
             var customerName = $("#name option:selected").text();
             var phoneNumber = $("#telephone option:selected").text();
             var address = $("#address option:selected").text();
             var type = $('input[name="type"]:checked').val();
-            var tenggat = 0;
-            if (type == 'kasbon') {
-                tenggat = $('#tenggat').val();
-            }
             var total = $('#total').val();
 
-            // console.log('data', {
-            //     'customer_id': customerId,
-            //     'customer_name': customerName,
-            //     'phone_id': phoneId,
-            //     'phone_number': phoneNumber,
-            //     'address_id': addressId,
-            //     'address_loc': addressLoc,
-            //     'type': type,
-            //     'tenggat': tenggat,
-            //     'data_product': dataProduct
-            // })
+            var tenggat = 0;
+            var pembayaran = '';
+            if (type == 'tunai') {
+                var pembayaran = $('input[name="pembayaranTunai"]:checked').val();
+            }
+            if (type == 'kontrabon') {
+                var tenggat = $("#name").select2().find(":selected").data("tenggat");
+                if (tenggat == undefined) {
+                    swal({
+                        title: "Oops!",
+                        text: "Please input customer name.",
+                        type: "error",
+                        closeOnConfirm: false
+                    });
+                    flag == false;
+                }
+            }
 
-            axios.post("/sales/create", {
-                    'customer_id': customerId,
-                    'customer_name': customerName,
-                    'phone_number': phoneNumber,
-                    'address': address,
-                    'type': type,
-                    'due_date': tenggat,
-                    'data_product': dataProduct,
-                    'total': total
-                })
-                .then(function(response) {
-                    if (response.data.status == 1) {
-                        swal({
-                            title: "Good!",
-                            text: response.data.message,
-                            type: "success",
-                            timer: 1000,
-                            confirmButtonText: 'Ok'
-                        }).then(function() {
-                            $('form#main_form')[0].reset();
-                            $("form#main_form:not(.filter) :input:visible:enabled:first").focus();
-                            window.location.replace(response.data.intended_url)
-                        });
-                    } else {
-                        swal({
-                            title: "Oops!",
-                            text: response.data.message,
-                            type: "error",
-                            closeOnConfirm: false
-                        });
-                    }
-                    $("#btnSave").removeAttr('disabled');
-                })
-                .catch(function(error) {
-                    switch (error.response.status) {
-                        case 422:
+            if (flag == true) {
+                axios.post("/sales/create", {
+                        'customer_id': customerId,
+                        'customer_name': customerName,
+                        'phone_number': phoneNumber,
+                        'address': address,
+                        'type': type,
+                        'pembayaran': pembayaran,
+                        'due_date': tenggat,
+                        'data_product': dataProduct,
+                        'total': total
+                    })
+                    .then(function(response) {
+                        if (response.data.status == 1) {
+                            swal({
+                                title: "Good!",
+                                text: response.data.message,
+                                type: "success",
+                                timer: 1000,
+                                confirmButtonText: 'Ok'
+                            }).then(function() {
+                                // PRINT NOTA
+                                var HTML_Width = $(".html-content").width();
+                                var HTML_Height = $(".html-content").height();
+                                var top_left_margin = 15;
+                                var PDF_Width = HTML_Width + (top_left_margin * 2);
+                                var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+                                var canvas_image_width = HTML_Width;
+                                var canvas_image_height = HTML_Height;
+
+                                var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+
+                                var node = document.getElementById('html-content');
+                                var options = {
+                                    quality: 0.95
+                                };
+
+                                html2canvas($(".html-content")[0], {
+                                    quality: 4,
+                                    scale: 5
+                                }).then(function(canvas) {
+                                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                                    var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+                                    pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+                                    for (var i = 1; i <= totalPDFPages; i++) {
+                                        pdf.addPage(PDF_Width, PDF_Height);
+                                        pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+                                    }
+
+                                    var customerName = $("#name option:selected").text();
+                                    pdf.save("Nota-" + customerName + ".pdf");
+
+                                    window.location.replace(response.data.intended_url)
+
+                                });
+                            });
+                        } else {
                             swal({
                                 title: "Oops!",
-                                text: 'Failed form validation. Please check your input.',
-                                type: "error"
+                                text: response.data.message,
+                                type: "error",
+                                closeOnConfirm: false
                             });
-                            break;
-                        case 500:
-                            swal({
-                                title: "Oops!",
-                                text: 'Something went wrong.',
-                                type: "error"
-                            });
-                            break;
-                    }
-                    $("#btnSave").removeAttr('disabled');
-                });
+                        }
+                        $("#btnSave").removeAttr('disabled');
+                    })
+                    .catch(function(error) {
+                        switch (error.response.status) {
+                            case 422:
+                                swal({
+                                    title: "Oops!",
+                                    text: 'Failed form validation. Please check your input.',
+                                    type: "error"
+                                });
+                                break;
+                            case 500:
+                                swal({
+                                    title: "Oops!",
+                                    text: 'Something went wrong.',
+                                    type: "error"
+                                });
+                                break;
+                        }
+                        $("#btnSave").removeAttr('disabled');
+                    });
+            }
+
         });
 
     });
