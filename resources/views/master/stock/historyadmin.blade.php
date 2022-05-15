@@ -64,6 +64,7 @@
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Stock Start</th>
                                         <th class="text-center">End of Stock</th>
+                                        <th class="text-center">Total</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
                                 </thead>
@@ -75,6 +76,7 @@
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Stock Start</th>
                                         <th class="text-center">End of Stock</th>
+                                        <th class="text-center">Total</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
                                 </tfoot>
@@ -107,6 +109,11 @@
         });
 
         $('#searchBtn').on('click', function() {
+            if ($('#date').val() == '') {
+                startDate = '';
+                endDate = '';
+            }
+
             table.ajax.reload();
         });
 
@@ -139,11 +146,11 @@
             ],
             dom: '<"top"l>rt<"bottom"ip><"clear">',
             ajax: {
-                "url": "/datatable/stock/history",
+                "url": "/datatable/stock/history-admin",
                 "type": "POST",
                 "data": function(d) {
                     d.start_date = startDate,
-                        d.nd_date = endDate,
+                        d.end_date = endDate,
                         d.id = $('#product').val()
                 }
             },
@@ -164,6 +171,10 @@
             }, {
                 data: 'to_qty',
                 name: 'to_qty',
+                className: 'text-right'
+            }, {
+                data: 'total',
+                name: 'total',
                 className: 'text-right'
             }, {
                 data: 'updated_at',

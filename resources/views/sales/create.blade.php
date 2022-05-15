@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="form-group required">
-                                <label class="control-label">Telephone <span style="color: red;">*</span></label>
+                                <label class="control-label">Telephone</label>
                                 <select class="form-control" id="telephone"></select>
                             </div>
 
@@ -120,14 +120,6 @@
                                         </thead>
                                         <tbody>
                                         </tbody>
-                                        <!-- <tfoot>
-                                            <tr>
-                                                <th>Code</th>
-                                                <th>Product Name</th>
-                                                <th>Stock In Kg</th>
-                                                <th>Description</th>
-                                            </tr>
-                                        </tfoot> -->
                                     </table>
                                 </div>
                             </div>
@@ -152,7 +144,11 @@
                                         </div>
                                         <br />
                                         <div class="row">
-                                            <div class="col-md-6"></div>
+                                            <div class="col-md-6">
+                                                <br />
+                                                <br />
+                                                <p style="padding-left: 25px;">Nota Faktur _ __</p>
+                                            </div>
                                             <div class="col-md-6">
                                                 Bapak/Ibu/Toko <br />
                                                 <span id="customerName"></span> <span id="customerNumber"></span> <br />
@@ -160,28 +156,28 @@
                                             </div>
                                         </div>
                                         <br />
-                                        <table class="table table-responsive table-bordered" id="notaTable" style="font-size: 8pt;">
+                                        <table class="table table-responsive table-bordered" id="notaTable" style="font-size: 8pt; width: 95%;">
                                             <thead>
                                                 <tr style="background-color: #85c9e9;" class="table-bordered">
                                                     <th class="font-weight-bold text-center table-bordered" hidden><b>ID</b></th>
-                                                    <th class="font-weight-bold text-center table-bordered"><b>No</b></th>
+                                                    <th class="font-weight-bold text-center table-bordered"><b>Banyaknya</b></th>
+                                                    <th class="font-weight-bold text-center table-bordered"><b>Sat.</b></th>
                                                     <th class="text-center table-bordered"><b>Nama Barang</b></th>
-                                                    <th class="text-center table-bordered"><b>Qty</b></th>
                                                     <th class="text-center table-bordered"><b>Harga Satuan</b></th>
-                                                    <th class="text-center table-bordered"><b>Jumlah (Rp)</b></th>
+                                                    <th class="text-center table-bordered"><b>Jumlah (Rp.)</b></th>
                                                 </tr>
                                             </thead>
 
                                             <tbody>
                                             </tbody>
 
-                                            <tfoot>
-                                                <th class="text-right table-bordered" hidden></th>
+                                            <tfoot style="border: none !important;">
+                                                <th class="text-right" hidden></th>
                                                 <th class="text-right" style="border: none;"></th>
                                                 <th class="text-right" style="border: none;"></th>
                                                 <th class="text-right" style="border: none;"></th>
                                                 <th class="text-right" style="border: none;"><b>Jumlah (Rp)</b></th>
-                                                <th class="text-center" style="border: none;"><input type="text" id="total" class="form-control text-right"></th>
+                                                <th class="text-center" style="border: none; padding: 5px 0 5px 0 !important;"><input type="text" id="total" class="form-control text-right"></th>
                                             </tfoot>
                                         </table>
                                         <br />
@@ -191,12 +187,14 @@
                                                 <br />
                                                 <br />
                                                 <br />
+                                                <p class="text-center">( ......................................... )</p>
                                             </div>
                                             <div class="col-md-6">
                                                 <p class="text-center">Hormat Kami</p>
                                                 <br />
                                                 <br />
                                                 <br />
+                                                <p class="text-center">( ......................................... )</p>
                                             </div>
                                         </div>
                                     </div>
@@ -280,12 +278,13 @@
                 {
                     "targets": 4,
                     "data": 'price',
-                    "render": $.fn.dataTable.render.number('.', ',', 2, 'Rp ')
+                    // "render": $.fn.dataTable.render.number('.', ',', 2, 'Rp ')
+                    "render": $.fn.dataTable.render.number('.', ',', 2)
                 },
                 {
                     "targets": 5,
                     "data": 'total',
-                    "render": $.fn.dataTable.render.number('.', ',', 2, 'Rp ')
+                    "render": $.fn.dataTable.render.number('.', ',', 2)
                 }
             ],
             order: [
@@ -296,15 +295,16 @@
                 data: 'id',
                 name: 'id'
             }, {
-                data: 'no',
-                name: 'no'
+                data: 'qty',
+                name: 'qty',
+                className: 'text-center'
+            }, {
+                data: 'unit',
+                name: 'unit',
+                className: 'text-center'
             }, {
                 data: 'product_name',
                 name: 'product_name'
-            }, {
-                data: 'qty',
-                name: 'qty',
-                className: 'text-right'
             }, {
                 data: 'price',
                 name: 'price',
@@ -365,9 +365,11 @@
                 columns: {
                     identifier: [0, 'id'],
                     editable: [
-                        [3, 'qty'],
+                        [1, 'qty'],
+                        [2, 'unit'],
+                        [3, 'product_name'],
                         [4, 'price'],
-                        [5, 'total'],
+                        [5, 'total']
                     ]
                 },
                 onSuccess: function(data, textStatus, jqXHR) {
@@ -378,7 +380,21 @@
                                 if (dataProduct[i].id == id) {
                                     dataProduct[i].qty = data.qty
 
-                                    dataProduct[i].total = parseFloat(dataProduct[i].qty * dataProduct[i].price)
+                                    dataProduct[i].total = parseFloat(dataProduct[i].qty) * parseFloat(dataProduct[i].price)
+                                }
+                            }
+                        }
+                        if (data.hasOwnProperty('unit')) {
+                            for (var i = 0; i < dataProduct.length; i++) {
+                                if (dataProduct[i].id == id) {
+                                    dataProduct[i].unit = data.unit
+                                }
+                            }
+                        }
+                        if (data.hasOwnProperty('product_name')) {
+                            for (var i = 0; i < dataProduct.length; i++) {
+                                if (dataProduct[i].id == id) {
+                                    dataProduct[i].product_name = data.product_name
                                 }
                             }
                         }
@@ -387,7 +403,7 @@
                                 if (dataProduct[i].id == id) {
                                     dataProduct[i].price = data.price
 
-                                    dataProduct[i].total = parseFloat(dataProduct[i].qty * dataProduct[i].price)
+                                    dataProduct[i].total = parseFloat(dataProduct[i].qty) * parseFloat(dataProduct[i].price)
                                 }
                             }
 
@@ -492,7 +508,8 @@
                     'product_name': productName,
                     'qty': 0,
                     'price': 0,
-                    'total': 0
+                    'total': 0,
+                    'unit': '-'
                 });
 
                 var resetNota = notaTable
@@ -522,11 +539,13 @@
         }
 
         function sumTotal() {
-            var sum = 0;
+            var sum = 0.00;
             for (var i = 0; i < dataProduct.length; i++) {
-                sum = sum + parseInt(dataProduct[i].total);
+                sum = sum + parseFloat(dataProduct[i].total);
             }
-            $('#total').val(addCommas(sum));
+            $('#total').val(sum.toLocaleString("es-ES", {
+                minimumFractionDigits: 2
+            }));
         }
 
         function resetNotaTable() {
@@ -746,7 +765,7 @@
                         'phone_number': phoneNumber,
                         'address': address,
                         'type': type,
-                        'pembayaran': pembayaran,
+                        'payment': pembayaran,
                         'due_date': tenggat,
                         'data_product': dataProduct,
                         'total': total
@@ -789,7 +808,7 @@
                                     }
 
                                     var customerName = $("#name option:selected").text();
-                                    pdf.save("Nota-" + customerName + ".pdf");
+                                    pdf.save("Nota -" + customerName + ".pdf");
 
                                     window.location.replace(response.data.intended_url)
 

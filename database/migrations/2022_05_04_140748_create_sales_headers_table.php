@@ -18,10 +18,10 @@ class CreateSalesHeadersTable extends Migration
             $table->string('sales_code');
             $table->integer('customer_id');
             $table->string('customer_name');
-            $table->string('phone_number');
+            $table->string('phone_number')->nullable();
             $table->string('address');
             $table->string('type');
-            $table->string('pembayaran')->nullable();
+            $table->string('payment')->nullable();
             $table->integer('due_date')->nullable();
             $table->timestamp('transaction_date');
             $table->decimal('total', 14, 2);

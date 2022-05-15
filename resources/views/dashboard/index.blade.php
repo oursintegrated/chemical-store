@@ -22,7 +22,6 @@
 
 <div class="row row-cards-pf">
     <div class="col-xs-12">
-        @if(isset($orders))
         <div class="row">
             <div class="col-md-12">
                 <div class="table-responsive">
@@ -60,7 +59,6 @@
                 </div>
             </div>
         </div>
-        @endif
     </div>
 </div><!-- /row -->
 @endsection
@@ -81,6 +79,9 @@
         if (title == 'Transaction Date') {
             $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
         }
+        if (title == 'Due Date') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
     });
 
     // DataTable Config
@@ -94,9 +95,7 @@
             [10, 50, 75, "All"]
         ],
         pageLength: 10,
-        order: [
-            [6, 'asc']
-        ],
+        sort: false,
         dom: '<"top"l>rt<"bottom"ip><"clear">',
         ajax: {
             "url": "/datatable/dashboard",
@@ -127,7 +126,8 @@
             className: 'align-middle'
         }, {
             data: 'total',
-            name: 'total'
+            name: 'total',
+            className: 'text-right'
         }, {
             data: 'status',
             name: 'status',
@@ -178,8 +178,10 @@
         weekStart: 1,
     });
 
-    function updateStatus(id) {
-        axios.post("/sales/" + id + "/update-status", {})
+    function updateStatus(id, payment) {
+        axios.post("/sales/" + id + "/update-status", {
+                'payment': payment
+            })
             .then(function(response) {
                 if (response.data.status == 1) {
                     swal({
@@ -263,23 +265,48 @@
     // }
 
     var completeSales = function(me) {
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this record!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "lime",
-            confirmButtonText: "Yes, complete it!",
-            showLoaderOnConfirm: true,
-            preConfirm: () => {
-                _completeSales(me)
-            }
-        })
+        var type = me.data('type');
+        if (type == "tunai" || type == "kredit") {
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this record!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "lime",
+                confirmButtonText: "Yes, complete it!",
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    _completeSales(me, null)
+                }
+            })
+        } else {
+            (async () => {
+
+                const {
+                    value: payment
+                } = await swal.fire({
+                    title: 'Select payment method',
+                    input: 'select',
+                    inputOptions: {
+                        tunai: 'Tunai',
+                        transfer: 'Transfer',
+                        gyro: 'Gyro'
+                    },
+                    inputPlaceholder: 'Select a payment',
+                    showCancelButton: true,
+                    inputValidator: (value) => {
+                        _completeSales(me, value)
+                    }
+                })
+
+            })()
+        }
+
     };
 
-    var _completeSales = function(me) {
+    var _completeSales = function(me, payment) {
         var recordID = me.data('record-id');
-        updateStatus(recordID);
+        updateStatus(recordID, payment);
     };
 </script>
 @endsection

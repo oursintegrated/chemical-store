@@ -68,6 +68,7 @@ class RecipeController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
                 'description' => 'required',
+                'parent_stock' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -77,6 +78,7 @@ class RecipeController extends Controller
                 $description = $request->input('description');
                 $type = 'recipe';
                 $stock = 0;
+                $parent_stock = $request->input('parent_stock');
                 $min_stock = 0;
 
                 // generate code
@@ -102,6 +104,7 @@ class RecipeController extends Controller
                     'type' => $type,
                     'stock' => $stock,
                     'min_stock' => $min_stock,
+                    'parent_stock' => $parent_stock,
                     'description' => $description,
                     'updated_by' => Auth::user()->id,
                     'created_at' => now(),
@@ -176,15 +179,18 @@ class RecipeController extends Controller
             $validator = Validator::make($request->all(), [
                 'description' => 'required',
                 'dataIngredients' => 'required',
+                'parent_stock' => 'required'
             ]);
 
             if ($validator->fails()) {
                 return response()->json(array('status' => 0, 'message' => $validator->errors()->first()));
             } else {
                 $description = $request->input('description');
+                $parent_stock = $request->input('parent_stock');
 
                 Product::findOrFail($id)->update([
                     'description' => $description,
+                    'parent_stock' => $parent_stock,
                     'updated_by' => Auth::user()->id
                 ]);
 

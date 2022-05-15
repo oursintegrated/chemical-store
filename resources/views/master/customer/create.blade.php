@@ -55,7 +55,7 @@
                             </div>
 
                             <div class="form-group required">
-                                <label class="control-label">Telephone <span style="color: red;">*</span></label>
+                                <label class="control-label">Telephone</label>
                                 <div id="phoneFormRow">
                                     <div class="form-group">
                                         <input type="text" name="telephone[]" class="form-control" placeholder="Input phone number" maxlength="15" onkeypress="return /[0-9]/i.test(event.key)">

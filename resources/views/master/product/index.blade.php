@@ -128,18 +128,6 @@
                 if (parseFloat(data.stock) < parseFloat(data.min_stock)) {
                     $(row).css('background-color', 'yellow')
                 }
-
-                // return satuan
-                if (data.type == 'Raw Material') {
-                    $('td:eq(4)', row).html(parseFloat(data.stock).toFixed(2) + ' Kg');
-                    $('td:eq(5)', row).html(parseFloat(data.min_stock).toFixed(2) + ' Kg');
-                } else if (data.type == 'Packaging') {
-                    $('td:eq(4)', row).html(parseFloat(data.stock) + ' Pcs');
-                    $('td:eq(5)', row).html(parseFloat(data.min_stock) + ' Pcs');
-                } else {
-                    $('td:eq(4)', row).html(parseFloat(data.stock) + ' Packet');
-                    $('td:eq(5)', row).html(parseFloat(data.min_stock) + ' Packet');
-                }
             },
             columns: [{
                 data: 'action',

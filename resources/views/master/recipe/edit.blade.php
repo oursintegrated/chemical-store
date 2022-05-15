@@ -41,6 +41,13 @@
                                 <p>{{ $recipe->product_name }}</p>
                             </div>
 
+                            <div style="margin-bottom: 10px;">
+                                <div class="form-inline">
+                                    <label class="control-label">Stock <span style="color: red;">*</span></label>
+                                    <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0" value="{{ $recipe->parent_stock }}">
+                                </div>
+                            </div>
+
                             <div class="form-group required ingredientForm">
                                 <label class="control-label">Choose Ingredients <span style="color: red;">*</span></label>
 
@@ -91,7 +98,6 @@
                                         <th class="text-center">Required Stock</th>
                                     </thead>
                                 </table>
-                                <small class="form-text text-muted">Ingredient for 1 packet recipe product</small>
                             </div>
                         </div>
                     </form>
@@ -119,7 +125,6 @@
             },
             success: function(data) {
                 dataIngredients = data;
-                console.log(data);
             }
         });
 
@@ -380,10 +385,12 @@
 
             var id = $('#id').val();
             var description = $('#description').val();
+            var stock = $('#stock').val();
 
             axios.put("/data-master/recipe/" + id + "/edit", {
                     'description': description,
-                    'dataIngredients': dataIngredients
+                    'dataIngredients': dataIngredients,
+                    'parent_stock': stock,
                 })
                 .then(function(response) {
                     if (response.data.status == 1) {

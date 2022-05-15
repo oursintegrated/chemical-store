@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SalesDetail extends Model
+class ProductStockLogUser extends Model
 {
     /**
-     * Table associated with the model
-     * 
+     * The database table used by the model.
+     *
      * @var string
      */
-    protected $table = 'sales_details';
+    protected $table = 'product_stock_log_user';
 
     /**
      * The attributes that are mass assignable.
@@ -19,12 +19,9 @@ class SalesDetail extends Model
      * @var array
      */
     protected $fillable = [
-        'sales_header_id',
         'product_id',
-        'product_name',
-        'qty',
-        'price',
+        'description',
         'total',
-        'unit'
+        'updated_by'
     ];
 }

@@ -35,7 +35,8 @@
                     <p>&nbsp;</p>
                 </div>
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8">
                         <div class="panel panel-default">
                             <div class="panel-heading">Nota @if(isset($orderHeader)) : {{ $orderHeader->sales_code }} @endif</div>
                             <div class="panel-body">
@@ -63,20 +64,20 @@
                                         <thead>
                                             <tr style="background-color: #85c9e9;" class="table-bordered">
                                                 <th class="font-weight-bold text-center table-bordered" hidden><b>ID</b></th>
-                                                <th class="font-weight-bold text-center table-bordered"><b>No</b></th>
+                                                <th class="font-weight-bold text-center table-bordered"><b>Banykanya</b></th>
+                                                <th class="text-center table-bordered"><b>Sat.</b></th>
                                                 <th class="text-center table-bordered"><b>Nama Barang</b></th>
-                                                <th class="text-center table-bordered"><b>Qty</b></th>
                                                 <th class="text-center table-bordered"><b>Harga Satuan</b></th>
-                                                <th class="text-center table-bordered"><b>Jumlah (Rp)</b></th>
+                                                <th class="text-center table-bordered"><b>Jumlah (Rp.)</b></th>
                                             </tr>
                                         </thead>
 
                                         <tbody>
                                             @if(isset($orderDetails))
                                             @for($i=0; $i<count($orderDetails); $i++) <tr>
-                                                <td class="text-center">{{ $i+1 }}</td>
-                                                <td class="text-center">{{ $orderDetails[$i]->product_name }}</td>
                                                 <td class="text-center">{{ $orderDetails[$i]->qty }}</td>
+                                                <td class="text-center">{{ $orderDetails[$i]->unit }}</td>
+                                                <td class="text-center">{{ $orderDetails[$i]->product_name }}</td>
                                                 <td class="text-center">Rp. {{ number_format($orderDetails[$i]->price, 2, ',' ,'.') }}</td>
                                                 <td class="text-center">Rp. {{ number_format($orderDetails[$i]->total, 2, ',', '.') }}</td>
                                                 </tr>
@@ -90,7 +91,7 @@
                                             <th class="text-right" style="border: none;"></th>
                                             <th class="text-right" style="border: none;"></th>
                                             <th class="text-right" style="border: none;"><b>Jumlah (Rp)</b></th>
-                                            <th class="text-center" style="border: none;"><input type="text" readonly id="total" class="form-control text-right" value="{{ number_format($orderHeader->total, 0, ',' , '.') }}"></th>
+                                            <th class="text-center" style="border: none;"><input type="text" readonly id="total" class="form-control text-right" value="{{ number_format($orderHeader->total, 2, ',' , '.') }}"></th>
                                         </tfoot>
                                     </table>
                                     <br />
@@ -100,12 +101,14 @@
                                             <br />
                                             <br />
                                             <br />
+                                            <p class="text-center">( ......................................... )</p>
                                         </div>
                                         <div class="col-md-6">
                                             <p class="text-center">Hormat Kami</p>
                                             <br />
                                             <br />
                                             <br />
+                                            <p class="text-center">( ......................................... )</p>
                                         </div>
                                     </div>
                                 </div>
@@ -120,6 +123,7 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-2"></div>
                 </div>
             </div>
         </div>

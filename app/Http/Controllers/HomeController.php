@@ -33,10 +33,6 @@ class HomeController extends Controller
     public function index()
     {
         $data['menu'] = $this->getMenu();
-
-        $x = DB::select(DB::raw("SELECT *, (SELECT DATE_ADD(transaction_date, interval due_date day )) as due_date_convert, DATEDIFF(DATE_ADD(transaction_date, interval due_date day ), now()) as day_left FROM sales_headers WHERE status = 0 ORDER BY day_left, sales_code, customer_name ASC"));
-        $data['orders'] = $x;
-
         return view('dashboard.index', $data);
     }
 
@@ -90,7 +86,7 @@ class HomeController extends Controller
         }
     }
 
-    public function updateStatus($id)
+    public function updateStatus(Request $request, $id)
     {
         /* RBAC */
         if (!Role::authorize('sales.index')) {
@@ -100,9 +96,19 @@ class HomeController extends Controller
         DB::beginTransaction();
 
         try {
-            SalesHeader::findOrFail($id)->update([
-                'status' => 1
-            ]);
+            $payment = $request->input('payment');
+
+            if ($payment == null) {
+                SalesHeader::findOrFail($id)->update([
+                    'status' => 1
+                ]);
+            } else {
+                SalesHeader::findOrFail($id)->update([
+                    'status' => 1,
+                    'payment' => $payment
+                ]);
+            }
+
 
             DB::commit();
 
@@ -150,14 +156,14 @@ class HomeController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date', 'status', 'pembayaran'])->where('status', 0);
+        $sales = DB::select(DB::raw("SELECT *, DATE_ADD(transaction_date, INTERVAL due_date DAY) as due FROM sales_headers WHERE status = 0 ORDER BY due ASC"));
 
         return Datatables::of($sales)
             ->addColumn('action', function ($sale) {
                 $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
 
                 /* Tambah Action */
-                $buttons .= '<li><a href="javascript:;" data-record-id="' . $sale->id . '" onclick="completeSales($(this));"><i class="fa fa-check"></i>&nbsp; Complete</a></li>';
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $sale->id . '" data-type="' . $sale->type . '" onclick="completeSales($(this));"><i class="fa fa-check"></i>&nbsp; Complete</a></li>';
                 /* Selesai Action */
 
                 $buttons .= '</ul></div></div>';
@@ -166,7 +172,7 @@ class HomeController extends Controller
             })
             ->editColumn('type', function ($sale) {
                 if ($sale->type == 'tunai') {
-                    return '<span class="label label-success"> Tunai ' . $sale->pembayaran . ' </span>';
+                    return '<span class="label label-success"> Tunai ' . $sale->payment . ' </span>';
                 } else if ($sale->type == 'kontrabon') {
                     return '<span class="label label-warning"> Kasbon - ' . $sale->due_date . ' </span>';
                 } else if ($sale->type == 'kredit') {

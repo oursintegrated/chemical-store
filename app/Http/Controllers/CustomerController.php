@@ -69,7 +69,6 @@ class CustomerController extends Controller
         try {
             $rules = [
                 'name' => 'required',
-                'telephone.*' => 'required|min:1',
                 'address.*' => 'required|min:1',
                 'kontrabon' => 'required|min:1'
             ];
@@ -79,7 +78,6 @@ class CustomerController extends Controller
             ];
 
             $attributes = [
-                'telephone.*' => 'telephone',
                 'address.*' => 'address'
             ];
 
@@ -116,10 +114,12 @@ class CustomerController extends Controller
                 ]);
 
                 for ($i = 0; $i < count($telp); $i++) {
-                    $x = Telephone::create([
-                        'customer_id' => $customerId,
-                        'phone' => $telp[$i]
-                    ]);
+                    if ($telp[$i] != null) {
+                        $x = Telephone::create([
+                            'customer_id' => $customerId,
+                            'phone' => $telp[$i]
+                        ]);
+                    }
                 }
 
                 for ($j = 0; $j < count($address); $j++) {
@@ -159,13 +159,13 @@ class CustomerController extends Controller
             $data['addresses'] = Address::where('customer_id', $id)->get();
             $data['telephones'] = Telephone::where('customer_id', $id)->get();
 
-            $y = DB::select(DB::raw("SELECT COUNT(id) as count FROM sales_headers WHERE customer_id = " . $id . " AND status = 0"));
-            if ($y[0]->count > 0) {
-                // still processing
-                $data['flag_kontrabon'] = 0;
-            } else {
-                $data['flag_kontrabon'] = 1;
-            }
+            // $y = DB::select(DB::raw("SELECT COUNT(id) as count FROM sales_headers WHERE customer_id = " . $id . " AND status = 0"));
+            // if ($y[0]->count > 0) {
+            //     // still processing
+            //     $data['flag_kontrabon'] = 0;
+            // } else {
+            //     $data['flag_kontrabon'] = 1;
+            // }
 
             $x = new HomeController;
             $data['menu'] = $x->getMenu();

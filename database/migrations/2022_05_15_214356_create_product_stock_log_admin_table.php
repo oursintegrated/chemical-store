@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateProductStockLogTable extends Migration
+class CreateProductStockLogAdminTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateProductStockLogTable extends Migration
      */
     public function up()
     {
-        Schema::create('product_stock_log', function (Blueprint $table) {
+        Schema::create('product_stock_log_admin', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('product_id');
             $table->text('description');
             $table->decimal('from_qty', 14, 5);
             $table->decimal('to_qty', 14, 5);
+            $table->decimal('total');
             $table->integer('updated_by');
-            $table->integer('flag_admin');
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ class CreateProductStockLogTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('product_stock_log');
+        Schema::dropIfExists('product_stock_log_admin');
     }
 }

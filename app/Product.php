@@ -24,6 +24,7 @@ class Product extends Model
         'type',
         'stock',
         'min_stock',
+        'parent_stock',
         'description',
         'updated_by',
     ];

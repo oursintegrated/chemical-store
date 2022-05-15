@@ -48,6 +48,13 @@
                                 </select>
                             </div>
 
+                            <div style="margin-bottom: 10px;">
+                                <div class="form-inline">
+                                    <label class="control-label">Stock <span style="color: red;">*</span></label>
+                                    <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0">
+                                </div>
+                            </div>
+
                             <div class="form-group required ingredientForm">
                                 <label class="control-label">Choose Ingredients <span style="color: red;">*</span></label>
 
@@ -100,7 +107,6 @@
                                     <tbody>
                                     </tbody>
                                 </table>
-                                <small class="form-text text-muted">Ingredient for 1 packet recipe product</small>
                             </div>
                         </div>
                     </form>
@@ -376,6 +382,7 @@
 
             axios.post("/data-master/recipe/create", {
                     'name': productName,
+                    'parent_stock': stock,
                     'description': description,
                     'dataIngredients': dataIngredients
                 })

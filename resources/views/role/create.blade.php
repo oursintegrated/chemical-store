@@ -162,7 +162,7 @@
                     'types'
                 ],
                 'checkbox': {
-                    three_state: true, // to avoid that fact that checking a node also check others
+                    three_state: false, // to avoid that fact that checking a node also check others
                     whole_node: true, // to avoid checking the box just clicking the node
                     tie_selection: true // for checking without selecting and selecting without checking
                 },

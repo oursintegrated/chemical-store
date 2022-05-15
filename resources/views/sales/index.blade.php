@@ -38,8 +38,19 @@
                         </a>
                     </div>
                 </div>
+                <br />
                 <div class="row">
-                    <p>&nbsp;</p>
+                    <form id="main_form" class="col-md-3" autocomplete="off">
+                        {{ csrf_field() }}
+                        <div class="form-group required">
+                            <label for="fullname">Transaction Date <span style="color: red;">*</span></label>
+                            <input id="date" placeholder="Input date" class="form-control datepicker" name="datetimerange" value="">
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" class="btn btn-default" id="searchBtn"> Search </button>
+                        </div>
+                    </form>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
@@ -53,6 +64,7 @@
                                         <th class="text-center">Customer Name</th>
                                         <th class="text-center">Address</th>
                                         <th class="text-center">Type</th>
+                                        <th class="text-center">Payment</th>
                                         <th class="text-center">Total</th>
                                         <th class="text-center">Status</th>
                                         <th class="text-center">Transaction Date</th>
@@ -68,6 +80,7 @@
                                         <th>Customer Name</th>
                                         <th>Address</th>
                                         <th>Type</th>
+                                        <th>Payment</th>
                                         <th>Total</th>
                                         <th>Status</th>
                                         <th>Transaction Date</th>
@@ -87,6 +100,26 @@
 <script>
     $(document).ready(function() {
 
+        var startDate = '';
+        var endDate = '';
+        $('#date').daterangepicker({
+            autoApply: true,
+            autoUpdateInput: false,
+        }, function(start, end, label) {
+            $('#date').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+
+            startDate = start.format('YYYY-MM-DD');
+            endDate = end.format('YYYY-MM-DD');
+        });
+
+        $('#searchBtn').on('click', function() {
+            if ($('#date').val() == '') {
+                startDate = '';
+                endDate = '';
+            }
+            table.ajax.reload();
+        });
+
         $('#salesTable tfoot th').each(function() {
             var title = $(this).text();
             if (title != '') {
@@ -99,6 +132,9 @@
                 $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
             }
             if (title == 'Transaction Date') {
+                $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+            }
+            if (title == 'Due Date') {
                 $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
             }
         });
@@ -114,13 +150,15 @@
                 [10, 50, 75, "All"]
             ],
             pageLength: 10,
-            order: [
-                [1, 'asc']
-            ],
+            sort: false,
             dom: '<"top"l>rt<"bottom"ip><"clear">',
             ajax: {
                 "url": "/datatable/sales",
-                "type": "POST"
+                "type": "POST",
+                "data": function(d) {
+                    d.start_date = startDate,
+                        d.end_date = endDate
+                }
             },
             language: {
                 "decimal": ",",
@@ -146,8 +184,13 @@
                 name: 'type',
                 className: 'align-middle'
             }, {
+                data: 'payment',
+                name: 'payment',
+                className: 'align-middle'
+            }, {
                 data: 'total',
-                name: 'total'
+                name: 'total',
+                className: 'text-right'
             }, {
                 data: 'status',
                 name: 'status',

@@ -43,7 +43,7 @@
                             </div>
 
                             <div class="form-group required">
-                                <label class="control-label">Telephone <span style="color: red;">*</span></label>
+                                <label class="control-label">Telephone</label>
                                 @if(isset($telephones))
                                 @foreach($telephones as $telephone)
                                 <div class="form-group">
@@ -72,7 +72,7 @@
                             <div class="form-group required">
                                 <label class="control-label">Kontrabon <span style="color: red;">*</span></label>
                                 <div class="form-group">
-                                    <input type="number" name="kontrabon" class="form-control" placeholder="0" min="0" onkeypress="return /[0-9]/i.test(event.key)" value="{{ $customer->kontrabon }}" @if($flag_kontrabon==0) disabled @endif>
+                                    <input type="number" name="kontrabon" class="form-control" placeholder="0" min="0" onkeypress="return /[0-9]/i.test(event.key)" value="{{ $customer->kontrabon }}">
                                 </div>
                             </div>
 

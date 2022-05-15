@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Product;
 use App\ProductIngredient;
-use App\ProductStockLog;
+use App\ProductStockLogAdmin;
 use Illuminate\Http\Request;
 use App\Role;
 use Illuminate\Support\Facades\Auth;
@@ -105,74 +105,75 @@ class ProductController extends Controller
                         'description' => $description,
                         'updated_by' => Auth::user()->id,
                     ]);
-                } else if ($type == 'recipe') {
-                    if (!Role::authorize('product.recipe')) {
-                        return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
-                    }
-
-                    // check stock
-                    $dataIngredient = $request->input('dataIngredients');
-                    for ($i = 0; $i < count($dataIngredient); $i++) {
-                        $ingredient_id = $dataIngredient[$i]['id'];
-                        $ingredient_name = $dataIngredient[$i]['product_name'];
-                        $req_stock = $dataIngredient[$i]['req_stock'];
-                        $estimate_req = $req_stock * $stock;
-
-                        $check = Product::where('id', $ingredient_id)->first();
-                        $available_stock = $check->stock;
-                        if ($estimate_req > $available_stock) {
-                            return response()->json(array('status' => 0, 'message' => $ingredient_name . ' stock is not enough.'));
-                        }
-                        if ($estimate_req == 0) {
-                            return response()->json(array('status' => 0, 'message' => $ingredient_name . ' stock required in ingredient is 0.'));
-                        }
-                    }
-
-                    // insert Product
-                    $product_id = Product::insertGetId([
-                        'code' => $digit . $id,
-                        'product_name' => $name,
-                        'type' => $type,
-                        'stock' => $stock,
-                        'min_stock' => $min_stock,
-                        'description' => $description,
-                        'updated_by' => Auth::user()->id,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-
-                    // insert Ingredient and substract stock
-                    for ($j = 0; $j < count($dataIngredient); $j++) {
-                        $ingredient_id = $dataIngredient[$j]['id'];
-                        $req_stock = $dataIngredient[$j]['req_stock'];
-
-                        ProductIngredient::create([
-                            'parent_id' => $product_id,
-                            'product_id' => $ingredient_id,
-                            'req_stock' => $req_stock
-                        ]);
-
-                        $x = Product::where('id', $ingredient_id)->first();
-                        $req_stock = $dataIngredient[$j]['req_stock'];
-                        $estimate_req = $req_stock * $stock;
-                        $available_stock = $x->stock;
-                        $stock_left = $available_stock - $estimate_req;
-
-                        Product::findOrFail($ingredient_id)->update([
-                            'stock' => $stock_left
-                        ]);
-
-                        // Insert Log
-                        ProductStockLog::create([
-                            'product_id' => $ingredient_id,
-                            'description' => "digunakan untuk pembuatan " . $name,
-                            'from_qty' => $available_stock,
-                            'to_qty' => $stock_left,
-                            'updated_by' => Auth::user()->id,
-                            'flag_admin' => 1
-                        ]);
-                    }
                 }
+                // else if ($type == 'recipe') {
+                //     if (!Role::authorize('product.recipe')) {
+                //         return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+                //     }
+
+                //     // check stock
+                //     $dataIngredient = $request->input('dataIngredients');
+                //     for ($i = 0; $i < count($dataIngredient); $i++) {
+                //         $ingredient_id = $dataIngredient[$i]['id'];
+                //         $ingredient_name = $dataIngredient[$i]['product_name'];
+                //         $req_stock = $dataIngredient[$i]['req_stock'];
+
+                //         $check = Product::where('id', $ingredient_id)->first();
+                //         $available_stock = $check->stock;
+                //         if ($req_stock > $available_stock) {
+                //             return response()->json(array('status' => 0, 'message' => $ingredient_name . ' stock is not enough.'));
+                //         }
+                //         if ($req_stock == 0) {
+                //             return response()->json(array('status' => 0, 'message' => $ingredient_name . ' stock required in ingredient is 0.'));
+                //         }
+                //     }
+
+                //     // insert Product
+                //     $product_id = Product::insertGetId([
+                //         'code' => $digit . $id,
+                //         'product_name' => $name,
+                //         'type' => $type,
+                //         'stock' => $stock,
+                //         'min_stock' => $min_stock,
+                //         'description' => $description,
+                //         'updated_by' => Auth::user()->id,
+                //         'created_at' => now(),
+                //         'updated_at' => now()
+                //     ]);
+
+                //     // insert Ingredient and substract stock
+                //     for ($j = 0; $j < count($dataIngredient); $j++) {
+                //         $ingredient_id = $dataIngredient[$j]['id'];
+                //         $req_stock = $dataIngredient[$j]['req_stock'];
+
+                //         ProductIngredient::create([
+                //             'parent_id' => $product_id,
+                //             'product_id' => $ingredient_id,
+                //             'req_stock' => $req_stock
+                //         ]);
+
+                //         $x = Product::where('id', $ingredient_id)->first();
+                //         $req_stock = $dataIngredient[$j]['req_stock'];
+                //         $estimate_req = $req_stock * $stock;
+                //         $available_stock = $x->stock;
+                //         $stock_left = $available_stock - $estimate_req;
+
+                //         Product::findOrFail($ingredient_id)->update([
+                //             'stock' => $stock_left
+                //         ]);
+
+                //         // Insert Log
+                //         ProductStockLogAdmin::create([
+                //             'product_id' => $ingredient_id,
+                //             'description' => "digunakan untuk pembuatan " . $name,
+                //             'from_qty' => $available_stock,
+                //             'to_qty' => $stock_left,
+                //             'total' => $available_stock -
+                //             'updated_by' => Auth::user()->id,
+                //             'flag_admin' => 1
+                //         ]);
+                //     }
+                // }
 
                 DB::commit();
 
@@ -329,6 +330,12 @@ class ProductController extends Controller
                     return 'Recipe';
                 }
             })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, ',', '.');
+            })
+            ->editColumn('min_stock', function ($product) {
+                return number_format($product->min_stock, 2, ',', '.');
+            })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
             })
@@ -373,6 +380,9 @@ class ProductController extends Controller
                 } else {
                     return 'Recipe';
                 }
+            })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, ',', '.');
             })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Role;
 use App\Customer;
 use App\Product;
+use App\ProductStockLogAdmin;
+use App\ProductStockLogUser;
 use App\SalesDetail;
 use App\SalesHeader;
 use Illuminate\Http\Request;
@@ -13,7 +15,6 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 use Datatables;
 use Illuminate\Support\Carbon;
-use App\ProductStockLog;
 
 class SalesController extends Controller
 {
@@ -70,7 +71,6 @@ class SalesController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'customer_name' => 'required',
-                'phone_number' => 'required',
                 'address' => 'required',
                 'type' => 'required',
                 'data_product' => 'required'
@@ -98,9 +98,12 @@ class SalesController extends Controller
 
                 $status = 0;
 
-                $pembayaran = '';
+                $payment = '';
                 if ($type == 'tunai') {
-                    $pembayaran = $request->input('pembayaran');
+                    $due_date = 0;
+                    $payment = $request->input('payment');
+                } else if ($type == 'kontrabon') {
+                    $payment = $request->input('payment');
                 }
 
                 // check stock
@@ -130,7 +133,7 @@ class SalesController extends Controller
                         'phone_number' => $phone_number,
                         'address' => $address,
                         'type' => $type,
-                        'pembayaran' => $pembayaran,
+                        'payment' => $payment,
                         'due_date' => $due_date,
                         'transaction_date' => now(),
                         'total' => $total,
@@ -146,6 +149,7 @@ class SalesController extends Controller
                         $qty = (float)$products[$i]['qty'];
                         $price = (float)$products[$i]['price'];
                         $totalPiece = (float)$products[$i]['total'];
+                        $unit = $products[$i]['unit'];
 
                         SalesDetail::create([
                             'sales_header_id' => $sales_header_id,
@@ -153,7 +157,8 @@ class SalesController extends Controller
                             'product_name' => $product_name,
                             'qty' => $qty,
                             'price' => $price,
-                            'total' => $totalPiece
+                            'total' => $totalPiece,
+                            'unit' => $unit
                         ]);
 
                         // update stock
@@ -166,13 +171,20 @@ class SalesController extends Controller
                         ]);
 
                         // Insert Log
-                        ProductStockLog::create([
+                        ProductStockLogAdmin::create([
                             'product_id' => $product_id,
                             'description' => "penjualan no order " . $sales_code,
                             'from_qty' => $stock_old,
                             'to_qty' => $stock_new,
+                            'total' => $stock_new - $stock_old,
                             'updated_by' => Auth::user()->id,
-                            'flag_admin' => 0
+                        ]);
+
+                        ProductStockLogUser::create([
+                            'product_id' => $product_id,
+                            'description' => "-",
+                            'total' => $stock_new - $stock_old,
+                            'updated_by' => Auth::user()->id,
                         ]);
                     };
                     DB::commit();
@@ -250,13 +262,20 @@ class SalesController extends Controller
                 ]);
 
                 // Insert Log
-                ProductStockLog::create([
+                ProductStockLogAdmin::create([
                     'product_id' => $product_id,
                     'description' => "penghapusan no order " . $sales_code,
                     'from_qty' => $stock_old,
                     'to_qty' => $stock_new,
+                    'total' => $stock_new - $stock_old,
                     'updated_by' => Auth::user()->id,
-                    'flag_admin' => 0
+                ]);
+
+                ProductStockLogUser::create([
+                    'product_id' => $product_id,
+                    'description' => "-",
+                    'total' => $stock_new - $stock_old,
+                    'updated_by' => Auth::user()->id,
                 ]);
             }
 
@@ -277,14 +296,29 @@ class SalesController extends Controller
      *
      * @return Response
      */
-    public function datatable()
+    public function datatable(Request $request)
     {
         /* RBAC */
         if (!Role::authorize('sales.index')) {
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $sales = DB::table('sales_headers')->select(['id', 'sales_code', 'customer_name', 'phone_number', 'address', 'type', 'total', 'transaction_date', 'due_date', 'status', 'pembayaran']);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($startDate == '') {
+            $startDate = "2022-01-01 00:00:00";
+        } else {
+            $startDate = $startDate . " 00:00:00";
+        }
+        if ($endDate == '') {
+            $endDate = date('Y-m-d') . " 23:59:59";
+        } else {
+            $endDate = $endDate . " 23:59:59";
+        }
+
+        $sales = DB::select(DB::raw("SELECT *, DATE_ADD(transaction_date, INTERVAL due_date DAY) as due FROM sales_headers WHERE transaction_date BETWEEN '" . $startDate . "' AND '" . $endDate . "' ORDER BY due ASC"));
 
         return Datatables::of($sales)
             ->addColumn('action', function ($sale) {
@@ -301,7 +335,7 @@ class SalesController extends Controller
             })
             ->editColumn('type', function ($sale) {
                 if ($sale->type == 'tunai') {
-                    return '<span class="label label-success"> Tunai ' . $sale->pembayaran . ' </span>';
+                    return '<span class="label label-success"> Tunai </span>';
                 } else if ($sale->type == 'kontrabon') {
                     return '<span class="label label-warning"> Kasbon - ' . $sale->due_date . ' </span>';
                 } else if ($sale->type == 'kredit') {

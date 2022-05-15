@@ -94,10 +94,10 @@ class RBACTableSeeder extends Seeder
                 'menu_id' => 22,
                 'key' => 'sales.destroy',
             ],
-            [
-                'menu_id' => 23,
-                'key' => 'product.recipe',
-            ],
+            // [
+            //     'menu_id' => 23,
+            //     'key' => 'product.recipe',
+            // ],
             [
                 'menu_id' => 24,
                 'key' => 'recipe.index',
@@ -118,10 +118,10 @@ class RBACTableSeeder extends Seeder
                 'menu_id' => 28,
                 'key' => 'stock.index',
             ],
-            [
-                'menu_id' => 29,
-                'key' => 'stock.adjust',
-            ],
+            // [
+            //     'menu_id' => 29,
+            //     'key' => 'stock.adjust',
+            // ],
             [
                 'menu_id' => 30,
                 'key' => 'stock.manage',

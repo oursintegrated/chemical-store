@@ -56,7 +56,6 @@
                                     <label class="control-label">Min Stock</label>
                                     <input type="number" step="0.1" required id="min_stock" name="min_stock" class="form-control" autocomplete="off" placeholder="0" min="0">
                                 </div>
-                                <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
                             </div>
 
                             <div class="form-group required">
@@ -135,12 +134,10 @@
                                         <th class="text-center">No</th>
                                         <th class="text-center">Product Name</th>
                                         <th class="text-center">Required Stock</th>
-                                        <th class="text-center">Total</th>
                                     </thead>
                                     <tbody>
                                     </tbody>
                                 </table>
-                                <small class="form-text text-muted">Ingredient for 1 packet recipe product</small>
                             </div>
                         </div>
                     </form>
@@ -170,9 +167,6 @@
             var type = $("input[name='type']:checked").val();
             if (type == 'recipe') {
                 var stock = $('#stock').val();
-                for (var i = 0; i < dataIngredients.length; i++) {
-                    dataIngredients[i].estimate_req = stock * dataIngredients[i].req_stock;
-                }
                 resetIngredientTable();
             }
         });
@@ -204,7 +198,7 @@
                 for (var i = 0; i < dataIngredients.length; i++) {
                     if (dataIngredients[i].id == data['id']) {
                         var available_stock = dataIngredients[i].stock;
-                        if (available_stock < data['estimate_req']) {
+                        if (available_stock < data['req_stock']) {
                             $('td', row).css('background-color', 'Yellow');
                         }
                     }
@@ -235,10 +229,6 @@
             }, {
                 data: 'req_stock',
                 name: 'req_stock',
-                className: 'text-right'
-            }, {
-                data: 'estimate_req',
-                name: 'estimate_req',
                 className: 'text-right'
             }]
         });
@@ -302,7 +292,6 @@
                             for (var i = 0; i < dataIngredients.length; i++) {
                                 if (dataIngredients[i].id == id) {
                                     dataIngredients[i].req_stock = data.req_stock
-                                    dataIngredients[i].estimate_req = $('#stock').val() * data.req_stock;
                                 }
                             }
                         }
@@ -406,7 +395,6 @@
                     'no': no,
                     'product_name': productName,
                     'req_stock': 0,
-                    'estimate_req': 0,
                     'stock': stock
                 });
 

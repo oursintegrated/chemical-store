@@ -20,6 +20,7 @@ class CreateSalesDetailsTable extends Migration
             $table->integer('product_id');
             $table->string('product_name');
             $table->integer('qty');
+            $table->string('unit')->nullable();
             $table->decimal('price', 14, 2);
             $table->decimal('total', 14, 2);
             $table->timestamps();

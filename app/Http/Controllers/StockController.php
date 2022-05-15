@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Product;
 use App\ProductIngredient;
+use App\ProductStockLogAdmin;
+use App\ProductStockLogUser;
 use Illuminate\Http\Request;
 use App\Role;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +13,6 @@ use Illuminate\Support\Carbon;
 use DataTables;
 use Illuminate\Support\Facades\Auth;
 use Validator;
-use App\ProductStockLog;
 
 class StockController extends Controller
 {
@@ -61,7 +62,12 @@ class StockController extends Controller
         $data['menu'] = $x->getMenu();
 
         $data['products'] = Product::all();
-        return view('master.stock.history', $data);
+
+        if (Auth::user()->role_id == 1) {
+            return view('master.stock.historyadmin', $data);
+        } else {
+            return view('master.stock.historyuser', $data);
+        }
     }
 
     public function lowStockIndex()
@@ -217,13 +223,20 @@ class StockController extends Controller
                                 ]);
 
                                 // Insert Log
-                                ProductStockLog::create([
+                                ProductStockLogAdmin::create([
                                     'product_id' => $product_id,
                                     'description' => $type,
                                     'from_qty' => $old_stock,
                                     'to_qty' => $new_stock,
+                                    'total' => $new_stock - $old_stock,
                                     'updated_by' => Auth::user()->id,
-                                    'flag_admin' => 0
+                                ]);
+
+                                ProductStockLogUser::create([
+                                    'product_id' => $product_id,
+                                    'description' => '+',
+                                    'total' => $new_stock - $old_stock,
+                                    'updated_by' => Auth::user()->id,
                                 ]);
                             } else if ($type_product == 'Recipe') {
                                 // check stock
@@ -243,40 +256,56 @@ class StockController extends Controller
                                 // bahan memadai
                                 if ($flag == true) {
                                     $p = Product::where('id', $product_id)->first();
+                                    $parent_stock = $p->parent_stock;
                                     $old_stock = $p->stock;
-                                    $sum_stock = $old_stock + $qty;
+                                    $sum_stock = $old_stock + ($qty * $parent_stock);
                                     $adjust = Product::where('id', $product_id)->update([
                                         'stock' => $sum_stock
                                     ]);
 
                                     // Insert Log
-                                    ProductStockLog::create([
+                                    ProductStockLogAdmin::create([
                                         'product_id' => $product_id,
                                         'description' => $type,
                                         'from_qty' => $old_stock,
                                         'to_qty' => $sum_stock,
+                                        'total' => $sum_stock - $old_stock,
                                         'updated_by' => Auth::user()->id,
-                                        'flag_admin' => 0
+                                    ]);
+
+                                    ProductStockLogUser::create([
+                                        'product_id' => $product_id,
+                                        'description' => '+',
+                                        'total' => $sum_stock - $old_stock,
+                                        'updated_by' => Auth::user()->id,
                                     ]);
 
                                     // pengurangan ingredient stock
                                     for ($j = 0; $j < count($pi); $j++) {
                                         $ingredient_id = $pi[$j]->product_id;
-                                        $req_stock = $pi[$j]->req_stock;
-                                        $need_stock = $req_stock * $qty;
+                                        $req_stock = $pi[$j]->req_stock * $qty;
                                         $real_stock = $pi[$j]->stock;
-                                        $stock_left = $real_stock - $need_stock;
+                                        $stock_left = $real_stock - $req_stock;
 
                                         Product::findOrFail($ingredient_id)->update([
                                             'stock' => $stock_left
                                         ]);
 
                                         // Insert Log
-                                        ProductStockLog::create([
+                                        ProductStockLogAdmin::create([
                                             'product_id' => $ingredient_id,
                                             'description' => "digunakan untuk pembuatan " . $product_name,
                                             'from_qty' => $real_stock,
                                             'to_qty' => $stock_left,
+                                            'total' => $stock_left - $real_stock,
+                                            'updated_by' => Auth::user()->id,
+                                            'flag_admin' => 1
+                                        ]);
+
+                                        ProductStockLogUser::create([
+                                            'product_id' => $ingredient_id,
+                                            'description' => "-",
+                                            'total' => $stock_left - $real_stock,
                                             'updated_by' => Auth::user()->id,
                                             'flag_admin' => 1
                                         ]);
@@ -302,13 +331,20 @@ class StockController extends Controller
                             ]);
 
                             // Insert Log
-                            ProductStockLog::create([
+                            ProductStockLogAdmin::create([
                                 'product_id' => $product_id,
                                 'description' => $type,
                                 'from_qty' => $old_stock,
                                 'to_qty' => $new_stock,
+                                'total' => $new_stock - $old_stock,
                                 'updated_by' => Auth::user()->id,
-                                'flag_admin' => 0
+                            ]);
+
+                            ProductStockLogUser::create([
+                                'product_id' => $product_id,
+                                'description' => '+',
+                                'total' => $new_stock - $old_stock,
+                                'updated_by' => Auth::user()->id,
                             ]);
                         }
                     }
@@ -329,13 +365,20 @@ class StockController extends Controller
                             ]);
 
                             // Insert Log
-                            ProductStockLog::create([
+                            ProductStockLogAdmin::create([
                                 'product_id' => $product_id,
                                 'description' => $type,
                                 'from_qty' => $old_stock,
                                 'to_qty' => $new_stock,
+                                'total' => $new_stock - $old_stock,
                                 'updated_by' => Auth::user()->id,
-                                'flag_admin' => 0
+                            ]);
+
+                            ProductStockLogUser::create([
+                                'product_id' => $product_id,
+                                'description' => '-',
+                                'total' => $new_stock - $old_stock,
+                                'updated_by' => Auth::user()->id,
                             ]);
                         }
                     }
@@ -440,7 +483,7 @@ class StockController extends Controller
      *
      * @return Response
      */
-    public function datatableHistory(Request $request)
+    public function datatableHistoryAdmin(Request $request)
     {
         /* RBAC */
         if (!Role::authorize('stock.history')) {
@@ -467,12 +510,48 @@ class StockController extends Controller
             $q = ' AND product_id = ' . $id;
         }
 
-        $r = '';
-        if (Auth::user()->role_id != 1) {
-            $r = ' AND flag_admin = 0';
+        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log_admin psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . " ORDER BY updated_at ASC"));
+
+        return Datatables::of($histories)
+            ->editColumn('updated_at', function ($history) {
+                return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i') : '';
+            })
+            ->make(true);
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableHistoryUser(Request $request)
+    {
+        /* RBAC */
+        if (!Role::authorize('stock.history')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . $r . " Order By updated_at ASC"));
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $id = $request->input('id');
+
+        if ($startDate == '') {
+            $startDate = date('Y-m-d') . " 00:00:00";
+        } else {
+            $startDate = $startDate . " 00:00:00";
+        }
+        if ($endDate == '') {
+            $endDate = date('Y-m-d') . " 23:59:59";
+        } else {
+            $endDate = $endDate . " 23:59:59";
+        }
+
+        $q = '';
+        if ($id != 'All') {
+            $q = ' AND product_id = ' . $id;
+        }
+
+        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log_user psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . " ORDER BY updated_at ASC"));
 
         return Datatables::of($histories)
             ->editColumn('updated_at', function ($history) {
@@ -493,7 +572,7 @@ class StockController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type', 'parent_stock']);
 
         return Datatables::of($products)
             ->addColumn('action', function ($product) {

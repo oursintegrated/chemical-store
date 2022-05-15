@@ -45,7 +45,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/sales', 'SalesController@datatable');
     Route::post('datatable/recipe', 'RecipeController@datatable');
     Route::post('datatable/stock-low', 'StockController@datatableLowStock');
-    Route::post('datatable/stock/history', 'StockController@datatableHistory');
+    Route::post('datatable/stock/history-admin', 'StockController@datatableHistoryAdmin');
+    Route::post('datatable/stock/history-user', 'StockController@datatableHistoryUser');
     Route::post('datatable/stocks', 'StockController@datatable');
     Route::post('datatable/stocks/raw-material', 'StockController@datatableRawProduct');
     Route::post('datatable/recipe/raw-material', 'RecipeController@datatableRawProduct');
