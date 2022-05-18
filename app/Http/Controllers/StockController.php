@@ -437,6 +437,12 @@ class StockController extends Controller
             ->editColumn('updated_at', function ($product) {
                 return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
             })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, '.', '');
+            })
+            ->editColumn('min_stock', function ($product) {
+                return number_format($product->min_stock, 2, '.', '');
+            })
             ->make(true);
     }
 
