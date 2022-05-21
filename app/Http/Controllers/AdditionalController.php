@@ -45,7 +45,7 @@ class AdditionalController extends Controller
             $obj->id = $pi[$i]->id;
             $obj->no = $i + 1;
             $obj->product_name = $pi[$i]->product_name;
-            $obj->req_stock = $pi[$i]->req_stock;
+            $obj->req_stock = number_format($pi[$i]->req_stock, 2, '.', '');
 
             $dataIngredient[] = $obj;
         }

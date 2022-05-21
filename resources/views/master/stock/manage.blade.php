@@ -43,6 +43,7 @@
                                     <!-- <option value="stock opname">Stock Opname</option> -->
                                     <option value="retur">Retur</option>
                                     <option value="product processing">Product Processing</option>
+                                    <option value="stock opname">Stock Opname</option>
                                 </select>
                             </div>
 

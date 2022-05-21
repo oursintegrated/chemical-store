@@ -156,7 +156,7 @@ class HomeController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $sales = DB::select(DB::raw("SELECT *, DATE_ADD(transaction_date, INTERVAL due_date DAY) as due FROM sales_headers WHERE status = 0 ORDER BY due ASC"));
+        $sales = DB::select(DB::raw("SELECT sh.*, DATE_ADD(sh.transaction_date, INTERVAL sh.due_date DAY) as due, count(c.id) as credit FROM sales_headers sh LEFT JOIN credits c ON sh.id = c.sales_id WHERE sh.status = 0 GROUP BY sh.id ORDER BY due ASC"));
 
         return Datatables::of($sales)
             ->addColumn('action', function ($sale) {
@@ -164,6 +164,8 @@ class HomeController extends Controller
 
                 /* Tambah Action */
                 $buttons .= '<li><a href="javascript:;" data-record-id="' . $sale->id . '" data-type="' . $sale->type . '" onclick="completeSales($(this));"><i class="fa fa-check"></i>&nbsp; Complete</a></li>';
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $sale->id . '" data-type="' . $sale->type . '" onclick="credit($(this));"><i class="fa fa-credit-card"></i>&nbsp; Credit</a></li>';
+
                 /* Selesai Action */
 
                 $buttons .= '</ul></div></div>';
@@ -204,7 +206,28 @@ class HomeController extends Controller
                     return $due_date;
                 }
             })
-            ->rawColumns(['action', 'type', 'status'])
+            ->editColumn('credit', function ($sale) {
+                if ($sale->credit > 0) {
+                    return '<span class="label label-info fa fa-check"> </span>';
+                } else {
+                    return '<span class="label label-info fa fa-close"> </span>';
+                }
+            })
+            ->rawColumns(['action', 'type', 'status', 'credit'])
             ->make(true);
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function creditIndex($id)
+    {
+        $data['menu'] = $this->getMenu();
+
+        $data['sales'] = SalesHeader::where('id', $id)->first();
+
+        return view('credit.index', $data);
     }
 }

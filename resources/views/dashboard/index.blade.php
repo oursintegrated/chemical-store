@@ -36,6 +36,7 @@
                                 <th class="text-center">Type</th>
                                 <th class="text-center">Total</th>
                                 <th class="text-center">Status</th>
+                                <th class="text-center">Credit</th>
                                 <th class="text-center">Transaction Date</th>
                                 <th class="text-center">Due Date</th>
                             </tr>
@@ -51,6 +52,7 @@
                                 <th>Type</th>
                                 <th>Total</th>
                                 <th>Status</th>
+                                <th>Credit</th>
                                 <th>Transaction Date</th>
                                 <th>Due Date</th>
                             </tr>
@@ -131,6 +133,10 @@
         }, {
             data: 'status',
             name: 'status',
+            className: 'align-middle'
+        }, {
+            data: 'credit',
+            name: 'credit',
             className: 'align-middle'
         }, {
             data: 'transaction_date',
@@ -264,6 +270,7 @@
     //         });
     // }
 
+    // ========================= Complete Sales
     var completeSales = function(me) {
         var type = me.data('type');
         if (type == "tunai" || type == "kredit") {
@@ -307,6 +314,13 @@
     var _completeSales = function(me, payment) {
         var recordID = me.data('record-id');
         updateStatus(recordID, payment);
+    };
+
+
+    // =========================== Credit
+    var credit = function(me) {
+        var sales_id = me.data('record-id');
+        window.location.replace('/credit/' + sales_id);
     };
 </script>
 @endsection
