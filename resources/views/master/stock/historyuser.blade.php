@@ -39,15 +39,16 @@
                             <label for="fullname">Date <span style="color: red;">*</span></label>
                             <input id="date" placeholder="Input date" class="form-control datepicker" name="datetimerange" value="">
                         </div>
-                        <select class="form-control select2" id="product" name="product" data-placeholder="Choose product">
-                            <option value="All">ALL PRODUCT</option>
-                            @foreach ($products as $product)
-                            <option value="{{ $product->id }}">{{ $product->product_name }}</option>
-                            @endforeach
-                        </select>
-
+                        <div class="form-group required">
+                            <label for="fullname">Product <span style="color: red;">*</span></label>
+                            <select class="form-control select2" id="product" name="product" data-placeholder="Choose product">
+                                <option value="All">ALL PRODUCT</option>
+                                @foreach ($products as $product)
+                                <option value="{{ $product->id }}">{{ $product->product_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-group">
-                            <br />
                             <button type="button" class="btn btn-default" id="searchBtn"> Search </button>
                         </div>
                     </form>
@@ -62,6 +63,7 @@
                                     <tr>
                                         <th class="text-center">Product Name</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Updated At</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -70,6 +72,7 @@
                                     <tr>
                                         <th class="text-center">Product Name</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Updated At</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -153,6 +156,10 @@
             }, {
                 data: 'total',
                 name: 'total',
+            }, {
+                data: 'updated_at',
+                name: 'updated_at',
+                className: 'text-center'
             }]
         });
 

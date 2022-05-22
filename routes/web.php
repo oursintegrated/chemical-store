@@ -28,6 +28,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('sales/{id}/update-status', 'HomeController@updateStatus');
     Route::post('sales/{id}/delete-status', 'HomeController@deleteStatus');
 
+    Route::get('credit/{id}', 'HomeController@creditIndex');
+    Route::post('credit/create', 'CreditController@store');
+    Route::post('datatable/credits', 'CreditController@datatable');
+
+
     /* My Account (Update Profile & Password) */
     Route::get('user/profile', 'AuthController@getMyAccount');
     Route::post('user/update-profile', 'AuthController@postUpdateProfile');

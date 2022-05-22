@@ -302,13 +302,13 @@ class StockController extends Controller
                                             'flag_admin' => 1
                                         ]);
 
-                                        ProductStockLogUser::create([
-                                            'product_id' => $ingredient_id,
-                                            'description' => "-",
-                                            'total' => $stock_left - $real_stock,
-                                            'updated_by' => Auth::user()->id,
-                                            'flag_admin' => 1
-                                        ]);
+                                        // ProductStockLogUser::create([
+                                        //     'product_id' => $ingredient_id,
+                                        //     'description' => "-",
+                                        //     'total' => $stock_left - $real_stock,
+                                        //     'updated_by' => Auth::user()->id,
+                                        //     'flag_admin' => 1
+                                        // ]);
                                     }
                                 }
                             }
@@ -381,6 +381,38 @@ class StockController extends Controller
                                 'updated_by' => Auth::user()->id,
                             ]);
                         }
+                    }
+                } else if ($type == 'stock opname') {
+                    for ($i = 0; $i < count($selected); $i++) {
+                        $product_id = $selected[$i]['id'];
+                        $qty = $selected[$i]['qty'];
+                        $type_product = $selected[$i]['type'];
+                        $product_name = $selected[$i]['product_name'];
+
+                        // get stock lama
+                        $p = Product::where('id', $product_id)->first();
+                        $old_stock = $p->stock;
+                        $new_stock = $qty;
+                        $pu = Product::where('id', $product_id)->update([
+                            'stock' => $new_stock
+                        ]);
+
+                        // Insert Log
+                        ProductStockLogAdmin::create([
+                            'product_id' => $product_id,
+                            'description' => $type,
+                            'from_qty' => $old_stock,
+                            'to_qty' => $new_stock,
+                            'total' => $new_stock - $old_stock,
+                            'updated_by' => Auth::user()->id,
+                        ]);
+
+                        ProductStockLogUser::create([
+                            'product_id' => $product_id,
+                            'description' => 'opname',
+                            'total' => $new_stock - $old_stock,
+                            'updated_by' => Auth::user()->id,
+                        ]);
                     }
                 }
 
@@ -474,6 +506,12 @@ class StockController extends Controller
                     return 'Recipe';
                 }
             })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, '.', '');
+            })
+            ->editColumn('min_stock', function ($product) {
+                return number_format($product->min_stock, 2, '.', '');
+            })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
             })
@@ -521,6 +559,12 @@ class StockController extends Controller
         return Datatables::of($histories)
             ->editColumn('updated_at', function ($history) {
                 return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i') : '';
+            })
+            ->editColumn('from_qty', function ($history) {
+                return number_format($history->from_qty, 2, '.', '');
+            })
+            ->editColumn('to_qty', function ($history) {
+                return number_format($history->to_qty, 2, '.', '');
             })
             ->make(true);
     }

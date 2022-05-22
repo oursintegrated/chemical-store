@@ -44,7 +44,7 @@
                             <div style="margin-bottom: 10px;">
                                 <div class="form-inline">
                                     <label class="control-label">Stock <span style="color: red;">*</span></label>
-                                    <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0" value="{{ $recipe->parent_stock }}">
+                                    <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0" value="{{ number_format($recipe->parent_stock, 2, '.', '') }}">
                                 </div>
                             </div>
 

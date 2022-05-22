@@ -337,6 +337,9 @@ class RecipeController extends Controller
                     return 'Recipe';
                 }
             })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, '.', '');
+            })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
             })

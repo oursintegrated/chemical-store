@@ -72,11 +72,6 @@
                                         </div>
                                     </div>
                                     <br />
-                                    <div class="form-group">
-                                        <div class="radio">
-                                            <label><input type="radio" name="type" value="kredit"> Kredit</label>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -711,9 +706,6 @@
                     $('#formTunai').hide();
                     $('#type').text('Jatuh Tempo : ' + formatDate);
                 }
-            } else if (this.value == 'kredit') {
-                $('#formTunai').hide();
-                $('#type').text('');
             }
         });
 

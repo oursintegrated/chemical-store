@@ -112,19 +112,6 @@
             serverSide: false,
             stateSave: false,
             stateDuration: 0,
-            rowCallback: function(row, data) {
-                // return satuan
-                if (data.type == 'Raw Material') {
-                    $('td:eq(3)', row).html(parseFloat(data.stock).toFixed(2) + ' Kg');
-                    $('td:eq(4)', row).html(parseFloat(data.min_stock).toFixed(2) + ' Kg');
-                } else if (data.type == 'Packaging') {
-                    $('td:eq(3)', row).html(parseFloat(data.stock).toFixed(2) + ' Pcs');
-                    $('td:eq(4)', row).html(parseFloat(data.min_stock).toFixed(2) + ' Pcs');
-                } else {
-                    $('td:eq(3)', row).html(parseFloat(data.stock).toFixed(2) + ' Packet');
-                    $('td:eq(4)', row).html(parseFloat(data.min_stock).toFixed(2) + ' Packet');
-                }
-            },
             lengthMenu: [
                 [-1],
                 ["All"]
