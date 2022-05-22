@@ -51,4 +51,13 @@ class AdditionalController extends Controller
         }
         return response()->json($dataIngredient);
     }
+
+    public function upload(Request $request)
+    {
+        $name = $request->input('name');
+        move_uploaded_file(
+            $_FILES['pdf']['tmp_name'],
+            $_SERVER['DOCUMENT_ROOT'] . "/uploads/" . $name . ".pdf"
+        );
+    }
 }

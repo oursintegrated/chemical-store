@@ -99,6 +99,8 @@ Route::group(['middleware' => 'auth'], function () {
     /* Additional */
     Route::post('additional/sales/customer', 'AdditionalController@getCustomerInfo');
     Route::post('additional/recipe/product', 'AdditionalController@getProductIngredientsInfo');
+    Route::post('additional/upload', 'AdditionalController@upload');
+
 
     /* Configuration */
     Route::get('configuration/user', 'UserController@index');

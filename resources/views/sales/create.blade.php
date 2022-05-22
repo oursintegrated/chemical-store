@@ -132,7 +132,30 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">Nota</div>
                                 <div class="panel-body">
-                                    <div class="html-content" id="html-content">
+                                    <div class="form-group required" id="formTunai">
+                                        <label class="control-label">Rekening <span style="color: red;"></span></label>
+                                        <div class="form-inline">
+                                            <div class="form-group">
+                                                <div class="radio">
+                                                    <label><input type="radio" name="rekening" value="8380113393 a/n Tonny Sutantyo" checked> Tonny Sutantyo - 8380113393</label>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="form-group">
+                                                <div class="radio">
+                                                    <label><input type="radio" name="rekening" value="4531098298 a/n Tonny Sutantyo"> Tonny Sutantyo - 4531098298</label>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="form-group">
+                                                <div class="radio">
+                                                    <label><input type="radio" name="rekening" value="6765676511 a/n Felix Chrisanto"> Felix Chrisanto - 6765676511</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="html-content" id="html-content" style="font-size: 8pt;">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <span id="type"></span>
@@ -142,10 +165,8 @@
                                                 Kepada YTH
                                             </div>
                                         </div>
-                                        <br />
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <br />
                                                 <br />
                                                 <p style="padding-left: 25px;">Nota Faktur _ __</p>
                                             </div>
@@ -155,16 +176,15 @@
                                                 <span id="customerAddress"></span>
                                             </div>
                                         </div>
-                                        <br />
                                         <table class="table table-responsive table-bordered" id="notaTable" style="font-size: 8pt; width: 95%;">
                                             <thead>
                                                 <tr style="background-color: #85c9e9;" class="table-bordered">
-                                                    <th class="font-weight-bold text-center table-bordered" hidden><b>ID</b></th>
-                                                    <th class="font-weight-bold text-center table-bordered"><b>Banyaknya</b></th>
-                                                    <th class="font-weight-bold text-center table-bordered"><b>Sat.</b></th>
-                                                    <th class="text-center table-bordered"><b>Nama Barang</b></th>
-                                                    <th class="text-center table-bordered"><b>Harga Satuan</b></th>
-                                                    <th class="text-center table-bordered"><b>Jumlah (Rp.)</b></th>
+                                                    <th class="font-weight-bold text-center table-bordered custom" hidden><b>ID</b></th>
+                                                    <th class="font-weight-bold text-center table-bordered custom"><b>Banyaknya</b></th>
+                                                    <th class="font-weight-bold text-center table-bordered custom"><b>Sat.</b></th>
+                                                    <th class="text-center table-bordered custom"><b>Nama Barang</b></th>
+                                                    <th class="text-center table-bordered custom"><b>Harga Satuan</b></th>
+                                                    <th class="text-center table-bordered custom"><b>Jumlah (Rp.)</b></th>
                                                 </tr>
                                             </thead>
 
@@ -180,11 +200,9 @@
                                                 <th class="text-center" style="border: none; padding: 5px 0 5px 0 !important;"><input type="text" id="total" class="form-control text-right"></th>
                                             </tfoot>
                                         </table>
-                                        <br />
-                                        <div class="row">
+                                        <div class="row" style="margin-top: 5px;">
                                             <div class="col-md-6">
                                                 <p class="text-center">Tanda Terima</p>
-                                                <br />
                                                 <br />
                                                 <br />
                                                 <p class="text-center">( ......................................... )</p>
@@ -193,8 +211,12 @@
                                                 <p class="text-center">Hormat Kami</p>
                                                 <br />
                                                 <br />
-                                                <br />
                                                 <p class="text-center">( ......................................... )</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <span style="padding-left: 25px;" id="rek"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -297,22 +319,23 @@
             }, {
                 data: 'qty',
                 name: 'qty',
-                className: 'text-center'
+                className: 'text-center custom'
             }, {
                 data: 'unit',
                 name: 'unit',
-                className: 'text-center'
+                className: 'text-center custom'
             }, {
                 data: 'product_name',
-                name: 'product_name'
+                name: 'product_name',
+                className: 'custom'
             }, {
                 data: 'price',
                 name: 'price',
-                className: 'text-right'
+                className: 'text-right custom'
             }, {
                 data: 'total',
                 name: 'total',
-                className: 'text-right'
+                className: 'text-right custom'
             }, ]
         });
 
@@ -694,6 +717,13 @@
             }
         });
 
+        var rekening = $("input[name='rekening']:checked").val();
+        $('#rek').text('Catatan: untuk pembayaran transfer dapat dikirimkan ke ' + rekening);
+
+
+        $('input[type=radio][name=rekening]').change(function() {
+            $('#rek').text('Catatan: untuk pembayaran transfer dapat dikirimkan ke ' + this.value);
+        })
         //  ================================= Create Sales
 
         $("#btnSave").on('click', function() {
@@ -807,10 +837,32 @@
                                         pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
                                     }
 
-                                    var customerName = $("#name option:selected").text();
-                                    pdf.save("Nota -" + customerName + ".pdf");
+                                    var blob = pdf.output('blob');
 
-                                    window.location.replace(response.data.intended_url)
+                                    var formData = new FormData();
+                                    formData.append('pdf', blob);
+                                    formData.append('name', new Date().getTime());
+
+                                    $.ajax('/additional/upload', {
+                                        method: 'POST',
+                                        data: formData,
+                                        processData: false,
+                                        contentType: false,
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                        success: function(data) {
+                                            console.log(data)
+                                        },
+                                        error: function(data) {
+                                            console.log(data)
+                                        }
+                                    });
+
+                                    // var customerName = $("#name option:selected").text();
+                                    // pdf.save("Nota -" + customerName + ".pdf");
+
+                                    // window.location.replace(response.data.intended_url)
 
                                 });
                             });

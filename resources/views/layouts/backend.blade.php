@@ -53,6 +53,16 @@
             text-align: center;
             vertical-align: top !important;
         }
+
+        table.dataTable thead th.custom,
+        table.dataTable thead td.custom {
+            padding: 0px 2px !important;
+        }
+
+        table.dataTable tbody th.custom,
+        table.dataTable tbody td.custom {
+            padding: 0px 10px;
+        }
     </style>
 
     <link rel="stylesheet" type="text/css" href="{{ asset('jstree/dist/themes/default/style.css') }}" />
