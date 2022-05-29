@@ -42,24 +42,12 @@
                         <a href="{{url('/data-master/stock/activity')}}" class="btn btn-default btn">
                             <li class="fa fa-list-alt"></li> &nbsp; Stock Activity
                         </a>
+                        <a href="{{url('/data-master/stock-low')}}" class="btn btn-default btn">
+                            <li class="fa fa-list-alt"></li> &nbsp; Low Stock - {{ $totalLowStock }}
+                        </a>
                     </div>
                 </div>
                 <br />
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="panel panel-warning">
-                            <div class="panel-heading">
-                                <b>Low Stock</b>
-                            </div>
-                            <div class="panel-body text-center" style="padding: 1px !important;">
-                                <h4><b>{{ $totalLowStock }} products</b></h4> <a href="/data-master/stock-low">List Stock</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <p>&nbsp;</p>
-                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="table-responsive">
