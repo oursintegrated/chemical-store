@@ -118,10 +118,12 @@ class SalesController extends Controller
                     $product_id = $products[$i]['id'];
                     $qty = (float)$products[$i]['qty'];
                     $check = Product::where('id', $product_id)->first();
-                    if ($check->stock < $qty) {
-                        $cant = $check->product_name;
-                        $flag = false;
-                        break;
+                    if ($check->type != 'delivery') {
+                        if ($check->stock < $qty) {
+                            $cant = $check->product_name;
+                            $flag = false;
+                            break;
+                        }
                     }
                 };
 
@@ -165,27 +167,30 @@ class SalesController extends Controller
                         $p_old = Product::where('id', $product_id)->first();
                         $stock_old = $p_old->stock;
                         $stock_new = $stock_old - $qty;
+                        $type = $p_old->type;
 
-                        Product::findOrFail($product_id)->update([
-                            'stock' => $stock_new
-                        ]);
+                        if ($type != 'delivery') {
+                            Product::findOrFail($product_id)->update([
+                                'stock' => $stock_new
+                            ]);
 
-                        // Insert Log
-                        ProductStockLogAdmin::create([
-                            'product_id' => $product_id,
-                            'description' => "penjualan no order " . $sales_code,
-                            'from_qty' => $stock_old,
-                            'to_qty' => $stock_new,
-                            'total' => $stock_new - $stock_old,
-                            'updated_by' => Auth::user()->id,
-                        ]);
+                            // Insert Log
+                            ProductStockLogAdmin::create([
+                                'product_id' => $product_id,
+                                'description' => "penjualan no order " . $sales_code,
+                                'from_qty' => $stock_old,
+                                'to_qty' => $stock_new,
+                                'total' => $stock_new - $stock_old,
+                                'updated_by' => Auth::user()->id,
+                            ]);
 
-                        ProductStockLogUser::create([
-                            'product_id' => $product_id,
-                            'description' => "-",
-                            'total' => $stock_new - $stock_old,
-                            'updated_by' => Auth::user()->id,
-                        ]);
+                            ProductStockLogUser::create([
+                                'product_id' => $product_id,
+                                'description' => "-",
+                                'total' => $stock_new - $stock_old,
+                                'updated_by' => Auth::user()->id,
+                            ]);
+                        }
                     };
                     DB::commit();
 

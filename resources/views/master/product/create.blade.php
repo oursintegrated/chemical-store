@@ -48,7 +48,7 @@
                                 </select>
                             </div>
 
-                            <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 10px;" id="stockForm">
                                 <div class="form-inline">
                                     <label class="control-label">Stock <span style="color: red;">*</span></label>
                                     <input type="number" step="0.1" required id="stock" name="stock" class="form-control" autocomplete="off" placeholder="0" min="0">
@@ -70,6 +70,12 @@
                                     <div class="form-group">
                                         <div class="radio">
                                             <label><input type="radio" name="type" value="packaging"> Packaging</label>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label><input type="radio" name="type" value="delivery"> Delivery</label>
                                         </div>
                                     </div>
                                     <br />
@@ -171,22 +177,24 @@
             }
         });
 
-        var type = $("input[name='type']:checked").val();
-        if (type == 'raw' || type == 'packaging') {
-            $('.ingredientForm').hide();
-        } else if (type == 'recipe') {
-            $('.ingredientForm').show();
-        }
+        // var type = $("input[name='type']:checked").val();
+        // if (type == 'raw' || type == 'packaging') {
+        //     $('.ingredientForm').hide();
+        // } else if (type == 'recipe') {
+        //     $('.ingredientForm').show();
+        // }
 
         $('input[type=radio][name=type]').change(function() {
             if (this.value == 'raw' || this.value == 'packaging') {
-                $('.ingredientForm').hide();
-            } else if (this.value == 'recipe') {
-                $('.ingredientForm').show();
+                $('#stockForm').show();
+            } else if (this.value == 'delivery') {
+                $('#stockForm').hide();
+                $('#stock').val(1);
+                $('#min_stock').val(1);
             }
-            productTable.rows().deselect();
-            dataIngredients = [];
-            resetIngredientTable();
+            // productTable.rows().deselect();
+            // dataIngredients = [];
+            // resetIngredientTable();
         });
 
         // ============================ Initial Datatable

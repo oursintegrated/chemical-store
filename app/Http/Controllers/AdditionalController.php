@@ -55,9 +55,18 @@ class AdditionalController extends Controller
     public function upload(Request $request)
     {
         $name = $request->input('name');
-        move_uploaded_file(
+        if (move_uploaded_file(
             $_FILES['pdf']['tmp_name'],
             $_SERVER['DOCUMENT_ROOT'] . "/uploads/" . $name . ".pdf"
-        );
+        )) {
+            return response()->json(['status' => 1, 'filename' => $name . ".pdf"]);
+        } else {
+            return response()->json(['status' => 0]);
+        };
+    }
+
+    public function printerDetect(Request $request)
+    {
+        return view('additional.index');
     }
 }

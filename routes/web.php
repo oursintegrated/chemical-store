@@ -22,6 +22,8 @@ Route::post('/forgot/your/password/change', 'UserController@changePassword');
 
 Auth::routes();
 
+Route::get('printer-detect', 'AdditionalController@printerDetect');
+
 Route::group(['middleware' => 'auth'], function () {
     /* Dashboard sebagai halaman pertama setelah login */
     Route::get('dashboard', 'HomeController@index');
@@ -52,6 +54,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/stock-low', 'StockController@datatableLowStock');
     Route::post('datatable/stock/history-admin', 'StockController@datatableHistoryAdmin');
     Route::post('datatable/stock/history-user', 'StockController@datatableHistoryUser');
+    Route::post('datatable/stock/activity', 'StockController@datatableActivity');
     Route::post('datatable/stocks', 'StockController@datatable');
     Route::post('datatable/stocks/raw-material', 'StockController@datatableRawProduct');
     Route::post('datatable/recipe/raw-material', 'RecipeController@datatableRawProduct');
@@ -76,6 +79,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('data-master/stock/manage', 'StockController@manage');
     Route::get('data-master/stock/history', 'StockController@history');
     Route::post('data-master/stock/manage', 'StockController@manageUpdate');
+    Route::get('data-master/stock/activity', 'StockController@activity');
+    Route::post('data-master/stock/{id}/rollback', 'StockController@rollback');
+
     Route::get('data-master/stock-low', 'StockController@lowStockIndex');
     Route::post('data-master/stock-low/adjust', 'StockController@lowStockAdjust');
 

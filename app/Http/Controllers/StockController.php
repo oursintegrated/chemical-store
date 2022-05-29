@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\ActivityDetailStock;
+use App\ActivityStock;
 use App\Product;
 use App\ProductIngredient;
 use App\ProductStockLogAdmin;
@@ -11,7 +13,10 @@ use App\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use DataTables;
+use Exception;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Calculation\DateTimeExcel\Date;
+use SebastianBergmann\Environment\Console;
 use Validator;
 
 class StockController extends Controller
@@ -70,6 +75,7 @@ class StockController extends Controller
         }
     }
 
+
     public function lowStockIndex()
     {
         /* RBAC */
@@ -85,6 +91,15 @@ class StockController extends Controller
         $data['totalLowStock'] = $ls[0]->count;
 
         return view('master.stock.lowstock', $data);
+    }
+
+    public function activity()
+    {
+
+        $x = new HomeController;
+        $data['menu'] = $x->getMenu();
+
+        return view('master.stock.activity', $data);
     }
 
     /**
@@ -238,6 +253,15 @@ class StockController extends Controller
                                     'total' => $new_stock - $old_stock,
                                     'updated_by' => Auth::user()->id,
                                 ]);
+
+                                ActivityStock::create([
+                                    'product_id' => $product_id,
+                                    'updated_by' => Auth::user()->id,
+                                    'from_qty' => $old_stock,
+                                    'to_qty' => $new_stock,
+                                    'qty' => $new_stock - $old_stock,
+                                    'description' => $type
+                                ]);
                             } else if ($type_product == 'Recipe') {
                                 // check stock
                                 $flag = true;
@@ -280,6 +304,17 @@ class StockController extends Controller
                                         'updated_by' => Auth::user()->id,
                                     ]);
 
+                                    $log_id = ActivityStock::insertGetId([
+                                        'product_id' => $product_id,
+                                        'updated_by' => Auth::user()->id,
+                                        'from_qty' => $old_stock,
+                                        'to_qty' => $sum_stock,
+                                        'qty' => $sum_stock - $old_stock,
+                                        'description' => $type,
+                                        'created_at' => now(),
+                                        'updated_at' => now()
+                                    ]);
+
                                     // pengurangan ingredient stock
                                     for ($j = 0; $j < count($pi); $j++) {
                                         $ingredient_id = $pi[$j]->product_id;
@@ -300,6 +335,12 @@ class StockController extends Controller
                                             'total' => $stock_left - $real_stock,
                                             'updated_by' => Auth::user()->id,
                                             'flag_admin' => 1
+                                        ]);
+
+                                        ActivityDetailStock::create([
+                                            'log_id' => $log_id,
+                                            'product_id' => $ingredient_id,
+                                            'qty' => $stock_left - $real_stock
                                         ]);
 
                                         // ProductStockLogUser::create([
@@ -346,6 +387,15 @@ class StockController extends Controller
                                 'total' => $new_stock - $old_stock,
                                 'updated_by' => Auth::user()->id,
                             ]);
+
+                            ActivityStock::create([
+                                'product_id' => $product_id,
+                                'updated_by' => Auth::user()->id,
+                                'from_qty' => $old_stock,
+                                'to_qty' => $new_stock,
+                                'qty' => $new_stock - $old_stock,
+                                'description' => $type
+                            ]);
                         }
                     }
                 } else if ($type == "product processing") {
@@ -379,6 +429,15 @@ class StockController extends Controller
                                 'description' => '-',
                                 'total' => $new_stock - $old_stock,
                                 'updated_by' => Auth::user()->id,
+                            ]);
+
+                            ActivityStock::create([
+                                'product_id' => $product_id,
+                                'updated_by' => Auth::user()->id,
+                                'from_qty' => $old_stock,
+                                'to_qty' => $new_stock,
+                                'qty' => $new_stock - $old_stock,
+                                'description' => $type
                             ]);
                         }
                     }
@@ -622,7 +681,7 @@ class StockController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type', 'parent_stock']);
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type', 'parent_stock'])->where('type', '!=', 'delivery');
 
         return Datatables::of($products)
             ->addColumn('action', function ($product) {
@@ -642,9 +701,14 @@ class StockController extends Controller
                     return 'Raw Material';
                 } else if ($product->type == 'packaging') {
                     return 'Packaging';
+                } else if ($product->type == 'delivery') {
+                    return 'Delivery';
                 } else {
                     return 'Recipe';
                 }
+            })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, '.', '');
             })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';
@@ -653,5 +717,124 @@ class StockController extends Controller
                 return $product->updated_at ? with(new Carbon($product->updated_at))->format('d F Y H:i') : '';
             })
             ->make(true);
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableActivity()
+    {
+        $logs = DB::select(DB::raw('SELECT a.*, p.product_name FROM activity_stocks a LEFT JOIN products p on a.product_id = p.id WHERE a.updated_by =' . Auth::user()->id . ' AND DATE(a.created_at) = CURDATE()'));
+
+        return Datatables::of($logs)
+            ->addColumn('action', function ($log) {
+                $buttons = '<div class="text-center"><div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fa fa-bars"></i></button><ul class="dropdown-menu">';
+
+                /* Tambah Action */
+                $buttons .= '<li><a href="javascript:;" data-record-id="' . $log->id . '" onclick="rollbackLog($(this));"><i class="fa fa-refresh"></i>&nbsp; Rollback</a></li>';
+                /* Selesai Action */
+
+                $buttons .= '</ul></div></div>';
+
+                return $buttons;
+            })
+            ->editColumn('created_at', function ($log) {
+                return $log->created_at ? with(new Carbon($log->created_at))->format('d F Y H:i') : '';
+            })
+            ->editColumn('updated_at', function ($log) {
+                return $log->updated_at ? with(new Carbon($log->updated_at))->format('d F Y H:i') : '';
+            })
+            ->make(true);
+    }
+
+    public function rollback($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $logHeader = ActivityStock::where('id', $id)->first();
+            $product_id = $logHeader->product_id;
+            $qty_header = $logHeader->qty;
+
+            $x = Product::where('id', $product_id)->first();
+            $old_stock = $x->stock;
+
+            if ($qty_header > 0) {
+                $new_stock = $old_stock - $qty_header;
+            } else if ($qty_header < 0) {
+                $new_stock = $old_stock + abs($qty_header);
+            }
+
+            Product::where('id', $product_id)->update([
+                'stock' => $new_stock
+            ]);
+
+            // Insert Log
+            ProductStockLogAdmin::create([
+                'product_id' => $product_id,
+                'description' => 'rollback',
+                'from_qty' => $old_stock,
+                'to_qty' => $new_stock,
+                'total' => $new_stock - $old_stock,
+                'updated_by' => Auth::user()->id,
+            ]);
+
+            ProductStockLogUser::create([
+                'product_id' => $product_id,
+                'description' => 'rollback',
+                'total' => $new_stock - $old_stock,
+                'updated_by' => Auth::user()->id,
+            ]);
+
+            $logDetail = ActivityDetailStock::where('log_id', $id)->get();
+            for ($i = 0; $i < count($logDetail); $i++) {
+                $product_id = $logDetail[$i]->product_id;
+
+                $qty_detail = $logDetail[$i]->qty;
+
+                $x = Product::where('id', $product_id)->first();
+                $old_stock = $x->stock;
+
+                if ($qty_detail > 0) {
+                    $new_stock = $old_stock - $qty_detail;
+                } else if ($qty_detail < 0) {
+                    $new_stock = $old_stock + abs($qty_detail);
+                }
+
+                Product::where('id', $product_id)->update([
+                    'stock' => $new_stock
+                ]);
+
+                // Insert Log
+                ProductStockLogAdmin::create([
+                    'product_id' => $product_id,
+                    'description' => 'rollback',
+                    'from_qty' => $old_stock,
+                    'to_qty' => $new_stock,
+                    'total' => $new_stock - $old_stock,
+                    'updated_by' => Auth::user()->id,
+                ]);
+
+                ProductStockLogUser::create([
+                    'product_id' => $product_id,
+                    'description' => 'rollback',
+                    'total' => $new_stock - $old_stock,
+                    'updated_by' => Auth::user()->id,
+                ]);
+            }
+
+            // DELETE
+            ActivityStock::where('id', $id)->delete();
+            ActivityDetailStock::where('log_id', $id)->delete();
+
+            DB::commit();
+
+            return response()->json(array('status' => 1, 'message' => 'Rollback Success.'));
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(array('status' => 0, 'message' => $e));
+        }
     }
 }

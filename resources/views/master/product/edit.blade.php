@@ -44,8 +44,7 @@
 
                             <div class="form-group required">
                                 <label class="control-label">Min Stock</label>
-                                <input type="number" step="0.1" required name="min_stock" class="form-control" value="{{ number_format($product->min_stock, 2, '.', '') }}" autocomplete="off" placeholder="0" min="0">
-                                <small class="form-text text-muted">Stock in Kg (raw material) / Stock in Packet (recipe)</small>
+                                <input type="number" step="0.1" required name="min_stock" class="form-control" value="{{ number_format($product->min_stock, 2, '.', '') }}" autocomplete="off" placeholder="0" min="0" @if($product->type == 'delivery') readonly @endif>
                             </div>
 
                             <div class="form-group required">

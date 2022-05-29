@@ -313,7 +313,7 @@ class RecipeController extends Controller
             return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
         }
 
-        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type']);
+        $products = DB::table('products')->select(['id', 'code', 'product_name', 'stock', 'description', 'created_at', 'updated_at', 'type'])->where('type', '!=', 'delivery');
 
         return Datatables::of($products)
             ->addColumn('action', function ($product) {
@@ -333,6 +333,8 @@ class RecipeController extends Controller
                     return 'Raw Material';
                 } else if ($product->type == 'packaging') {
                     return 'Packaging';
+                } else if ($product->type == 'delivery') {
+                    return 'Delivery';
                 } else {
                     return 'Recipe';
                 }

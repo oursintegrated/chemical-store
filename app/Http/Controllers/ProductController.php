@@ -95,7 +95,7 @@ class ProductController extends Controller
                 }
                 $digit = strtoupper(substr($name, 0, 3));
 
-                if ($type == 'raw' || $type == 'packaging') {
+                if ($type == 'raw' || $type == 'packaging' || $type == 'delivery') {
                     $product = Product::create([
                         'code' => $digit . $id,
                         'product_name' => $name,
@@ -326,15 +326,27 @@ class ProductController extends Controller
                     return 'Raw Material';
                 } else if ($product->type == 'packaging') {
                     return 'Packaging';
-                } else {
+                } else if ($product->type == 'delivery') {
+                    return 'Delivery';
+                } else if ($product->type == 'recipe') {
                     return 'Recipe';
+                } else {
+                    return '-';
                 }
             })
             ->editColumn('stock', function ($product) {
-                return number_format($product->stock, 2, '.', '');
+                if ($product->type != 'delivery') {
+                    return number_format($product->stock, 2, '.', '');
+                } else {
+                    return '-';
+                }
             })
             ->editColumn('min_stock', function ($product) {
-                return number_format($product->min_stock, 2, '.', '');
+                if ($product->type != 'delivery') {
+                    return number_format($product->min_stock, 2, '.', '');
+                } else {
+                    return '-';
+                }
             })
             ->editColumn('created_at', function ($product) {
                 return $product->created_at ? with(new Carbon($product->created_at))->format('d F Y H:i') : '';

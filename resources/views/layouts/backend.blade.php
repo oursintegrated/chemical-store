@@ -56,12 +56,54 @@
 
         table.dataTable thead th.custom,
         table.dataTable thead td.custom {
-            padding: 0px 2px !important;
+            padding: 0px 0px !important;
         }
 
         table.dataTable tbody th.custom,
         table.dataTable tbody td.custom {
             padding: 0px 10px;
+        }
+
+        .table>tbody>tr>td,
+        .table>tbody>tr>th,
+        .table>tfoot>tr>td,
+        .table>tfoot>tr>th,
+        .table>thead>tr>td,
+        .table>thead>tr>th {
+            line-height: 1.35;
+        }
+
+        @media print {
+            .html-content {
+                font-size: 7pt;
+            }
+
+            #html-content {
+                font-size: 7pt;
+            }
+
+            table.dataTable thead th.custom,
+            table.dataTable thead td.custom {
+                padding: 0px 2px !important;
+            }
+
+            table.dataTable tbody th.custom,
+            table.dataTable tbody td.custom {
+                padding: 0px 10px;
+            }
+
+            #total {
+                font-size: 7pt;
+            }
+
+            .table>tbody>tr>td,
+            .table>tbody>tr>th,
+            .table>tfoot>tr>td,
+            .table>tfoot>tr>th,
+            .table>thead>tr>td,
+            .table>thead>tr>th {
+                line-height: 1.35;
+            }
         }
     </style>
 

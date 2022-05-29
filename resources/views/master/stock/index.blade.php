@@ -34,10 +34,13 @@
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{{url('/data-master/stock/manage')}}" class="btn btn-default btn">
-                            <li class="fa fa-plus-square"></li> &nbsp; Manage Stock
+                            <li class="fa fa-plus-square"></li> &nbsp; Stock Manage
                         </a>
                         <a href="{{url('/data-master/stock/history')}}" class="btn btn-default btn">
-                            <li class="fa fa-check-square"></li> &nbsp; History Stock
+                            <li class="fa fa-check-square"></li> &nbsp; Stock History
+                        </a>
+                        <a href="{{url('/data-master/stock/activity')}}" class="btn btn-default btn">
+                            <li class="fa fa-list-alt"></li> &nbsp; Stock Activity
                         </a>
                     </div>
                 </div>

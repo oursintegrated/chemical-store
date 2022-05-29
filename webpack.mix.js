@@ -43,4 +43,10 @@ mix
 	.copy(
 		"resources/assets/css/daterangepicker.css",
 		"public/css/daterangepicker.css"
+	).copy(
+		"resources/assets/js/JSPrintManager-master",
+		"public/js/JSPrintManager-master"
+	).copy(
+		"resources/assets/js/bluebird.js",
+		"public/js/bluebird.js"
 	);

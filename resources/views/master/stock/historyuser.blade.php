@@ -13,7 +13,7 @@
                 <a href="{{url('/data-master/stock')}}">Stock</a>
             </li>
             <li class="active">
-                <strong>History Stock</strong>
+                <strong>Stock History</strong>
             </li>
         </ol>
     </div>
