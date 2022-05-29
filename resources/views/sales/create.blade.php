@@ -819,32 +819,32 @@
 
                         var blob = pdf.output('blob');
 
-                        var formData = new FormData();
-                        formData.append('pdf', blob);
-                        formData.append('name', new Date().getTime());
+                        // var formData = new FormData();
+                        // formData.append('pdf', blob);
+                        // formData.append('name', new Date().getTime());
 
-                        // MOVE PDF
-                        $.ajax('/additional/upload', {
-                            method: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(data) {
+                        // // MOVE PDF
+                        // $.ajax('/additional/upload', {
+                        //     method: 'POST',
+                        //     data: formData,
+                        //     processData: false,
+                        //     contentType: false,
+                        //     headers: {
+                        //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        //     },
+                        //     success: function(data) {
 
-                            }
-                        });
+                        //     }
+                        // });
                         // if (data.status == 1) {
                         var filename = 'myNota.pdf';
 
-                        // var cpj = new JSPM.ClientPrintJob();
-                        // cpj.clientPrinter = new JSPM.DefaultPrinter();
-                        // // var my_file = new JSPM.PrintFilePDF('/uploads/' + filename, JSPM.FileSourceType.URL, filename, 1);
-                        // var my_file = new JSPM.PrintFilePDF(blob, JSPM.FileSourceType.BLOB, filename, 1);
-                        // cpj.files.push(my_file);
-                        // cpj.sendToClient();
+                        var cpj = new JSPM.ClientPrintJob();
+                        cpj.clientPrinter = new JSPM.DefaultPrinter();
+                        // var my_file = new JSPM.PrintFilePDF('/uploads/' + filename, JSPM.FileSourceType.URL, filename, 1);
+                        var my_file = new JSPM.PrintFilePDF(blob, JSPM.FileSourceType.BLOB, filename, 1);
+                        cpj.files.push(my_file);
+                        cpj.sendToClient();
 
                         // ============== INSERT DB
                         axios.post("/sales/create", {
