@@ -141,4 +141,6 @@ Route::group(['middleware' => 'auth'], function () {
     */
     Route::get('get-token', 'APIController@getToken');
     Route::get('get-all-user', 'APIController@getAllUser');
+
+    Route::post('printNota', 'AdditionalController@printNota');
 });

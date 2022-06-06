@@ -69,4 +69,10 @@ class AdditionalController extends Controller
     {
         return view('additional.index');
     }
+
+    public function printNota(Request $req)
+    {
+        $data['alt'] = $req->input('alt');
+        return view('printNota', $data);
+    }
 }
