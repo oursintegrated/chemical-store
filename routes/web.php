@@ -24,6 +24,8 @@ Auth::routes();
 
 Route::get('printer-detect', 'AdditionalController@printerDetect');
 
+Route::post('printNota', 'AdditionalController@printNota');
+
 Route::group(['middleware' => 'auth'], function () {
     /* Dashboard sebagai halaman pertama setelah login */
     Route::get('dashboard', 'HomeController@index');
@@ -141,6 +143,4 @@ Route::group(['middleware' => 'auth'], function () {
     */
     Route::get('get-token', 'APIController@getToken');
     Route::get('get-all-user', 'APIController@getAllUser');
-
-    Route::post('printNota', 'AdditionalController@printNota');
 });

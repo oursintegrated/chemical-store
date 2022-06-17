@@ -103,7 +103,7 @@
 
                                 <div class="table-responsive">
                                     <!-- Table HTML -->
-                                    <table id="productTable" class="table table-striped table-bordered table-hover" style="width: 100%; font-size: 8pt">
+                                    <table id="productTable" class="table table-striped table-bordered table-hover" style="width: 100%; font-size: 10pt">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -150,7 +150,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="html-content" id="html-content" style="font-size: 10px;">
+                                    <div class="html-content" id="html-content" style="font-size: 11px;">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <span id="type"></span>
@@ -163,7 +163,6 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <br />
-                                                <p style="padding-left: 25px;">Nota Faktur _ __</p>
                                             </div>
                                             <div class="col-md-6">
                                                 Bapak/Ibu/Toko <br />
@@ -171,7 +170,7 @@
                                                 <span id="customerAddress"></span>
                                             </div>
                                         </div>
-                                        <table class="table table-responsive" id="notaTable" style="font-size: 10px; width: 95%; white-space: nowrap;">
+                                        <table class="table table-responsive" id="notaTable" style="font-size: 11px; width: 95%; white-space: nowrap;">
                                             <thead>
                                                 <tr style="background-color: #85c9e9;" class="table-bordered">
                                                     <th class="font-weight-bold text-center table-bordered custom" hidden><b>ID</b></th>
@@ -238,33 +237,33 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        //WebSocket settings
-        JSPM.JSPrintManager.auto_reconnect = true;
-        JSPM.JSPrintManager.start();
-        JSPM.JSPrintManager.WS.onStatusChanged = function() {
-            if (jspmWSStatus()) {
-                // //get client installed printers
-                // JSPM.JSPrintManager.getPrinters().then(function(myPrinters) {
-                //     var options = '';
-                //     for (var i = 0; i < myPrinters.length; i++) {
-                //         console.log(myPrinters[i]);
-                //     }
-                // });
-            }
-        };
+        // //WebSocket settings
+        // JSPM.JSPrintManager.auto_reconnect = true;
+        // JSPM.JSPrintManager.start();
+        // JSPM.JSPrintManager.WS.onStatusChanged = function() {
+        //     if (jspmWSStatus()) {
+        //         // //get client installed printers
+        //         // JSPM.JSPrintManager.getPrinters().then(function(myPrinters) {
+        //         //     var options = '';
+        //         //     for (var i = 0; i < myPrinters.length; i++) {
+        //         //         console.log(myPrinters[i]);
+        //         //     }
+        //         // });
+        //     }
+        // };
 
         //Check JSPM WebSocket status
-        function jspmWSStatus() {
-            if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
-                return true;
-            else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
-                alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
-                return false;
-            } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
-                alert('JSPM has blocked this website!');
-                return false;
-            }
-        }
+        // function jspmWSStatus() {
+        //     if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+        //         return true;
+        //     else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+        //         alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
+        //         return false;
+        //     } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+        //         alert('JSPM has blocked this website!');
+        //         return false;
+        //     }
+        // }
 
         var dataProduct = [];
 
@@ -714,9 +713,7 @@
         //  ================================= Create Sales
 
         $("#btnSave").on('click', function() {
-            $("#btnSave").prop('disabled', 'true');
-
-            if (jspmWSStatus()) {
+            // if (jspmWSStatus()) {
                 // =========================
                 var flag = true;
                 var customerId = $('#name').val();
@@ -769,50 +766,62 @@
                 }
 
                 if (flag == true) {
-                    axios.post("/printNota", {
-                            'alt': 'test'
-                        })
-                        .then(function(response) {
-                            console.log(response);
-                            // if (response.data.status == 1) {
-                            //     swal({
-                            //         title: "Good!",
-                            //         text: response.data.message,
-                            //         type: "success",
-                            //         timer: 1000,
-                            //         confirmButtonText: 'Ok',
-                            //         closeOnConfirm: false
-                            //     }).then(function() {
-                            //         window.location.replace(response.data.intended_url);
-                            //     });
-                            // } else {
-                            //     swal({
-                            //         title: "Oops!",
-                            //         text: response.data.message,
-                            //         type: "error",
-                            //         closeOnConfirm: false
-                            //     });
-                            // }
-                        })
-                        .catch(function(error) {
-                            switch (error.response.status) {
-                                case 422:
-                                    swal({
-                                        title: "Oops!",
-                                        text: 'Failed form validation. Please check your input.',
-                                        type: "error"
-                                    });
-                                    break;
-                                case 500:
-                                    swal({
-                                        title: "Oops!",
-                                        text: 'Something went wrong.',
-                                        type: "error"
-                                    });
-                                    break;
-                            }
-                            $("#btnSave").removeAttr('disabled');
-                        });
+                    $("#btnSave").prop('disabled', 'true');
+
+                    axios.post("/sales/create", {
+                        'customer_id': customerId,
+                        'customer_name': customerName,
+                        'phone_number': phoneNumber,
+                        'address': address,
+                        'type': type,
+                        'payment': pembayaran,
+                        'due_date': tenggat,
+                        'data_product': dataProduct,
+                        'total': total,
+                        'rekening': rekening
+                    })
+                    .then(function(response) {
+                        if (response.data.status == 1) {
+                            swal({
+                                title: "Good!",
+                                text: response.data.message,
+                                type: "success",
+                                timer: 1000,
+                                confirmButtonText: 'Ok',
+                                closeOnConfirm: false
+                            })
+                            .then(function() {
+                                window.location.replace(response.data.intended_url);
+                            });
+                        } else {
+                            swal({
+                                title: "Oops!",
+                                text: response.data.message,
+                                type: "error",
+                                closeOnConfirm: false
+                            });
+                        }
+                        $("#btnSave").removeAttr('disabled');
+                    })
+                    .catch(function(error) {
+                        switch (error.response.status) {
+                            case 422:
+                                swal({
+                                    title: "Oops!",
+                                    text: 'Failed form validation. Please check your input.',
+                                    type: "error"
+                                });
+                                break;
+                            case 500:
+                                swal({
+                                    title: "Oops!",
+                                    text: 'Something went wrong.',
+                                    type: "error"
+                                });
+                                break;
+                        }
+                        $("#btnSave").removeAttr('disabled');
+                    });                       
 
                     // // ============== GENERATE PDF
                     // var HTML_Width = $(".html-content").width();
@@ -892,58 +901,58 @@
                     //     cpj.sendToClient();
 
                     //     // ============== INSERT DB
-                    //     axios.post("/sales/create", {
-                    //             'customer_id': customerId,
-                    //             'customer_name': customerName,
-                    //             'phone_number': phoneNumber,
-                    //             'address': address,
-                    //             'type': type,
-                    //             'payment': pembayaran,
-                    //             'due_date': tenggat,
-                    //             'data_product': dataProduct,
-                    //             'total': total
-                    //         })
-                    //         .then(function(response) {
-                    //             if (response.data.status == 1) {
-                    //                 swal({
-                    //                     title: "Good!",
-                    //                     text: response.data.message,
-                    //                     type: "success",
-                    //                     timer: 1000,
-                    //                     confirmButtonText: 'Ok',
-                    //                     closeOnConfirm: false
-                    //                 }).then(function() {
-                    //                     window.location.replace(response.data.intended_url);
-                    //                 });
-                    //             } else {
-                    //                 swal({
-                    //                     title: "Oops!",
-                    //                     text: response.data.message,
-                    //                     type: "error",
-                    //                     closeOnConfirm: false
-                    //                 });
-                    //             }
-                    //             $("#btnSave").removeAttr('disabled');
-                    //         })
-                    //         .catch(function(error) {
-                    //             switch (error.response.status) {
-                    //                 case 422:
-                    //                     swal({
-                    //                         title: "Oops!",
-                    //                         text: 'Failed form validation. Please check your input.',
-                    //                         type: "error"
-                    //                     });
-                    //                     break;
-                    //                 case 500:
-                    //                     swal({
-                    //                         title: "Oops!",
-                    //                         text: 'Something went wrong.',
-                    //                         type: "error"
-                    //                     });
-                    //                     break;
-                    //             }
-                    //             $("#btnSave").removeAttr('disabled');
-                    //         });
+                        // axios.post("/sales/create", {
+                        //         'customer_id': customerId,
+                        //         'customer_name': customerName,
+                        //         'phone_number': phoneNumber,
+                        //         'address': address,
+                        //         'type': type,
+                        //         'payment': pembayaran,
+                        //         'due_date': tenggat,
+                        //         'data_product': dataProduct,
+                        //         'total': total
+                        //     })
+                        //     .then(function(response) {
+                        //         if (response.data.status == 1) {
+                        //             swal({
+                        //                 title: "Good!",
+                        //                 text: response.data.message,
+                        //                 type: "success",
+                        //                 timer: 1000,
+                        //                 confirmButtonText: 'Ok',
+                        //                 closeOnConfirm: false
+                        //             }).then(function() {
+                        //                 window.location.replace(response.data.intended_url);
+                        //             });
+                        //         } else {
+                        //             swal({
+                        //                 title: "Oops!",
+                        //                 text: response.data.message,
+                        //                 type: "error",
+                        //                 closeOnConfirm: false
+                        //             });
+                        //         }
+                        //         $("#btnSave").removeAttr('disabled');
+                        //     })
+                        //     .catch(function(error) {
+                        //         switch (error.response.status) {
+                        //             case 422:
+                        //                 swal({
+                        //                     title: "Oops!",
+                        //                     text: 'Failed form validation. Please check your input.',
+                        //                     type: "error"
+                        //                 });
+                        //                 break;
+                        //             case 500:
+                        //                 swal({
+                        //                     title: "Oops!",
+                        //                     text: 'Something went wrong.',
+                        //                     type: "error"
+                        //                 });
+                        //                 break;
+                        //         }
+                        //         $("#btnSave").removeAttr('disabled');
+                        //     });
                     //     // } else {
                     //     //     swal({
                     //     //         title: "Oops!",
@@ -968,7 +977,7 @@
                     //     // window.location.replace(response.data.intended_url)
                     // });
                 }
-            }
+            // }
 
         });
 

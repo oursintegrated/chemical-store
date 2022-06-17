@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Lib;
+
 class TableText
 {
     private $width;
@@ -10,6 +12,8 @@ class TableText
     private $header;
     private $footer;
     private $body;
+    private $right_greeting;
+    private $footer_sign;
     private $temporer_column;
     private $temporer_content;
     private $temporer_colspan;
@@ -36,9 +40,11 @@ class TableText
         $this->column = $column;
         $this->border = $border;
         $this->line = $line;
+        $this->right_greeting = "";
         $this->header = "";
         $this->footer = "";
         $this->body = "";
+        $this->footer_sign = "";
         $this->current_column = 0;
         $this->initColumnBase($width, $column);
         $this->initLine();
@@ -214,10 +220,10 @@ class TableText
             $this->body .= $this->temporer_column . $this->border . "\n";
         } else if ($commit == "footer") {
             $this->footer .= $this->temporer_column . $this->border . "\n";
-        } else if ($commit == "right-greeting") {
-            $this->header .= $this->temporer_column . "\n";
-        } else if ($commit == "footer-sign") {
-            $this->footer .= $this->temporer_column . "\n";
+        } else if ($commit == "right-greeting"){
+			$this->right_greeting .= $this->temporer_column . "\n";
+		} else if ($commit == "footer-sign"){
+            $this->footer_sign .= $this->temporer_column . "\n";
         }
         $this->current_column = 0;
         $this->temporer_column = "";
@@ -236,9 +242,9 @@ class TableText
     {
         $lengthbase = $this->getLengthBase($colspan);
         $ct = $this->refinedContent($content, $lengthbase, $align);
-        if ($commit == 'right-greeting' || $commit == 'footer-sign') {
+        if($commit == 'right-greeting' || $commit == 'footer-sign'){
             $this->temporer_column .= $ct;
-        } else {
+        }else{
             $this->temporer_column .= $this->border . $ct;
         }
         return strlen($ct);
@@ -268,6 +274,7 @@ class TableText
     {
         // $result = $this->initline . "\n";
         $result = '';
+        $result .= $this->right_greeting;
         $result .= $this->header;
         $result .= $this->initline . "\n";
         $result .= $this->body;
@@ -275,18 +282,7 @@ class TableText
             $result .= $this->initline . "\n";
         $result .= $this->footer;
         $result .= $this->initline;
-        return $result;
-    }
-
-    /**
-     * get the Table Text
-     * @return string
-     */
-    public function getTextSign()
-    {
-        // $result = $this->initline . "\n";
-        $result = '';
-        $result .= $this->footer;
+        $result .= $this->footer_sign;
         return $result;
     }
 
@@ -303,6 +299,10 @@ class TableText
             $this->body .= $this->initline . "\n";
         } else if ($commit == "footer") {
             $this->footer .= $this->initline . "\n";
+        } else if ($commit == "right-greeting") {
+            $this->right_greeting .= $this->initline . "\n";
+        } else if ($commit == "footer-sign") {
+            $this->footer_sign .= $this->initline . "\n";
         }
         return $this;
     }
@@ -320,6 +320,10 @@ class TableText
             $this->body .= $this->initspace . "\n";
         } else if ($commit == "footer") {
             $this->footer .= $this->initspace . "\n";
+        } else if ($commit == "right-greeting") {
+            $this->right_greeting .= $this->initspace . "\n";
+        } else if ($commit == "footer-sign") {
+            $this->footer_sign .= $this->initspace . "\n";
         }
         return $this;
     }

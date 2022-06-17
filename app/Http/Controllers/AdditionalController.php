@@ -72,7 +72,12 @@ class AdditionalController extends Controller
 
     public function printNota(Request $req)
     {
-        $data['alt'] = $req->input('alt');
+        $data['customer_name'] = $req->input('customer_name');
+        $data['address'] = $req->input('address');
+        $data['phone_number'] = $req->input('phone_number');
+        $data['data_product'] = $req->input('data_product');
+        $data['total'] = $req->input('total');
+        $data['rekening'] = $req->input('rekening');
         return view('printNota', $data);
     }
 }

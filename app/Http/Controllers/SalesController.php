@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 use Datatables;
 use Illuminate\Support\Carbon;
+use App\Lib\TableText;
 
 class SalesController extends Controller
 {
@@ -94,7 +95,9 @@ class SalesController extends Controller
                 $address = $request->input('address');
                 $type = $request->input('type');
                 $due_date = $request->input('due_date');
+                $temp_total = $request->input('total');
                 $total = floatval(str_replace(',', '.', str_replace('.', '', $request->input('total'))));
+                $rekening = $request->input('rekening');
 
                 $status = 0;
 
@@ -192,6 +195,103 @@ class SalesController extends Controller
                             ]);
                         }
                     };
+
+                    // ==================== PRINT NOTA
+                    // include_once('TableText.php');
+                    $tmpdir = sys_get_temp_dir();   # ambil direktori temporary untuk simpan file.
+                    
+                    $file =  tempnam($tmpdir, 'ctk');  # nama file temporary yang akan dicetak
+                    $handle = fopen($file, 'w');
+
+                    $tp = new TableText(102, 63);
+
+                    $tp->setColumnLength(0, 7)
+                        ->setColumnLength(1, 7)
+                        ->setColumnLength(2, 22)
+                        ->setColumnLength(3, 22)
+                        ->setColumnLength(4, 18)
+                        ->setColumnLength(5, 20)
+                        ->setUseBodySpace(false);
+
+                    $current_date = date("d M Y");
+                    $tp->addColumn("Bandung,  " . $current_date, 6, "right")
+                        ->commit("right-greeting");
+                    $tp->addColumn("Kepada YTH     ", 6, "right")
+                        ->commit("right-greeting");
+
+                    $tp->addColumn("", 4, "center")
+                        ->addColumn("Bapak/Ibu/Toko", 2, "left")
+                        ->commit("right-greeting");
+                    $tp->addColumn("", 4, "center")
+                        ->addColumn($customer_name . " - " . $phone_number, 2, "left")
+                        ->commit("right-greeting");
+                    $tp->addColumn("", 4, "center")
+                        ->addColumn($address, 2, "left")
+                        ->commit("right-greeting");
+
+                    $tp->addLine("header");
+
+                    $tp->addColumn("Qty. ", 1, "center")
+                        ->addColumn("Sat.", 1, "center")
+                        ->addColumn("Nama Barang", 2, "center")
+                        ->addColumn("Harga Satuan", 1, "center")
+                        ->addColumn("Jumlah (Rp.)", 1, "center")
+                        ->commit("header");
+
+                    for($i=0; $i<count($products); $i++){
+                        $tp->addColumn($products[$i]['qty'], 1, "left")
+                        ->addColumn($products[$i]['unit'], 1, "left")
+                        ->addColumn($products[$i]['product_name'], 2, "left")
+                        ->addColumn(number_format($products[$i]['price'], 2, ',', '.'), 1, "right")
+                        ->addColumn(number_format($products[$i]['total'], 2, ',', '.'), 1, "right")
+                        ->commit("body");
+                    }
+
+                    $tp->addColumn("Jumlah (Rp.)", 4, "right")
+                        ->addColumn($temp_total, 2, "right")
+                        ->commit("footer");
+
+                    $tp->addColumn("", 3, "center")
+                    ->addColumn("", 3, "center")
+                    ->commit("footer-sign");
+
+                    $tp->addColumn("Tanda Terima", 3, "center")
+                        ->addColumn("Hormat Kami", 3, "center")
+                        ->commit("footer-sign");
+
+                    $tp->addColumn("", 3, "center")
+                        ->addColumn("", 3, "center")
+                        ->commit("footer-sign");
+
+                    $tp->addColumn("", 3, "center")
+                        ->addColumn("", 3, "center")
+                        ->commit("footer-sign");
+
+                    $tp->addColumn("", 3, "center")
+                        ->addColumn("", 3, "center")
+                        ->commit("footer-sign");
+
+                    $tp->addColumn("", 3, "center")
+                        ->addColumn("", 3, "center")
+                        ->commit("footer-sign");
+
+                    $tp->addColumn("(....................)", 3, "center")
+                        ->addColumn("(....................)", 3, "center")
+                        ->commit("footer-sign");
+
+                    $tp->addColumn("", 6, "left")
+                    ->commit("footer-sign");
+
+                    $tp->addColumn("Catatan: untuk pembayaran transfer dapat dikirimkan ke: " . $rekening, 6, "left")
+                    ->commit("footer-sign");
+
+
+                    fwrite($handle, $tp->getText());
+                    fclose($handle);
+
+                    // copy($file, "//localhost/xprinter");  # Lakukan cetak
+                    // unlink($file);
+
                     DB::commit();
 
                     return response()->json(array('status' => 1, 'message' => 'Successfully created sales.', 'intended_url' => '/sales'));
