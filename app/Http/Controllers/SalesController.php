@@ -199,18 +199,18 @@ class SalesController extends Controller
                     // ==================== PRINT NOTA
                     // include_once('TableText.php');
                     $tmpdir = sys_get_temp_dir();   # ambil direktori temporary untuk simpan file.
-                    
-                    $file =  tempnam($tmpdir, 'ctk');  # nama file temporary yang akan dicetak
-                    $handle = fopen($file, 'w');
 
-                    $tp = new TableText(102, 63);
+                    $file =  tempnam($tmpdir, 'ctk');  # nama file temporary yang akan dicetak
+                    $handle = fopen($file, 'w+');
+
+                    $tp = new TableText(75, 63);
 
                     $tp->setColumnLength(0, 7)
                         ->setColumnLength(1, 7)
-                        ->setColumnLength(2, 22)
-                        ->setColumnLength(3, 22)
-                        ->setColumnLength(4, 18)
-                        ->setColumnLength(5, 20)
+                        ->setColumnLength(2, 20)
+                        ->setColumnLength(3, 12)
+                        ->setColumnLength(4, 13)
+                        ->setColumnLength(5, 13)
                         ->setUseBodySpace(false);
 
                     $current_date = date("d M Y");
@@ -234,17 +234,17 @@ class SalesController extends Controller
                     $tp->addColumn("Qty. ", 1, "center")
                         ->addColumn("Sat.", 1, "center")
                         ->addColumn("Nama Barang", 2, "center")
-                        ->addColumn("Harga Satuan", 1, "center")
+                        ->addColumn("Hrg Satuan", 1, "center")
                         ->addColumn("Jumlah (Rp.)", 1, "center")
                         ->commit("header");
 
-                    for($i=0; $i<count($products); $i++){
+                    for ($i = 0; $i < count($products); $i++) {
                         $tp->addColumn($products[$i]['qty'], 1, "left")
-                        ->addColumn($products[$i]['unit'], 1, "left")
-                        ->addColumn($products[$i]['product_name'], 2, "left")
-                        ->addColumn(number_format($products[$i]['price'], 2, ',', '.'), 1, "right")
-                        ->addColumn(number_format($products[$i]['total'], 2, ',', '.'), 1, "right")
-                        ->commit("body");
+                            ->addColumn($products[$i]['unit'], 1, "left")
+                            ->addColumn($products[$i]['product_name'], 2, "left")
+                            ->addColumn(number_format($products[$i]['price'], 2, ',', '.'), 1, "right")
+                            ->addColumn(number_format($products[$i]['total'], 2, ',', '.'), 1, "right")
+                            ->commit("body");
                     }
 
                     $tp->addColumn("Jumlah (Rp.)", 4, "right")
@@ -252,8 +252,8 @@ class SalesController extends Controller
                         ->commit("footer");
 
                     $tp->addColumn("", 3, "center")
-                    ->addColumn("", 3, "center")
-                    ->commit("footer-sign");
+                        ->addColumn("", 3, "center")
+                        ->commit("footer-sign");
 
                     $tp->addColumn("Tanda Terima", 3, "center")
                         ->addColumn("Hormat Kami", 3, "center")
@@ -280,17 +280,32 @@ class SalesController extends Controller
                         ->commit("footer-sign");
 
                     $tp->addColumn("", 6, "left")
-                    ->commit("footer-sign");
+                        ->commit("footer-sign");
 
-                    $tp->addColumn("Catatan: untuk pembayaran transfer dapat dikirimkan ke: " . $rekening, 6, "left")
-                    ->commit("footer-sign");
+                    $tp->addColumn("Catatan: untuk pembayaran transfer dapat dikirimkan ke BCA : " . $rekening, 6, "left")
+                        ->commit("footer-sign");
 
 
                     fwrite($handle, $tp->getText());
                     fclose($handle);
 
-                    // copy($file, "//localhost/xprinter");  # Lakukan cetak
-                    // unlink($file);
+                    $handleFile = file($file);
+
+                    $handle = fopen($file, 'w+');
+                    $linecount = 0;
+                    for ($i = 0; $i < count($handleFile); $i++) {
+                        fwrite($handle, $handleFile[$i]);
+                        if ($i != 0 && ($i % 28) == 0) {
+                            fwrite($handle, "\n");
+                            fwrite($handle, "\n");
+                            fwrite($handle, "\n");
+                            fwrite($handle, "\n");
+                        }
+                    }
+                    fclose($handle);
+
+                    copy($file, "//DESKTOP-BPD4EKO/EPSON LX-310");  # Lakukan cetak
+                    unlink($file);
 
                     DB::commit();
 

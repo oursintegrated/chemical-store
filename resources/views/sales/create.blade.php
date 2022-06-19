@@ -714,61 +714,61 @@
 
         $("#btnSave").on('click', function() {
             // if (jspmWSStatus()) {
-                // =========================
-                var flag = true;
-                var customerId = $('#name').val();
-                var customerName = $("#name option:selected").text();
-                var phoneNumber = $("#telephone option:selected").text();
-                var address = $("#address option:selected").text();
-                var type = $('input[name="type"]:checked').val();
-                var total = $('#total').val();
+            // =========================
+            var flag = true;
+            var customerId = $('#name').val();
+            var customerName = $("#name option:selected").text();
+            var phoneNumber = $("#telephone option:selected").text();
+            var address = $("#address option:selected").text();
+            var type = $('input[name="type"]:checked').val();
+            var total = $('#total').val();
 
-                var tenggat = 0;
-                var pembayaran = '';
-                if (type == 'tunai') {
-                    var pembayaran = $('input[name="pembayaranTunai"]:checked').val();
-                }
-                if (type == 'kontrabon') {
-                    var tenggat = $("#name").select2().find(":selected").data("tenggat");
-                    if (tenggat == undefined) {
-                        swal({
-                            title: "Oops!",
-                            text: "Please input customer name.",
-                            type: "error",
-                            closeOnConfirm: false
-                        });
-                        flag = false;
-                    }
-                }
-
-                if (customerName == "") {
+            var tenggat = 0;
+            var pembayaran = '';
+            if (type == 'tunai') {
+                var pembayaran = $('input[name="pembayaranTunai"]:checked').val();
+            }
+            if (type == 'kontrabon') {
+                var tenggat = $("#name").select2().find(":selected").data("tenggat");
+                if (tenggat == undefined) {
                     swal({
-                        title: "Oopss!",
-                        text: "Customer name is required!",
+                        title: "Oops!",
+                        text: "Please input customer name.",
                         type: "error",
-                        timer: 1000,
-                        confirmButtonText: 'Ok',
                         closeOnConfirm: false
                     });
                     flag = false;
                 }
+            }
 
-                if (dataProduct.length == 0) {
-                    swal({
-                        title: "Oopss!",
-                        text: "Please input data product!",
-                        type: "error",
-                        timer: 1000,
-                        confirmButtonText: 'Ok',
-                        closeOnConfirm: false
-                    });
-                    flag = false;
-                }
+            if (customerName == "") {
+                swal({
+                    title: "Oopss!",
+                    text: "Customer name is required!",
+                    type: "error",
+                    timer: 1000,
+                    confirmButtonText: 'Ok',
+                    closeOnConfirm: false
+                });
+                flag = false;
+            }
 
-                if (flag == true) {
-                    $("#btnSave").prop('disabled', 'true');
+            if (dataProduct.length == 0) {
+                swal({
+                    title: "Oopss!",
+                    text: "Please input data product!",
+                    type: "error",
+                    timer: 1000,
+                    confirmButtonText: 'Ok',
+                    closeOnConfirm: false
+                });
+                flag = false;
+            }
 
-                    axios.post("/sales/create", {
+            if (flag == true) {
+                $("#btnSave").prop('disabled', 'true');
+
+                axios.post("/sales/create", {
                         'customer_id': customerId,
                         'customer_name': customerName,
                         'phone_number': phoneNumber,
@@ -783,16 +783,16 @@
                     .then(function(response) {
                         if (response.data.status == 1) {
                             swal({
-                                title: "Good!",
-                                text: response.data.message,
-                                type: "success",
-                                timer: 1000,
-                                confirmButtonText: 'Ok',
-                                closeOnConfirm: false
-                            })
-                            .then(function() {
-                                window.location.replace(response.data.intended_url);
-                            });
+                                    title: "Good!",
+                                    text: response.data.message,
+                                    type: "success",
+                                    timer: 1000,
+                                    confirmButtonText: 'Ok',
+                                    closeOnConfirm: false
+                                })
+                                .then(function() {
+                                    window.location.replace(response.data.intended_url);
+                                });
                         } else {
                             swal({
                                 title: "Oops!",
@@ -821,162 +821,162 @@
                                 break;
                         }
                         $("#btnSave").removeAttr('disabled');
-                    });                       
+                    });
 
-                    // // ============== GENERATE PDF
-                    // var HTML_Width = $(".html-content").width();
-                    // var HTML_Height = $(".html-content").height();
-                    // var top_left_margin = 15;
-                    // var PDF_Width = HTML_Width + (top_left_margin * 2);
-                    // var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
-                    // var canvas_image_width = HTML_Width;
-                    // var canvas_image_height = HTML_Height;
+                // // ============== GENERATE PDF
+                // var HTML_Width = $(".html-content").width();
+                // var HTML_Height = $(".html-content").height();
+                // var top_left_margin = 15;
+                // var PDF_Width = HTML_Width + (top_left_margin * 2);
+                // var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+                // var canvas_image_width = HTML_Width;
+                // var canvas_image_height = HTML_Height;
 
-                    // var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+                // var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
 
-                    // var node = document.getElementById('html-content');
-                    // var options = {
-                    //     quality: 0.95
-                    // };
+                // var node = document.getElementById('html-content');
+                // var options = {
+                //     quality: 0.95
+                // };
 
-                    // html2canvas($(".html-content")[0], {
-                    //     quality: 2,
-                    //     scale: 3
-                    // }).then(function(canvas) {
-                    //     // var imgBase64DataUri = canvas.toDataURL("image/jpeg", 1.0);
-                    //     var imgBase64DataUri = canvas.toDataURL("image/png", 1.0);
+                // html2canvas($(".html-content")[0], {
+                //     quality: 2,
+                //     scale: 3
+                // }).then(function(canvas) {
+                //     // var imgBase64DataUri = canvas.toDataURL("image/jpeg", 1.0);
+                //     var imgBase64DataUri = canvas.toDataURL("image/png", 1.0);
 
-                    //     // // ============== PRINT PDF
+                //     // // ============== PRINT PDF
 
-                    //     // //Create a ClientPrintJob
-                    //     // var cpj = new JSPM.ClientPrintJob();
-                    //     // //Set Printer type (Refer to the help, there many of them!)
-                    //     // cpj.clientPrinter = new JSPM.DefaultPrinter();
+                //     // //Create a ClientPrintJob
+                //     // var cpj = new JSPM.ClientPrintJob();
+                //     // //Set Printer type (Refer to the help, there many of them!)
+                //     // cpj.clientPrinter = new JSPM.DefaultPrinter();
 
-                    //     // //Set content to print... 
-                    //     // var b64Prefix = "data:image/png;base64,";
-                    //     // var imgBase64Content = imgBase64DataUri.substring(b64Prefix.length, imgBase64DataUri.length);
+                //     // //Set content to print... 
+                //     // var b64Prefix = "data:image/png;base64,";
+                //     // var imgBase64Content = imgBase64DataUri.substring(b64Prefix.length, imgBase64DataUri.length);
 
-                    //     // var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, 'myFileToPrint.png', 1);
-                    //     // //add file to print job
-                    //     // cpj.files.push(myImageFile);
+                //     // var myImageFile = new JSPM.PrintFile(imgBase64Content, JSPM.FileSourceType.Base64, 'myFileToPrint.png', 1);
+                //     // //add file to print job
+                //     // cpj.files.push(myImageFile);
 
-                    //     // //Send print job to printer!
-                    //     // cpj.sendToClient();
+                //     // //Send print job to printer!
+                //     // cpj.sendToClient();
 
-                    //     var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
-                    //     pdf.addImage(imgBase64DataUri, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
-                    //     for (var i = 1; i <= totalPDFPages; i++) {
-                    //         pdf.addPage(PDF_Width, PDF_Height);
-                    //         pdf.addImage(imgBase64DataUri, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
-                    //     }
+                //     var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+                //     pdf.addImage(imgBase64DataUri, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+                //     for (var i = 1; i <= totalPDFPages; i++) {
+                //         pdf.addPage(PDF_Width, PDF_Height);
+                //         pdf.addImage(imgBase64DataUri, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+                //     }
 
-                    //     var blob = pdf.output('blob');
+                //     var blob = pdf.output('blob');
 
-                    //     // var formData = new FormData();
-                    //     // formData.append('pdf', blob);
-                    //     // formData.append('name', new Date().getTime());
+                //     // var formData = new FormData();
+                //     // formData.append('pdf', blob);
+                //     // formData.append('name', new Date().getTime());
 
-                    //     // // MOVE PDF
-                    //     // $.ajax('/additional/upload', {
-                    //     //     method: 'POST',
-                    //     //     data: formData,
-                    //     //     processData: false,
-                    //     //     contentType: false,
-                    //     //     headers: {
-                    //     //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    //     //     },
-                    //     //     success: function(data) {
+                //     // // MOVE PDF
+                //     // $.ajax('/additional/upload', {
+                //     //     method: 'POST',
+                //     //     data: formData,
+                //     //     processData: false,
+                //     //     contentType: false,
+                //     //     headers: {
+                //     //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                //     //     },
+                //     //     success: function(data) {
 
-                    //     //     }
-                    //     // });
-                    //     // if (data.status == 1) {
-                    //     var filename = 'myNota.pdf';
+                //     //     }
+                //     // });
+                //     // if (data.status == 1) {
+                //     var filename = 'myNota.pdf';
 
-                    //     var cpj = new JSPM.ClientPrintJob();
-                    //     cpj.clientPrinter = new JSPM.DefaultPrinter();
-                    //     // var my_file = new JSPM.PrintFilePDF('/uploads/' + filename, JSPM.FileSourceType.URL, filename, 1);
-                    //     var my_file = new JSPM.PrintFilePDF(blob, JSPM.FileSourceType.BLOB, filename, 1);
-                    //     cpj.files.push(my_file);
-                    //     cpj.sendToClient();
+                //     var cpj = new JSPM.ClientPrintJob();
+                //     cpj.clientPrinter = new JSPM.DefaultPrinter();
+                //     // var my_file = new JSPM.PrintFilePDF('/uploads/' + filename, JSPM.FileSourceType.URL, filename, 1);
+                //     var my_file = new JSPM.PrintFilePDF(blob, JSPM.FileSourceType.BLOB, filename, 1);
+                //     cpj.files.push(my_file);
+                //     cpj.sendToClient();
 
-                    //     // ============== INSERT DB
-                        // axios.post("/sales/create", {
-                        //         'customer_id': customerId,
-                        //         'customer_name': customerName,
-                        //         'phone_number': phoneNumber,
-                        //         'address': address,
-                        //         'type': type,
-                        //         'payment': pembayaran,
-                        //         'due_date': tenggat,
-                        //         'data_product': dataProduct,
-                        //         'total': total
-                        //     })
-                        //     .then(function(response) {
-                        //         if (response.data.status == 1) {
-                        //             swal({
-                        //                 title: "Good!",
-                        //                 text: response.data.message,
-                        //                 type: "success",
-                        //                 timer: 1000,
-                        //                 confirmButtonText: 'Ok',
-                        //                 closeOnConfirm: false
-                        //             }).then(function() {
-                        //                 window.location.replace(response.data.intended_url);
-                        //             });
-                        //         } else {
-                        //             swal({
-                        //                 title: "Oops!",
-                        //                 text: response.data.message,
-                        //                 type: "error",
-                        //                 closeOnConfirm: false
-                        //             });
-                        //         }
-                        //         $("#btnSave").removeAttr('disabled');
-                        //     })
-                        //     .catch(function(error) {
-                        //         switch (error.response.status) {
-                        //             case 422:
-                        //                 swal({
-                        //                     title: "Oops!",
-                        //                     text: 'Failed form validation. Please check your input.',
-                        //                     type: "error"
-                        //                 });
-                        //                 break;
-                        //             case 500:
-                        //                 swal({
-                        //                     title: "Oops!",
-                        //                     text: 'Something went wrong.',
-                        //                     type: "error"
-                        //                 });
-                        //                 break;
-                        //         }
-                        //         $("#btnSave").removeAttr('disabled');
-                        //     });
-                    //     // } else {
-                    //     //     swal({
-                    //     //         title: "Oops!",
-                    //     //         text: "Failed Move Data...",
-                    //     //         type: "error",
-                    //     //         closeOnConfirm: false
-                    //     //     });
-                    //     // }
-                    //     // },
-                    //     // error: function(data) {
-                    //     //     swal({
-                    //     //         title: "Oops!",
-                    //     //         text: "Failed to print nota...",
-                    //     //         type: "error",
-                    //     //         closeOnConfirm: false
-                    //     //     });
-                    //     // }
-                    //     // });
-                    //     // var customerName = $("#name option:selected").text();
-                    //     // pdf.save("Nota -" + customerName + ".pdf");
+                //     // ============== INSERT DB
+                // axios.post("/sales/create", {
+                //         'customer_id': customerId,
+                //         'customer_name': customerName,
+                //         'phone_number': phoneNumber,
+                //         'address': address,
+                //         'type': type,
+                //         'payment': pembayaran,
+                //         'due_date': tenggat,
+                //         'data_product': dataProduct,
+                //         'total': total
+                //     })
+                //     .then(function(response) {
+                //         if (response.data.status == 1) {
+                //             swal({
+                //                 title: "Good!",
+                //                 text: response.data.message,
+                //                 type: "success",
+                //                 timer: 1000,
+                //                 confirmButtonText: 'Ok',
+                //                 closeOnConfirm: false
+                //             }).then(function() {
+                //                 window.location.replace(response.data.intended_url);
+                //             });
+                //         } else {
+                //             swal({
+                //                 title: "Oops!",
+                //                 text: response.data.message,
+                //                 type: "error",
+                //                 closeOnConfirm: false
+                //             });
+                //         }
+                //         $("#btnSave").removeAttr('disabled');
+                //     })
+                //     .catch(function(error) {
+                //         switch (error.response.status) {
+                //             case 422:
+                //                 swal({
+                //                     title: "Oops!",
+                //                     text: 'Failed form validation. Please check your input.',
+                //                     type: "error"
+                //                 });
+                //                 break;
+                //             case 500:
+                //                 swal({
+                //                     title: "Oops!",
+                //                     text: 'Something went wrong.',
+                //                     type: "error"
+                //                 });
+                //                 break;
+                //         }
+                //         $("#btnSave").removeAttr('disabled');
+                //     });
+                //     // } else {
+                //     //     swal({
+                //     //         title: "Oops!",
+                //     //         text: "Failed Move Data...",
+                //     //         type: "error",
+                //     //         closeOnConfirm: false
+                //     //     });
+                //     // }
+                //     // },
+                //     // error: function(data) {
+                //     //     swal({
+                //     //         title: "Oops!",
+                //     //         text: "Failed to print nota...",
+                //     //         type: "error",
+                //     //         closeOnConfirm: false
+                //     //     });
+                //     // }
+                //     // });
+                //     // var customerName = $("#name option:selected").text();
+                //     // pdf.save("Nota -" + customerName + ".pdf");
 
-                    //     // window.location.replace(response.data.intended_url)
-                    // });
-                }
+                //     // window.location.replace(response.data.intended_url)
+                // });
+            }
             // }
 
         });

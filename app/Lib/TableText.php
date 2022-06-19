@@ -220,9 +220,9 @@ class TableText
             $this->body .= $this->temporer_column . $this->border . "\n";
         } else if ($commit == "footer") {
             $this->footer .= $this->temporer_column . $this->border . "\n";
-        } else if ($commit == "right-greeting"){
-			$this->right_greeting .= $this->temporer_column . "\n";
-		} else if ($commit == "footer-sign"){
+        } else if ($commit == "right-greeting") {
+            $this->right_greeting .= $this->temporer_column . "\n";
+        } else if ($commit == "footer-sign") {
             $this->footer_sign .= $this->temporer_column . "\n";
         }
         $this->current_column = 0;
@@ -242,9 +242,9 @@ class TableText
     {
         $lengthbase = $this->getLengthBase($colspan);
         $ct = $this->refinedContent($content, $lengthbase, $align);
-        if($commit == 'right-greeting' || $commit == 'footer-sign'){
+        if ($commit == 'right-greeting' || $commit == 'footer-sign') {
             $this->temporer_column .= $ct;
-        }else{
+        } else {
             $this->temporer_column .= $this->border . $ct;
         }
         return strlen($ct);
