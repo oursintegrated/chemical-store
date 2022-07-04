@@ -2,7 +2,7 @@
     @if(isset($menu->root))
     @foreach ($menu->root as $key => $value)
     <li class="list-group-item @if($value->child > 0) secondary-nav-item-pf @endif {{ in_array(\Request::segment(1), [strtolower($value->name)]) ? 'active' : '' }}" data-target="#master-data">
-        <a @if($value->child == 0) href="/{{str_replace(' ', '', strtolower($value->name))}}" @endif>
+        <a @if($value->child == 0) href="/{{str_replace(' ', '-', strtolower($value->name))}}" @endif>
             @if(strtolower($value->name) == 'dashboard')
             <span class="fa fa-home"></span>
             @elseif(strtolower($value->name) == 'data master')
@@ -11,6 +11,8 @@
             <span class="pficon pficon-settings"></span>
             @elseif(strtolower($value->name) == 'sales')
             <span class="pficon pficon-orders"></span>
+            @elseif(strtolower($value->name) == 'surat jalan')
+            <span class="fa fa-truck"></span>
             @else
             <span class="fa fa-file"></span>
             @endif

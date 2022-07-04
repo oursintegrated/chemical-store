@@ -109,6 +109,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('sales/{id}/detail', 'SalesController@getSales');
     Route::delete('sales/{id}/delete', 'SalesController@destroy');
 
+    /* Surat Jalan */
+    Route::get('surat-jalan', 'SuratJalanController@index');
+    Route::post('surat-jalan/create', 'SuratJalanController@store');
+
     /* Additional */
     Route::post('additional/sales/customer', 'AdditionalController@getCustomerInfo');
     Route::post('additional/recipe/product', 'AdditionalController@getProductIngredientsInfo');

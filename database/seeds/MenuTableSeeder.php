@@ -262,6 +262,14 @@ class MenuTableSeeder extends Seeder
                 'level' => 3,
                 'type' => 'action',
             ],
+            [
+                'id' => 32,
+                'menu_desc' => 'Surat Jalan',
+                'parent_id' => null,
+                'status' => 1,
+                'level' => 1,
+                'type' => 'menu',
+            ],
         ]);
     }
 }

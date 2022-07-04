@@ -138,6 +138,10 @@ class RoleMenuTableSeeder extends Seeder
                 'role_id' => 1,
                 'menu_id' => 31,
             ],
+            [
+                'role_id' => 1,
+                'menu_id' => 32,
+            ],
         ]);
     }
 }

@@ -304,8 +304,8 @@ class SalesController extends Controller
                     }
                     fclose($handle);
 
-                    copy($file, "//DESKTOP-BPD4EKO/EPSON LX-310");  # Lakukan cetak
-                    unlink($file);
+                    // copy($file, "//DESKTOP-BPD4EKO/EPSON LX-310");  # Lakukan cetak
+                    // unlink($file);
 
                     DB::commit();
 
