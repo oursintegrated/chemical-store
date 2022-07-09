@@ -73,7 +73,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <a role="button" href="{{ url('/surat-jalan') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
+                            <a role="button" href="{{ url('/dashboard') }}" class="btn btn-default btn"><i class="fa fa-arrow-circle-left fa-fw"></i> Back</a>
 
                             <button type="button" id="btnSave" class="btn btn-success btn btn-ml" style="margin-left: 10px"><i class="fa fa-check fa-fw"></i> Print</button>
                         </div>

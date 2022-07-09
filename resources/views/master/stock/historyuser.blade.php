@@ -62,6 +62,7 @@
                                 <thead>
                                     <tr>
                                         <th class="text-center">Product Name</th>
+                                        <th class="text-center">Description</th>
                                         <th class="text-center">Total</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
@@ -71,6 +72,7 @@
                                 <tfoot>
                                     <tr>
                                         <th class="text-center">Product Name</th>
+                                        <th class="text-center">Description</th>
                                         <th class="text-center">Total</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
@@ -153,6 +155,9 @@
             columns: [{
                 data: 'product_name',
                 name: 'product_name'
+            }, {
+                data: 'description',
+                name: 'description'
             }, {
                 data: 'total',
                 name: 'total',

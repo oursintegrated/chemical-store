@@ -50,6 +50,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/products/raw-material', 'ProductController@datatableRawProduct');
     Route::post('datatable/customers', 'CustomerController@datatable');
     Route::post('datatable/sales/tabledit', 'AdditionalController@salesTabledit');
+    Route::post('datatable/stock/tabledit', 'AdditionalController@stockTabledit');
     Route::post('datatable/product/tabledit', 'AdditionalController@productTabledit');
     Route::post('datatable/sales', 'SalesController@datatable');
     Route::post('datatable/recipe', 'RecipeController@datatable');
@@ -59,6 +60,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('datatable/stock/activity', 'StockController@datatableActivity');
     Route::post('datatable/stocks', 'StockController@datatable');
     Route::post('datatable/stocks/raw-material', 'StockController@datatableRawProduct');
+    Route::post('datatable/stocks/opname', 'StockController@datatableOpname');
     Route::post('datatable/recipe/raw-material', 'RecipeController@datatableRawProduct');
     Route::post('datatable/dashboard', 'HomeController@datatableSales');
 
@@ -82,6 +84,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('data-master/stock/history', 'StockController@history');
     Route::post('data-master/stock/manage', 'StockController@manageUpdate');
     Route::get('data-master/stock/activity', 'StockController@activity');
+    Route::get('data-master/stock/opname', 'StockController@opname');
     Route::post('data-master/stock/{id}/rollback', 'StockController@rollback');
 
     Route::get('data-master/stock-low', 'StockController@lowStockIndex');

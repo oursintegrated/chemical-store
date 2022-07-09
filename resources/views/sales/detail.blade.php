@@ -35,9 +35,10 @@
                     <p>&nbsp;</p>
                 </div>
                 <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-8">
+                    <!-- <div class="col-md-2"></div> -->
+                    <div class="col-md-12">
                         <div class="panel panel-default">
+                            <input type="hidden" id="id" name="id" value="{{ $orderHeader->id }}">
                             <div class="panel-heading">Nota @if(isset($orderHeader)) : {{ $orderHeader->sales_code }} @endif</div>
                             <div class="panel-body">
                                 <div class="html-content" id="html-content">
@@ -112,18 +113,35 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- <div class="row">
-                                    <div class="col-md-12 text-right">
-                                        <button id="printNota" class="btn btn-default" type="button">
-                                            <i class="fa fa-print" aria-hidden="true"></i> Nota
-                                        </button>
-                                    </div>
-                                </div> -->
+                                Credit
+                                <br />
+                                <!-- Table HTML -->
+                                <table id="creditTable" class="table table-striped table-bordered table-hover" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <!-- <th class="text-center">Action</th> -->
+                                            <th class="text-center">Paid</th>
+                                            <th class="text-center">Payment</th>
+                                            <th class="text-center">Notes</th>
+                                            <th class="text-center">Transaction Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <!-- <th></th> -->
+                                            <th>Paid</th>
+                                            <th>Payment</th>
+                                            <th>Notes</th>
+                                            <th>Transaction Date</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-2"></div>
+                    <!-- <div class="col-md-2"></div> -->
                 </div>
             </div>
         </div>
@@ -132,5 +150,100 @@
 @endsection
 @section('script')
 <script>
+    $('#creditTable tfoot th').each(function() {
+        var title = $(this).text();
+        if (title != '') {
+            $(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Created At') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Updated At') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Transaction Date') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+        if (title == 'Due Date') {
+            $(this).html('<input type="text" class="datepicker form-control" placeholder="Search ' + title + '" style="width: 100%;" />');
+        }
+    });
+
+    // DataTable Config
+    var table = $("#creditTable").DataTable({
+        processing: true,
+        serverSide: false,
+        stateSave: false,
+        stateDuration: 0,
+        lengthMenu: [
+            [10, 50, 75, -1],
+            [10, 50, 75, "All"]
+        ],
+        pageLength: 10,
+        sort: false,
+        dom: '<"top"l>rt<"bottom"ip><"clear">',
+        ajax: {
+            "url": "/datatable/credits",
+            "type": "POST",
+            "data": {
+                id: $('#id').val()
+            }
+        },
+        language: {
+            "decimal": ",",
+            "thousands": "."
+        },
+        columns: [{
+            data: 'pay',
+            name: 'pay',
+            className: 'text-right'
+        }, {
+            data: 'payment',
+            name: 'payment',
+            className: 'text-center'
+        }, {
+            data: 'notes',
+            name: 'notes'
+        }, {
+            data: 'created_at',
+            name: 'created_at',
+            className: 'text-center'
+        }]
+    });
+
+    /* Ketika Value pada Input di TFOOT berubah, Maka Search Sesuai Kolom */
+    table.columns().every(function() {
+        var that = this;
+        $('input', this.footer()).on('keyup change', function() {
+
+            // Cancel the default action, if needed
+            event.preventDefault();
+
+            var keyword = this.value;
+
+            if (this.placeholder == 'Search Published') {
+                keyword = keyword.toUpperCase();
+                if (keyword == 'TRUE' || keyword == 'YA' || keyword == 'YES' || keyword == 'Y' || keyword == '1') {
+                    keyword = 1;
+                } else {
+                    keyword = 0;
+                }
+            }
+
+            if (that.search() !== keyword) {
+                that
+                    .search(keyword)
+                    .draw();
+            }
+        });
+    });
+
+    $("tfoot .datepicker").datepicker({
+        autoclose: true,
+        endDate: "0d",
+        format: "dd MM yyyy",
+        todayHighlight: true,
+        weekStart: 1,
+    });
 </script>
 @endsection

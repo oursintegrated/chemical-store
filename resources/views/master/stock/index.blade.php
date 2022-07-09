@@ -45,6 +45,9 @@
                         <a href="{{url('/data-master/stock-low')}}" class="btn btn-default btn">
                             <li class="fa fa-list-alt"></li> &nbsp; Low Stock - {{ $totalLowStock }}
                         </a>
+                        <a href="{{url('/data-master/stock/opname')}}" class="btn btn-default btn">
+                            <li class="fa fa-tasks"></li> &nbsp; Stock Opname
+                        </a>
                     </div>
                 </div>
                 <br />

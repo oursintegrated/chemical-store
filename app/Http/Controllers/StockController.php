@@ -95,11 +95,18 @@ class StockController extends Controller
 
     public function activity()
     {
-
         $x = new HomeController;
         $data['menu'] = $x->getMenu();
 
         return view('master.stock.activity', $data);
+    }
+
+    public function opname()
+    {
+        $x = new HomeController;
+        $data['menu'] = $x->getMenu();
+
+        return view('master.stock.opname', $data);
     }
 
     /**
@@ -249,7 +256,7 @@ class StockController extends Controller
 
                                 ProductStockLogUser::create([
                                     'product_id' => $product_id,
-                                    'description' => '+',
+                                    'description' => $type,
                                     'total' => $new_stock - $old_stock,
                                     'updated_by' => Auth::user()->id,
                                 ]);
@@ -299,7 +306,7 @@ class StockController extends Controller
 
                                     ProductStockLogUser::create([
                                         'product_id' => $product_id,
-                                        'description' => '+',
+                                        'description' => $type,
                                         'total' => $sum_stock - $old_stock,
                                         'updated_by' => Auth::user()->id,
                                     ]);
@@ -383,7 +390,7 @@ class StockController extends Controller
 
                             ProductStockLogUser::create([
                                 'product_id' => $product_id,
-                                'description' => '+',
+                                'description' => $type,
                                 'total' => $new_stock - $old_stock,
                                 'updated_by' => Auth::user()->id,
                             ]);
@@ -426,7 +433,7 @@ class StockController extends Controller
 
                             ProductStockLogUser::create([
                                 'product_id' => $product_id,
-                                'description' => '-',
+                                'description' => $type,
                                 'total' => $new_stock - $old_stock,
                                 'updated_by' => Auth::user()->id,
                             ]);
@@ -836,5 +843,32 @@ class StockController extends Controller
             DB::rollback();
             return response()->json(array('status' => 0, 'message' => $e));
         }
+    }
+
+    /**
+     * Return datatables data.
+     *
+     * @return Response
+     */
+    public function datatableOpname()
+    {
+        /* RBAC */
+        if (!Role::authorize('stock.index')) {
+            return response()->json(array('status' => 0, 'message' => 'Insufficient permission.'));
+        }
+
+        $products = DB::table('products');
+
+        return Datatables::of($products)
+            ->addColumn('no', function () {
+                return '-';
+            })
+            ->editColumn('stock', function ($product) {
+                return number_format($product->stock, 2, '.', '');
+            })
+            ->addColumn('keterangan', function () {
+                return '-';
+            })
+            ->make(true);
     }
 }

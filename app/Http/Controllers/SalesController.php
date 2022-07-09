@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Credit;
 use App\Role;
 use App\Customer;
 use App\Product;
@@ -343,6 +344,8 @@ class SalesController extends Controller
         $data['due_date'] = $due_date;
 
         $data['orderDetails'] = SalesDetail::where('sales_header_id', $id)->get();
+
+        $data['creadits'] = Credit::where('sales_id', $id)->get();
 
         return view('sales.detail', $data);
     }
