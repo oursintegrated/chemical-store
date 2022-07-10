@@ -32,9 +32,6 @@
             </div>
             <div class="card-pf-body">
                 <div class="row">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="row">
                     <div class="col-md-12">
                         <button class="btn btn-default" onclick="printContent()">Save to PDF</button>
                         <br />
@@ -47,7 +44,8 @@
                                         <th>ID</th>
                                         <th class="text-center">No</th>
                                         <th class="text-center">Product Name</th>
-                                        <th class="text-center">Stock {{ date('M Y') }}</th>
+                                        <!-- <th class="text-center">Stock {{ date('M Y') }}</th> -->
+                                        <th class="text-center">Current Stock</th>
                                         <th class="text-center">Stock Opname</th>
                                         <th class="text-center">Keterangan</th>
                                     </tr>
@@ -84,6 +82,7 @@
     }
 
     $(document).ready(function() {
+        var opname = [];
         // $('#productTable tfoot th').each(function() {
         //     var title = $(this).text();
         //     if (title != '') {

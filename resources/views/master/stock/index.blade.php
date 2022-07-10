@@ -33,21 +33,31 @@
             <div class="card-pf-body">
                 <div class="row">
                     <div class="col-md-12">
+                        @if($stock_manage == 1)
                         <a href="{{url('/data-master/stock/manage')}}" class="btn btn-default btn">
                             <li class="fa fa-plus-square"></li> &nbsp; Stock Manage
                         </a>
+                        @endif
+                        @if($stock_history == 1)
                         <a href="{{url('/data-master/stock/history')}}" class="btn btn-default btn">
                             <li class="fa fa-check-square"></li> &nbsp; Stock History
                         </a>
+                        @endif
+                        @if($stock_activity == 1)
                         <a href="{{url('/data-master/stock/activity')}}" class="btn btn-default btn">
                             <li class="fa fa-list-alt"></li> &nbsp; Stock Activity
                         </a>
+                        @endif
+                        @if($stock_low == 1)
                         <a href="{{url('/data-master/stock-low')}}" class="btn btn-default btn">
                             <li class="fa fa-list-alt"></li> &nbsp; Low Stock - {{ $totalLowStock }}
                         </a>
+                        @endif
+                        @if($stock_opname == 1)
                         <a href="{{url('/data-master/stock/opname')}}" class="btn btn-default btn">
                             <li class="fa fa-tasks"></li> &nbsp; Stock Opname
                         </a>
+                        @endif
                     </div>
                 </div>
                 <br />

@@ -35,6 +35,34 @@ class StockController extends Controller
         $ls = DB::select(DB::raw("SELECT COUNT(p.id) as count FROM products p WHERE min_stock > stock"));
         $data['totalLowStock'] = $ls[0]->count;
 
+        $manage = 0;
+        $history = 0;
+        $activity = 0;
+        $low = 0;
+        $opname = 0;
+
+        if (Role::authorize('stock.manage')) {
+            $manage = 1;
+        }
+        if (Role::authorize('stock.history')) {
+            $history = 1;
+        }
+        if (Role::authorize('stock.activity')) {
+            $activity = 1;
+        }
+        if (Role::authorize('stock.low')) {
+            $low = 1;
+        }
+        if (Role::authorize('stock.opname')) {
+            $opname = 1;
+        }
+
+        $data['stock_manage'] = $manage;
+        $data['stock_history'] = $history;
+        $data['stock_activity'] = $activity;
+        $data['stock_low'] = $low;
+        $data['stock_opname'] = $opname;
+
         return view('master.stock.index', $data);
     }
 
@@ -479,6 +507,49 @@ class StockController extends Controller
                             'total' => $new_stock - $old_stock,
                             'updated_by' => Auth::user()->id,
                         ]);
+                    }
+                } else if ($type == 'less material') {
+                    for ($i = 0; $i < count($selected); $i++) {
+                        $product_id = $selected[$i]['id'];
+                        $qty = $selected[$i]['qty'];
+                        $type_product = $selected[$i]['type'];
+                        $product_name = $selected[$i]['product_name'];
+
+                        if ($qty != 0) {
+                            // get stock lama
+                            $p = Product::where('id', $product_id)->first();
+                            $old_stock = $p->stock;
+                            $new_stock = $old_stock - $qty;
+                            $pu = Product::where('id', $product_id)->update([
+                                'stock' => $new_stock
+                            ]);
+
+                            // Insert Log
+                            ProductStockLogAdmin::create([
+                                'product_id' => $product_id,
+                                'description' => $type,
+                                'from_qty' => $old_stock,
+                                'to_qty' => $new_stock,
+                                'total' => $new_stock - $old_stock,
+                                'updated_by' => Auth::user()->id,
+                            ]);
+
+                            ProductStockLogUser::create([
+                                'product_id' => $product_id,
+                                'description' => $type,
+                                'total' => $new_stock - $old_stock,
+                                'updated_by' => Auth::user()->id,
+                            ]);
+
+                            ActivityStock::create([
+                                'product_id' => $product_id,
+                                'updated_by' => Auth::user()->id,
+                                'from_qty' => $old_stock,
+                                'to_qty' => $new_stock,
+                                'qty' => $new_stock - $old_stock,
+                                'description' => $type
+                            ]);
+                        }
                     }
                 }
 

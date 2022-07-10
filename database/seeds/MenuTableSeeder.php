@@ -270,6 +270,30 @@ class MenuTableSeeder extends Seeder
                 'level' => 1,
                 'type' => 'menu',
             ],
+            [
+                'id' => 33,
+                'menu_desc' => 'Stock - Activity',
+                'parent_id' => 28,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
+            [
+                'id' => 34,
+                'menu_desc' => 'Stock - Low Stock',
+                'parent_id' => 28,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
+            [
+                'id' => 35,
+                'menu_desc' => 'Stock - Opname',
+                'parent_id' => 28,
+                'status' => 1,
+                'level' => 3,
+                'type' => 'action',
+            ],
         ]);
     }
 }

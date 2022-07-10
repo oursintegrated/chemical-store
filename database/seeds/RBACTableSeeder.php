@@ -134,6 +134,18 @@ class RBACTableSeeder extends Seeder
                 'menu_id' => 32,
                 'key' => 'surat-jalan.index',
             ],
+            [
+                'menu_id' => 33,
+                'key' => 'stock.activity',
+            ],
+            [
+                'menu_id' => 34,
+                'key' => 'stock.low',
+            ],
+            [
+                'menu_id' => 35,
+                'key' => 'stock.opname',
+            ],
         ]);
     }
 }
