@@ -66,6 +66,7 @@
                                         <th class="text-center">Stock Start</th>
                                         <th class="text-center">End of Stock</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Updated By</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
                                 </thead>
@@ -78,6 +79,7 @@
                                         <th class="text-center">Stock Start</th>
                                         <th class="text-center">End of Stock</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Updated By</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
                                 </tfoot>
@@ -176,6 +178,10 @@
             }, {
                 data: 'total',
                 name: 'total',
+                className: 'text-right'
+            }, {
+                data: 'full_name',
+                name: 'full_name',
                 className: 'text-right'
             }, {
                 data: 'updated_at',

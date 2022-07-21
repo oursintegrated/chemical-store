@@ -64,6 +64,7 @@
                                         <th class="text-center">Product Name</th>
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Updated By</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
                                 </thead>
@@ -74,6 +75,7 @@
                                         <th class="text-center">Product Name</th>
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Total</th>
+                                        <th class="text-center">Updated By</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
                                 </tfoot>
@@ -161,6 +163,9 @@
             }, {
                 data: 'total',
                 name: 'total',
+            }, {
+                data: 'full_name',
+                name: 'full_name',
             }, {
                 data: 'updated_at',
                 name: 'updated_at',

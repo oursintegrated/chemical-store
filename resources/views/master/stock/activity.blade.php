@@ -52,6 +52,7 @@
                                         <th class="text-center">Product</th>
                                         <th class="text-center">Description</th>
                                         <th class="text-center">Qty</th>
+                                        <th class="text-center">Updated By</th>
                                         <th class="text-center">Created At</th>
                                         <th class="text-center">Updated At</th>
                                     </tr>
@@ -64,6 +65,7 @@
                                         <th>Product</th>
                                         <th>Description</th>
                                         <th>Qty</th>
+                                        <th>Updated By</th>
                                         <th>Created At</th>
                                         <th>Updated At</th>
                                     </tr>
@@ -141,6 +143,10 @@
                 data: 'qty',
                 name: 'qty',
                 className: 'text-right'
+            }, {
+                data: 'full_name',
+                name: 'full_name',
+                className: 'text-center'
             }, {
                 data: 'created_at',
                 name: 'created_at',

@@ -691,11 +691,11 @@ class StockController extends Controller
             $q = ' AND product_id = ' . $id;
         }
 
-        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log_admin psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . " ORDER BY updated_at ASC"));
+        $histories = DB::select(DB::raw("SELECT p.product_name, psl.*, u.full_name FROM product_stock_log_admin psl LEFT JOIN products p ON psl.product_id = p.id LEFT JOIN users u ON p.updated_by = u.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . " ORDER BY updated_at ASC"));
 
         return Datatables::of($histories)
             ->editColumn('updated_at', function ($history) {
-                return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i') : '';
+                return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i:s') : '';
             })
             ->editColumn('from_qty', function ($history) {
                 return number_format($history->from_qty, 2, '.', '');
@@ -738,11 +738,11 @@ class StockController extends Controller
             $q = ' AND product_id = ' . $id;
         }
 
-        $histories = DB::select(DB::raw("SELECT p.product_name, psl.* FROM product_stock_log_user psl LEFT JOIN products p ON psl.product_id = p.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . " ORDER BY updated_at ASC"));
+        $histories = DB::select(DB::raw("SELECT p.product_name, psl.*, u.full_name FROM product_stock_log_user psl LEFT JOIN products p ON psl.product_id = p.id LEFT JOIN users u ON p.updated_by = u.id WHERE psl.updated_at BETWEEN '" . $startDate . "' AND '" . $endDate . "'" . $q . " ORDER BY updated_at ASC"));
 
         return Datatables::of($histories)
             ->editColumn('updated_at', function ($history) {
-                return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i') : '';
+                return $history->updated_at ? with(new Carbon($history->updated_at))->format('d F Y H:i:s') : '';
             })
             ->make(true);
     }
@@ -804,7 +804,11 @@ class StockController extends Controller
      */
     public function datatableActivity()
     {
-        $logs = DB::select(DB::raw('SELECT a.*, p.product_name FROM activity_stocks a LEFT JOIN products p on a.product_id = p.id WHERE a.updated_by =' . Auth::user()->id . ' AND DATE(a.created_at) = CURDATE()'));
+        if (Auth::user()->role_id == 1) {
+            $logs = DB::select(DB::raw('SELECT a.*, p.product_name, u.full_name FROM activity_stocks a LEFT JOIN products p on a.product_id = p.id LEFT JOIN users u ON a.updated_by = u.id  WHERE DATE(a.created_at) = CURDATE()'));
+        } else {
+            $logs = DB::select(DB::raw('SELECT a.*, p.product_name, u.full_name FROM activity_stocks a LEFT JOIN products p on a.product_id = p.id LEFT JOIN users u ON a.updated_by = u.id WHERE a.updated_by =' . Auth::user()->id . ' AND DATE(a.created_at) = CURDATE()'));
+        }
 
         return Datatables::of($logs)
             ->addColumn('action', function ($log) {
@@ -819,10 +823,10 @@ class StockController extends Controller
                 return $buttons;
             })
             ->editColumn('created_at', function ($log) {
-                return $log->created_at ? with(new Carbon($log->created_at))->format('d F Y H:i') : '';
+                return $log->created_at ? with(new Carbon($log->created_at))->format('d F Y H:i:s') : '';
             })
             ->editColumn('updated_at', function ($log) {
-                return $log->updated_at ? with(new Carbon($log->updated_at))->format('d F Y H:i') : '';
+                return $log->updated_at ? with(new Carbon($log->updated_at))->format('d F Y H:i:s') : '';
             })
             ->make(true);
     }
@@ -895,12 +899,12 @@ class StockController extends Controller
                     'updated_by' => Auth::user()->id,
                 ]);
 
-                ProductStockLogUser::create([
-                    'product_id' => $product_id,
-                    'description' => 'rollback',
-                    'total' => $new_stock - $old_stock,
-                    'updated_by' => Auth::user()->id,
-                ]);
+                // ProductStockLogUser::create([
+                //     'product_id' => $product_id,
+                //     'description' => 'rollback',
+                //     'total' => $new_stock - $old_stock,
+                //     'updated_by' => Auth::user()->id,
+                // ]);
             }
 
             // DELETE
